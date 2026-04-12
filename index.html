@@ -12,7 +12,7 @@ body{background:#0b0f1a;color:#fff;font-family:sans-serif;padding:20px}
 .card{background:#11182b;padding:15px;border-radius:10px;margin-bottom:15px}
 button{padding:10px;margin:5px;background:#3b5cff;color:#fff;border:none;border-radius:6px;cursor:pointer}
 input{width:100%;padding:10px;margin:5px 0;background:#0c1426;color:#fff;border:1px solid #1b2440;border-radius:6px}
-.arc{display:inline-block;padding:10px;background:#3b5cff;border-radius:50%;margin:5px;cursor:pointer;font-size:12px}
+.arc{display:inline-block;padding:10px;background:#3b5cff;border-radius:20px;margin:5px;cursor:pointer;font-size:12px}
 .icon{font-size:22px;margin:10px;cursor:pointer}
 </style>
 </head>
@@ -20,6 +20,20 @@ input{width:100%;padding:10px;margin:5px 0;background:#0c1426;color:#fff;border:
 <body>
 
 <h2>ArcFlow Pro</h2>
+<p style="opacity:0.6;">Arc ecosystem + wallet router in one place</p>
+
+<!-- ARC ECOSYSTEM -->
+<div class="card">
+<h3>Arc Ecosystem</h3>
+
+<div class="arc" onclick="go('https://faucet.circle.com')">Faucet</div>
+<div class="arc" onclick="go('https://discord.gg/buildonarc')">Community</div>
+<div class="arc" onclick="go('https://arc.network')">Arc</div>
+<div class="arc" onclick="go('https://community.arc.network/home')">House</div>
+<div class="arc" onclick="go('https://x.com/arc')">Arc X</div>
+<div class="arc" onclick="go('https://x.com/circle')">Circle</div>
+
+</div>
 
 <!-- WALLET -->
 <div class="card">
@@ -47,7 +61,7 @@ input{width:100%;padding:10px;margin:5px 0;background:#0c1426;color:#fff;border:
 <div id="result"></div>
 </div>
 
-<!-- SOCIAL ICONS -->
+<!-- SOCIAL -->
 <div class="card">
 <h3>Connect</h3>
 
@@ -60,22 +74,9 @@ input{width:100%;padding:10px;margin:5px 0;background:#0c1426;color:#fff;border:
 
 </div>
 
-<!-- ARC LINKS -->
-<div class="card">
-<h3>Arc Ecosystem</h3>
-
-<div class="arc" onclick="go('https://faucet.circle.com')">Faucet</div>
-<div class="arc" onclick="go('https://discord.gg/buildonarc')">Community</div>
-<div class="arc" onclick="go('https://arc.network')">Arc</div>
-<div class="arc" onclick="go('https://community.arc.network/home')">House</div>
-<div class="arc" onclick="go('https://x.com/arc')">Arc X</div>
-<div class="arc" onclick="go('https://x.com/circle')">Circle</div>
-
-</div>
-
 <script>
 
-// ===== CONFIG =====
+// CONFIG
 const ARC_CHAIN = "0x4CE3CA";
 const ARC_RPC = "https://rpc.testnet.arc.network";
 const USDC = "0x3600000000000000000000000000000000000000";
@@ -83,22 +84,21 @@ const DECIMALS = 6;
 
 let provider, signer, user;
 
-// ===== BASIC =====
+// OPEN LINK
 function go(u){window.open(u,"_blank")}
 
-// ===== CONNECT =====
+// CONNECT
 async function connect(){
  try{
   if(!window.ethereum) return alert("Install wallet");
 
   provider = new ethers.providers.Web3Provider(window.ethereum);
-
   await provider.send("eth_requestAccounts",[]);
+
   signer = provider.getSigner();
   user = await signer.getAddress();
 
   document.getElementById("addr").innerText = user;
-
   document.getElementById("status").innerText="Connected";
 
   await loadBalance();
@@ -108,7 +108,7 @@ async function connect(){
  }
 }
 
-// ===== SWITCH NETWORK =====
+// SWITCH NETWORK
 async function switchArc(){
  try{
   await window.ethereum.request({
@@ -128,7 +128,7 @@ async function switchArc(){
  }
 }
 
-// ===== BALANCE =====
+// BALANCE
 async function loadBalance(){
  try{
   const contract = new ethers.Contract(USDC,[
@@ -145,7 +145,7 @@ async function loadBalance(){
  }
 }
 
-// ===== SEND =====
+// SEND
 async function send(){
  try{
   const to = document.getElementById("to").value.trim();
@@ -158,7 +158,6 @@ async function send(){
   ],signer);
 
   const amt = ethers.utils.parseUnits(amount, DECIMALS);
-
   const tx = await contract.transfer(to, amt);
 
   document.getElementById("status").innerText="Tx: "+tx.hash;
@@ -168,7 +167,7 @@ async function send(){
  }
 }
 
-// ===== SCANNER =====
+// SCANNER
 function isAddress(x){return /^0x[a-fA-F0-9]{40}$/.test(x)}
 function isTx(x){return /^0x([A-Fa-f0-9]{64})$/.test(x)}
 
