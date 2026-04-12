@@ -4,8 +4,8 @@
     "name": "ArcFlow Pro",
     "iconUrl": "https://arcflow-router.vercel.app/logo.png",
     "homeUrl": "https://arcflow-router.vercel.app/",
-    "imageUrl": "https://arcflow-router.vercel.app/frame.png?v=6",
-    "buttonTitle": "Open ArcFlow",
+    "imageUrl": "https://arcflow-router.vercel.app/frame.png?v=7",
+    "buttonTitle": "Open App",
     "splashImageUrl": "https://arcflow-router.vercel.app/logo.png",
     "splashBackgroundColor": "#0b0f1a"
   }
