@@ -6,7 +6,10 @@
   <!-- Ethers -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 
-  <!-- WalletConnect v1 -->
+  <!-- Web3Modal -->
+  <script src="https://unpkg.com/web3modal@1.9.12/dist/index.js"></script>
+
+  <!-- WalletConnect -->
   <script src="https://unpkg.com/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
 
   <style>
@@ -16,10 +19,6 @@
       font-family: Arial;
       text-align: center;
       padding: 20px;
-    }
-
-    h1 {
-      margin-top: 40px;
     }
 
     input, button {
@@ -35,11 +34,6 @@
       background: #00c2ff;
       color: black;
       font-weight: bold;
-      cursor: pointer;
-    }
-
-    button:hover {
-      opacity: 0.9;
     }
   </style>
 </head>
@@ -47,7 +41,7 @@
 <body>
 
 <h1>ArcFlow</h1>
-<p>Universal Wallet (Arc Testnet)</p>
+<p>Universal Wallet Support (Arc Testnet)</p>
 
 <button onclick="connectWallet()">Connect Wallet</button>
 
@@ -62,12 +56,10 @@
 
 <script>
 
-// ================= CONFIG =================
 const ARC_CHAIN_ID = 5042002;
 const ARC_CHAIN_ID_HEX = "0x4CE3CA";
 const ARC_RPC = "https://rpc.testnet.arc.network";
 const USDC_ADDRESS = "0x3600000000000000000000000000000000000000";
-// ==========================================
 
 const ERC20_ABI = [
   "function transfer(address to, uint amount) returns (bool)",
@@ -79,41 +71,43 @@ let provider;
 let signer;
 let userAddress;
 
-// Detect mobile
-const isMobile = /android|iphone|ipad/i.test(navigator.userAgent);
+const providerOptions = {
+  walletconnect: {
+    package: window.WalletConnectProvider.default,
+    options: {
+      rpc: {
+        5042002: ARC_RPC
+      }
+    }
+  }
+};
 
-// ================= CONNECT =================
+const web3Modal = new window.Web3Modal.default({
+  cacheProvider: false,
+  providerOptions
+});
+
 async function connectWallet() {
   try {
+    let instance;
 
-    // 🔥 1. Injected wallets (Brave, MetaMask, Rabby)
     if (window.ethereum) {
-      provider = new ethers.providers.Web3Provider(window.ethereum, "any");
-      await provider.send("eth_requestAccounts", []);
+      instance = window.ethereum;
+      await instance.request({ method: "eth_requestAccounts" });
+    } else {
+      instance = await web3Modal.connect();
     }
 
-    // 🔥 2. WalletConnect fallback (OKX, Bitget, Trust etc.)
-    else {
-      const wc = new WalletConnectProvider.default({
-        rpc: {
-          5042002: ARC_RPC
-        }
-      });
-
-      await wc.enable();
-
-      // 🔥 Mobile deep link fix
-      if (isMobile && wc.connector.uri) {
-        window.location.href = wc.connector.uri;
-      }
-
-      provider = new ethers.providers.Web3Provider(wc, "any");
-    }
-
+    provider = new ethers.providers.Web3Provider(instance);
     signer = provider.getSigner();
     userAddress = await signer.getAddress();
 
     await ensureArcNetwork();
+
+    const net = await provider.getNetwork();
+    if (net.chainId !== ARC_CHAIN_ID) {
+      throw new Error("Please switch to Arc Testnet manually");
+    }
 
     document.getElementById("status").innerText =
       "Connected: " + userAddress;
@@ -126,67 +120,73 @@ async function connectWallet() {
   }
 }
 
-// ================= NETWORK =================
 async function ensureArcNetwork() {
   try {
-    const network = await provider.getNetwork();
+    await provider.send("wallet_switchEthereumChain", [
+      { chainId: ARC_CHAIN_ID_HEX }
+    ]);
 
-    if (network.chainId !== ARC_CHAIN_ID) {
-      await provider.send("wallet_switchEthereumChain", [
-        { chainId: ARC_CHAIN_ID_HEX }
-      ]);
+    await new Promise(r => setTimeout(r, 1500));
+
+  } catch (switchError) {
+    try {
+      await provider.send("wallet_addEthereumChain", [{
+        chainId: ARC_CHAIN_ID_HEX,
+        chainName: "Arc Testnet",
+        rpcUrls: [ARC_RPC],
+        nativeCurrency: {
+          name: "USDC",
+          symbol: "USDC",
+          decimals: 18
+        },
+        blockExplorerUrls: ["https://testnet.arcscan.app"]
+      }]);
+
+      await new Promise(r => setTimeout(r, 1500));
+
+    } catch (addError) {
+      throw addError;
     }
-
-  } catch {
-    await provider.send("wallet_addEthereumChain", [{
-      chainId: ARC_CHAIN_ID_HEX,
-      chainName: "Arc Testnet",
-      rpcUrls: [ARC_RPC],
-      nativeCurrency: {
-        name: "USDC",
-        symbol: "USDC",
-        decimals: 18
-      },
-      blockExplorerUrls: ["https://testnet.arcscan.app"]
-    }]);
   }
 }
 
-// ================= BALANCE =================
 async function loadBalance() {
-  const usdc = new ethers.Contract(
-    USDC_ADDRESS,
-    ERC20_ABI,
-    provider
-  );
+  try {
+    const usdc = new ethers.Contract(
+      USDC_ADDRESS,
+      ERC20_ABI,
+      provider
+    );
 
-  const bal = await usdc.balanceOf(userAddress);
-  const dec = await usdc.decimals();
+    const bal = await usdc.balanceOf(userAddress);
+    const dec = await usdc.decimals();
 
-  document.getElementById("balance").innerText =
-    "Balance: " + ethers.utils.formatUnits(bal, dec) + " USDC";
+    document.getElementById("balance").innerText =
+      "Balance: " + ethers.utils.formatUnits(bal, dec) + " USDC";
+
+  } catch {
+    document.getElementById("balance").innerText =
+      "Balance load failed";
+  }
 }
 
-// ================= ROUTE =================
 function smartRoute(amount) {
   return amount < 50 ? "direct" : "bridge";
 }
 
-// ================= SEND =================
 async function send() {
   try {
     const to = document.getElementById("address").value;
     const amount = document.getElementById("amount").value;
 
     if (!to || !amount) {
-      alert("Enter address & amount");
+      alert("Enter values");
       return;
     }
 
     const route = smartRoute(parseFloat(amount));
 
     if (route === "direct") {
-
       const usdc = new ethers.Contract(
         USDC_ADDRESS,
         ERC20_ABI,
@@ -199,11 +199,11 @@ async function send() {
       const tx = await usdc.transfer(to, amt);
 
       document.getElementById("status").innerText =
-        "Tx Sent: " + tx.hash;
+        "Tx sent: " + tx.hash;
 
     } else {
       document.getElementById("status").innerText =
-        "Bridge route (coming soon)";
+        "Bridge route (coming next)";
     }
 
   } catch (err) {
@@ -215,4 +215,4 @@ async function send() {
 </script>
 
 </body>
-</html>
+  </html>
