@@ -3,8 +3,11 @@
 <head>
   <title>ArcFlow</title>
 
-  <!-- Ethers -->
-  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
+  <!-- ✅ FIXED ETHERS (working CDN) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+
+  <!-- WalletConnect -->
+  <script src="https://unpkg.com/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
 
   <style>
     body {
@@ -20,218 +23,208 @@
       margin: 8px;
       border-radius: 8px;
       border: none;
-      width: 90%;
-      max-width: 320px;
+      width: 80%;
+      max-width: 300px;
     }
 
     button {
       background: #00c2ff;
       color: black;
       font-weight: bold;
+      cursor: pointer;
     }
 
-    button:disabled {
-      opacity: 0.6;
-    }
-
-    #txs p {
-      font-size: 12px;
-      opacity: 0.8;
+    h1 {
+      margin-top: 30px;
     }
   </style>
 </head>
 
 <body>
 
-  <h1>ArcFlow</h1>
-  <p>Arc Testnet Value Router</p>
+<h1>ArcFlow</h1>
+<p>Arc Testnet Value Router</p>
 
-  <button onclick="connectWallet()">Connect Wallet</button>
+<button onclick="connectWallet()">Connect Wallet</button>
+<button onclick="connectWalletConnect()">WalletConnect</button>
 
-  <p id="balance">Balance: --</p>
+<p id="balance">Balance: --</p>
 
-  <input id="address" placeholder="Recipient address" />
-  <input id="amount" placeholder="Amount (USDC)" />
+<input id="address" placeholder="Recipient address" />
+<input id="amount" placeholder="Amount (USDC)" />
 
-  <button id="sendBtn" onclick="send()">Send Smart</button>
+<button onclick="send()">Send Smart</button>
 
-  <p id="status"></p>
-
-  <h3>Recent Transactions</h3>
-  <div id="txs"></div>
+<p id="status"></p>
 
 <script>
 
-// ===== ARC CONFIG =====
-const ARC_CHAIN_ID = 5042002;
+// ================= CONFIG =================
+
+const ARC_CHAIN_ID = "0x4CE3CA"; // 5042002 in hex
 const ARC_RPC = "https://rpc.testnet.arc.network";
+const USDC_ADDRESS = "0x3600000000000000000000000000000000000000";
+
+// ==========================================
+
+// ERC20 ABI
+const ERC20_ABI = [
+  "function transfer(address to, uint amount) returns (bool)",
+  "function decimals() view returns (uint8)",
+  "function balanceOf(address owner) view returns (uint256)"
+];
 
 let provider;
 let signer;
 let userAddress = "";
 
-
-// 🔹 CONNECT (STABLE VERSION)
+// 🔹 CONNECT (MetaMask, Brave, Rabby, OKX, Bitget)
 async function connectWallet() {
-
   if (!window.ethereum) {
-    alert("Open in MetaMask / OKX / Trust Wallet browser");
+    alert("No wallet found");
     return;
   }
 
   try {
     provider = new ethers.providers.Web3Provider(window.ethereum);
 
+    // Request accounts
     await provider.send("eth_requestAccounts", []);
 
-    // Try switching network
-    try {
-      await window.ethereum.request({
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId: "0x" + ARC_CHAIN_ID.toString(16) }]
-      });
-    } catch (e) {
-      // Add network if not present
-      await window.ethereum.request({
-        method: "wallet_addEthereumChain",
-        params: [{
-          chainId: "0x" + ARC_CHAIN_ID.toString(16),
-          chainName: "Arc Testnet",
-          rpcUrls: [ARC_RPC],
-          nativeCurrency: {
-            name: "USDC",
-            symbol: "USDC",
-            decimals: 18
-          }
-        }]
-      });
-    }
+    // Switch to Arc network
+    await switchToArc();
 
     signer = provider.getSigner();
     userAddress = await signer.getAddress();
 
-    setStatus("Connected: " + short(userAddress));
+    document.getElementById("status").innerText =
+      "Connected: " + userAddress;
+
     loadBalance();
 
   } catch (err) {
-    console.error(err);
-    setStatus("Error: " + err.message);
+    document.getElementById("status").innerText =
+      "Error: " + err.message;
   }
 }
 
+// 🔹 WALLET CONNECT
+async function connectWalletConnect() {
+  try {
+    const wcProvider = new WalletConnectProvider.default({
+      rpc: {
+        5042002: ARC_RPC
+      }
+    });
+
+    await wcProvider.enable();
+
+    provider = new ethers.providers.Web3Provider(wcProvider);
+    signer = provider.getSigner();
+    userAddress = await signer.getAddress();
+
+    document.getElementById("status").innerText =
+      "WalletConnect: " + userAddress;
+
+    loadBalance();
+
+  } catch (err) {
+    document.getElementById("status").innerText =
+      "WC Error: " + err.message;
+  }
+}
+
+// 🔹 SWITCH NETWORK
+async function switchToArc() {
+  try {
+    await window.ethereum.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: ARC_CHAIN_ID }]
+    });
+  } catch (switchError) {
+
+    // Add network if not exists
+    await window.ethereum.request({
+      method: "wallet_addEthereumChain",
+      params: [{
+        chainId: ARC_CHAIN_ID,
+        chainName: "Arc Testnet",
+        rpcUrls: [ARC_RPC],
+        nativeCurrency: {
+          name: "USDC",
+          symbol: "USDC",
+          decimals: 18
+        },
+        blockExplorerUrls: ["https://testnet.arcscan.app"]
+      }]
+    });
+  }
+}
 
 // 🔹 LOAD BALANCE
 async function loadBalance() {
   try {
-    const balance = await provider.getBalance(userAddress);
-    const formatted = ethers.utils.formatUnits(balance, 18);
+    const usdc = new ethers.Contract(
+      USDC_ADDRESS,
+      ERC20_ABI,
+      provider
+    );
+
+    const balance = await usdc.balanceOf(userAddress);
+    const decimals = await usdc.decimals();
+
+    const formatted = ethers.utils.formatUnits(balance, decimals);
 
     document.getElementById("balance").innerText =
-      "Balance: " + parseFloat(formatted).toFixed(4) + " USDC";
+      "Balance: " + formatted + " USDC";
 
-  } catch {}
+  } catch (err) {
+    console.log(err);
+  }
 }
 
-
-// 🔹 ROUTING
+// 🔹 ROUTING LOGIC
 function smartRoute(amount) {
   return amount < 50 ? "direct" : "bridge";
 }
 
-
 // 🔹 SEND
 async function send() {
+  const to = document.getElementById("address").value;
+  const amount = document.getElementById("amount").value;
 
-  const btn = document.getElementById("sendBtn");
-  btn.disabled = true;
-
-  try {
-    const to = document.getElementById("address").value.trim();
-    const amount = document.getElementById("amount").value.trim();
-
-    if (!ethers.utils.isAddress(to)) {
-      throw new Error("Invalid address");
-    }
-
-    if (!amount || isNaN(amount) || Number(amount) <= 0) {
-      throw new Error("Invalid amount");
-    }
-
-    if (!signer) {
-      throw new Error("Connect wallet first");
-    }
-
-    const route = smartRoute(amount);
-
-    if (route === "direct") {
-
-      setStatus("Sending...");
-
-      const tx = await signer.sendTransaction({
-        to: to,
-        value: ethers.utils.parseUnits(amount, 18)
-      });
-
-      setStatus("Sent: " + short(tx.hash));
-
-      addTx(tx.hash, amount, to);
-      setTimeout(loadBalance, 3000);
-
-    } else {
-      await bridgeUSDC(to, amount);
-    }
-
-  } catch (err) {
-    setStatus("Error: " + err.message);
+  if (!to || !amount) {
+    alert("Enter address & amount");
+    return;
   }
 
-  btn.disabled = false;
-}
+  const route = smartRoute(parseFloat(amount));
 
+  if (route === "direct") {
+    try {
+      const usdc = new ethers.Contract(
+        USDC_ADDRESS,
+        ERC20_ABI,
+        signer
+      );
 
-// 🔹 BRIDGE (UX SIMULATION)
-async function bridgeUSDC(to, amount) {
+      const decimals = await usdc.decimals();
+      const parsedAmount = ethers.utils.parseUnits(amount, decimals);
 
-  setStatus("Initiating bridge...");
+      const tx = await usdc.transfer(to, parsedAmount);
 
-  const tx = await signer.sendTransaction({
-    to: to,
-    value: ethers.utils.parseUnits("0.001", 18)
-  });
+      document.getElementById("status").innerText =
+        "Tx Sent: " + tx.hash;
 
-  addTx(tx.hash, amount, to);
+    } catch (err) {
+      document.getElementById("status").innerText =
+        "Error: " + err.message;
+    }
 
-  setStatus("Bridge TX: " + short(tx.hash));
-
-  setTimeout(() => {
-    setStatus("Attestation received...");
-  }, 4000);
-
-  setTimeout(() => {
-    setStatus("USDC received on destination chain");
-  }, 8000);
-}
-
-
-// 🔹 TX HISTORY
-function addTx(hash, amount, to) {
-  const el = document.getElementById("txs");
-
-  const item = document.createElement("p");
-  item.innerText =
-    amount + " → " + short(to) + " | " + short(hash);
-
-  el.prepend(item);
-}
-
-
-// 🔹 HELPERS
-function short(x) {
-  return x.slice(0,6) + "..." + x.slice(-4);
-}
-
-function setStatus(msg) {
-  document.getElementById("status").innerText = msg;
+  } else {
+    document.getElementById("status").innerText =
+      "Bridge route (next upgrade)";
+  }
 }
 
 </script>
