@@ -4,21 +4,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>ArcFlow Pro</title>
 
-<!-- Farcaster Frame FINAL -->
+<!-- FARCASTER FRAME -->
 <meta property="fc:frame" content="vNext" />
-
-<meta property="fc:frame:image" content="https://arcflow-router.vercel.app/frame.png?v=7" />
-
+<meta property="fc:frame:image" content="https://arcflow-router.vercel.app/frame.png?v=10" />
+<meta property="fc:frame:image:aspect_ratio" content="1.91:1" />
 <meta property="fc:frame:button:1" content="Open App" />
 <meta property="fc:frame:button:1:action" content="link" />
 <meta property="fc:frame:button:1:target" content="https://arcflow-router.vercel.app/" />
 
-<meta property="fc:frame:post_url" content="https://arcflow-router.vercel.app/" />
-
-<!-- Open Graph -->
+<!-- OPEN GRAPH -->
 <meta property="og:title" content="ArcFlow Pro" />
 <meta property="og:description" content="Arc ecosystem + wallet router in one place" />
-<meta property="og:image" content="https://arcflow-router.vercel.app/frame.png?v=7" />
+<meta property="og:image" content="https://arcflow-router.vercel.app/frame.png?v=10" />
 <meta property="og:url" content="https://arcflow-router.vercel.app/" />
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
@@ -30,7 +27,6 @@ body{background:#0b0f1a;color:#fff;font-family:sans-serif;padding:20px}
 button{padding:10px;margin:5px;background:#3b5cff;color:#fff;border:none;border-radius:6px;cursor:pointer}
 input{width:100%;padding:10px;margin:5px 0;background:#0c1426;color:#fff;border:1px solid #1b2440;border-radius:6px}
 
-/* LOGO */
 .logo-top-right{
   position: fixed;
   top: 15px;
@@ -44,7 +40,6 @@ input{width:100%;padding:10px;margin:5px 0;background:#0c1426;color:#fff;border:
   padding: 6px;
 }
 
-/* ARC BUTTON FIX */
 .arc-container{
   display:flex;
   overflow-x:auto;
@@ -69,7 +64,6 @@ input{width:100%;padding:10px;margin:5px 0;background:#0c1426;color:#fff;border:
 
 <body>
 
-<!-- ✅ LOGO -->
 <a href="https://arc.network" target="_blank">
   <img src="./logo.png" class="logo-top-right"/>
 </a>
@@ -77,10 +71,8 @@ input{width:100%;padding:10px;margin:5px 0;background:#0c1426;color:#fff;border:
 <h2>ArcFlow Pro</h2>
 <p style="opacity:0.6;">Arc ecosystem + wallet router in one place</p>
 
-<!-- ARC ECOSYSTEM -->
 <div class="card">
 <h3>Arc Ecosystem</h3>
-
 <div class="arc-container">
   <div class="arc" onclick="go('https://faucet.circle.com')">Faucet</div>
   <div class="arc" onclick="go('https://discord.gg/buildonarc')">Discord</div>
@@ -89,20 +81,16 @@ input{width:100%;padding:10px;margin:5px 0;background:#0c1426;color:#fff;border:
   <div class="arc" onclick="go('https://x.com/arc')">Arc X</div>
   <div class="arc" onclick="go('https://x.com/circle')">Circle X</div>
 </div>
-
 </div>
 
-<!-- WALLET -->
 <div class="card">
 <button onclick="connect()">Connect</button>
 <button onclick="switchArc()">Switch Arc</button>
-
 <p id="addr">—</p>
 <p id="bal">—</p>
 <p id="status">Idle</p>
 </div>
 
-<!-- SEND -->
 <div class="card">
 <h3>Send USDC</h3>
 <input id="to" placeholder="Recipient address"/>
@@ -110,7 +98,6 @@ input{width:100%;padding:10px;margin:5px 0;background:#0c1426;color:#fff;border:
 <button onclick="send()">Send</button>
 </div>
 
-<!-- SCANNER -->
 <div class="card">
 <h3>Arc Scanner</h3>
 <input id="search" placeholder="Address / Tx Hash"/>
@@ -118,21 +105,17 @@ input{width:100%;padding:10px;margin:5px 0;background:#0c1426;color:#fff;border:
 <div id="result"></div>
 </div>
 
-<!-- SOCIAL -->
 <div class="card">
 <h3>Connect</h3>
-
 <i class="fab fa-x-twitter icon" onclick="go('https://x.com/pawansatoshix')"></i>
 <i class="fab fa-github icon" onclick="go('https://github.com/pawansatoshi')"></i>
 <i class="fab fa-youtube icon" onclick="go('https://youtube.com/@PawanSatoshi')"></i>
 <i class="fab fa-telegram icon" onclick="go('https://t.me/pawansatoshi')"></i>
 <i class="fas fa-envelope icon" onclick="go('mailto:pawansatoshi@gmail.com')"></i>
 <i class="fab fa-discord icon" onclick="go('https://discord.com/channels/1214957080218435634/1214957080654512250')"></i>
-
 </div>
 
 <script>
-
 const ARC_CHAIN = "0x4CE3CA";
 const ARC_RPC = "https://rpc.testnet.arc.network";
 const USDC = "0x3600000000000000000000000000000000000000";
@@ -142,7 +125,6 @@ let provider, signer, user;
 
 function go(u){window.open(u,"_blank")}
 
-// CONNECT
 async function connect(){
  try{
   if(!window.ethereum) return alert("Install wallet");
@@ -163,7 +145,6 @@ async function connect(){
  }
 }
 
-// SWITCH NETWORK
 async function switchArc(){
  try{
   await window.ethereum.request({
@@ -183,7 +164,6 @@ async function switchArc(){
  }
 }
 
-// BALANCE
 async function loadBalance(){
  try{
   const contract = new ethers.Contract(USDC,[
@@ -200,7 +180,6 @@ async function loadBalance(){
  }
 }
 
-// SEND
 async function send(){
  try{
   const to = document.getElementById("to").value.trim();
@@ -222,7 +201,6 @@ async function send(){
  }
 }
 
-// SCANNER
 function isAddress(x){return /^0x[a-fA-F0-9]{40}$/.test(x)}
 function isTx(x){return /^0x([A-Fa-f0-9]{64})$/.test(x)}
 
@@ -272,8 +250,7 @@ async function scan(){
   out.innerHTML="Error";
  }
 }
-
 </script>
 
 </body>
- </html>
+  </html>
