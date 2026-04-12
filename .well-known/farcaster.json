@@ -1,12 +1,9 @@
-{
-  "frame": {
-    "version": "1",
-    "name": "ArcFlow Pro",
-    "iconUrl": "https://arcflow-router.vercel.app/logo.png",
-    "homeUrl": "https://arcflow-router.vercel.app/",
-    "imageUrl": "https://arcflow-router.vercel.app/frame.png?v=4",
-    "buttonTitle": "Open ArcFlow",
-    "splashImageUrl": "https://arcflow-router.vercel.app/logo.png",
-    "splashBackgroundColor": "#0b0f1a"
-  }
-}
+<!-- Farcaster Frame FINAL -->
+<meta property="fc:frame" content="vNext" />
+<meta property="fc:frame:image" content="https://arcflow-router.vercel.app/frame.png?v=6" />
+
+<meta property="fc:frame:button:1" content="Open ArcFlow" />
+<meta property="fc:frame:button:1:action" content="link" />
+<meta property="fc:frame:button:1:target" content="https://arcflow-router.vercel.app/" />
+
+<meta property="fc:frame:post_url" content="https://arcflow-router.vercel.app/" />
