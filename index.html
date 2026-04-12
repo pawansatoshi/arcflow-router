@@ -3,6 +3,12 @@
 <head>
   <title>ArcFlow</title>
 
+  <!-- Ethers -->
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
+
+  <!-- WalletConnect v2 -->
+  <script src="https://cdn.jsdelivr.net/npm/@walletconnect/ethereum-provider@2.10.0/dist/index.umd.min.js"></script>
+
   <style>
     body {
       background: #0d1117;
@@ -11,12 +17,16 @@
       text-align: center;
       padding: 20px;
     }
+
     input, button {
       padding: 12px;
       margin: 8px;
       border-radius: 8px;
       border: none;
+      width: 90%;
+      max-width: 320px;
     }
+
     button {
       background: #00c2ff;
       color: black;
@@ -28,7 +38,7 @@
 <body>
 
   <h1>ArcFlow</h1>
-  <p>Smart Value Router</p>
+  <p>Universal Value Router (Arc Testnet)</p>
 
   <button onclick="connectWallet()">Connect Wallet</button>
 
@@ -43,7 +53,129 @@
 
   <p id="status"></p>
 
-  <script src="app.js"></script>
+<script>
+
+// ================= ARC CONFIG =================
+
+const ARC_CHAIN_ID = 5042002;
+const ARC_RPC = "https://rpc.testnet.arc.network";
+
+// ==============================================
+
+let provider;
+let signer;
+let userAddress = "";
+
+
+// 🔹 UNIVERSAL CONNECT (ALL WALLETS)
+async function connectWallet() {
+
+  // 1️⃣ Try Injected Wallet (MetaMask, Rabby, OKX, Bitget)
+  if (window.ethereum) {
+    try {
+      provider = new ethers.providers.Web3Provider(window.ethereum);
+
+      await provider.send("eth_requestAccounts", []);
+
+      // 🔹 Ensure Arc Network
+      try {
+        await window.ethereum.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: "0x" + ARC_CHAIN_ID.toString(16) }]
+        });
+      } catch (switchError) {
+        alert("Please switch to Arc Testnet in your wallet");
+      }
+
+      signer = provider.getSigner();
+      userAddress = await signer.getAddress();
+
+      document.getElementById("status").innerText =
+        "Connected (Injected): " + userAddress;
+
+      return;
+
+    } catch (err) {
+      console.log("Injected failed, fallback to WalletConnect");
+    }
+  }
+
+  // 2️⃣ WalletConnect v2 (ALL mobile wallets)
+  try {
+    const wcProvider = await EthereumProvider.init({
+      projectId: "demo", // replace later if needed
+      chains: [ARC_CHAIN_ID],
+      rpcMap: {
+        [ARC_CHAIN_ID]: ARC_RPC
+      },
+      showQrModal: true
+    });
+
+    await wcProvider.enable();
+
+    provider = new ethers.providers.Web3Provider(wcProvider);
+    signer = provider.getSigner();
+    userAddress = await signer.getAddress();
+
+    document.getElementById("status").innerText =
+      "Connected (WalletConnect): " + userAddress;
+
+  } catch (err) {
+    document.getElementById("status").innerText =
+      "Connection failed";
+  }
+}
+
+
+// 🔹 SMART ROUTING
+function smartRoute(amount) {
+  return amount < 50 ? "direct" : "bridge";
+}
+
+
+// 🔹 SEND NATIVE USDC (ARC)
+async function send() {
+
+  const to = document.getElementById("address").value;
+  const amount = document.getElementById("amount").value;
+
+  if (!to || !amount) {
+    alert("Enter address & amount");
+    return;
+  }
+
+  if (!signer) {
+    alert("Connect wallet first");
+    return;
+  }
+
+  const route = smartRoute(amount);
+
+  if (route === "direct") {
+
+    try {
+      const tx = await signer.sendTransaction({
+        to: to,
+        value: ethers.utils.parseUnits(amount, 18)
+      });
+
+      document.getElementById("status").innerText =
+        "Transaction Sent: " + tx.hash;
+
+    } catch (err) {
+      document.getElementById("status").innerText =
+        "Error: " + err.message;
+    }
+
+  } else {
+
+    document.getElementById("status").innerText =
+      "Bridge route (CCTP coming next)";
+
+  }
+}
+
+</script>
 
 </body>
-  </html>
+                                                                                                             </html>
