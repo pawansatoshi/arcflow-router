@@ -6,9 +6,6 @@
   <!-- Ethers -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
 
-  <!-- WalletConnect v2 -->
-  <script src="https://cdn.jsdelivr.net/npm/@walletconnect/ethereum-provider@2.10.0/dist/index.umd.min.js"></script>
-
   <style>
     body {
       background: #0d1117;
@@ -47,7 +44,7 @@
 <body>
 
   <h1>ArcFlow</h1>
-  <p>Universal Value Router (Arc Testnet)</p>
+  <p>Arc Testnet Value Router</p>
 
   <button onclick="connectWallet()">Connect Wallet</button>
 
@@ -68,76 +65,57 @@
 // ===== ARC CONFIG =====
 const ARC_CHAIN_ID = 5042002;
 const ARC_RPC = "https://rpc.testnet.arc.network";
-// ======================
 
 let provider;
 let signer;
 let userAddress = "";
 
 
-// 🔹 CONNECT UNIVERSAL
+// 🔹 CONNECT (STABLE VERSION)
 async function connectWallet() {
 
-  try {
-    if (window.ethereum) {
-      provider = new ethers.providers.Web3Provider(window.ethereum);
-
-      await provider.send("eth_requestAccounts", []);
-
-      // Try switch
-      try {
-        await window.ethereum.request({
-          method: "wallet_switchEthereumChain",
-          params: [{ chainId: "0x" + ARC_CHAIN_ID.toString(16) }]
-        });
-      } catch (e) {
-        // Add network if missing
-        await window.ethereum.request({
-          method: "wallet_addEthereumChain",
-          params: [{
-            chainId: "0x" + ARC_CHAIN_ID.toString(16),
-            chainName: "Arc Testnet",
-            rpcUrls: [ARC_RPC],
-            nativeCurrency: {
-              name: "USDC",
-              symbol: "USDC",
-              decimals: 18
-            }
-          }]
-        });
-      }
-
-      signer = provider.getSigner();
-      userAddress = await signer.getAddress();
-
-      setStatus("Connected: " + short(userAddress));
-      loadBalance();
-      return;
-    }
-  } catch (err) {
-    console.log("Injected failed");
+  if (!window.ethereum) {
+    alert("Open in MetaMask / OKX / Trust Wallet browser");
+    return;
   }
 
-  // WalletConnect fallback
   try {
-    const wcProvider = await EthereumProvider.init({
-      projectId: "demo",
-      chains: [ARC_CHAIN_ID],
-      rpcMap: { [ARC_CHAIN_ID]: ARC_RPC },
-      showQrModal: true
-    });
+    provider = new ethers.providers.Web3Provider(window.ethereum);
 
-    await wcProvider.enable();
+    await provider.send("eth_requestAccounts", []);
 
-    provider = new ethers.providers.Web3Provider(wcProvider);
+    // Try switching network
+    try {
+      await window.ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: "0x" + ARC_CHAIN_ID.toString(16) }]
+      });
+    } catch (e) {
+      // Add network if not present
+      await window.ethereum.request({
+        method: "wallet_addEthereumChain",
+        params: [{
+          chainId: "0x" + ARC_CHAIN_ID.toString(16),
+          chainName: "Arc Testnet",
+          rpcUrls: [ARC_RPC],
+          nativeCurrency: {
+            name: "USDC",
+            symbol: "USDC",
+            decimals: 18
+          }
+        }]
+      });
+    }
+
     signer = provider.getSigner();
     userAddress = await signer.getAddress();
 
-    setStatus("Connected (WC): " + short(userAddress));
+    setStatus("Connected: " + short(userAddress));
     loadBalance();
 
   } catch (err) {
-    setStatus("Connection failed");
+    console.error(err);
+    setStatus("Error: " + err.message);
   }
 }
 
@@ -259,4 +237,4 @@ function setStatus(msg) {
 </script>
 
 </body>
-    </html>
+  </html>
