@@ -12,12 +12,50 @@ body{background:#0b0f1a;color:#fff;font-family:sans-serif;padding:20px}
 .card{background:#11182b;padding:15px;border-radius:10px;margin-bottom:15px}
 button{padding:10px;margin:5px;background:#3b5cff;color:#fff;border:none;border-radius:6px;cursor:pointer}
 input{width:100%;padding:10px;margin:5px 0;background:#0c1426;color:#fff;border:1px solid #1b2440;border-radius:6px}
-.arc{display:inline-block;padding:10px;background:#3b5cff;border-radius:20px;margin:5px;cursor:pointer;font-size:12px}
+
+/* LOGO */
+.logo-top-right{
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  z-index: 999;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.05);
+  padding: 6px;
+}
+
+/* ARC BUTTON FIX */
+.arc-container{
+  display:flex;
+  overflow-x:auto;
+  gap:8px;
+  padding-bottom:5px;
+}
+.arc-container::-webkit-scrollbar{display:none;}
+
+.arc{
+  flex:0 0 auto;
+  padding:10px 14px;
+  background:#3b5cff;
+  border-radius:20px;
+  cursor:pointer;
+  font-size:12px;
+  white-space:nowrap;
+}
+
 .icon{font-size:22px;margin:10px;cursor:pointer}
 </style>
 </head>
 
 <body>
+
+<!-- ✅ LOGO -->
+<a href="https://arc.network" target="_blank">
+  <img src="./logo.png" class="logo-top-right"/>
+</a>
 
 <h2>ArcFlow Pro</h2>
 <p style="opacity:0.6;">Arc ecosystem + wallet router in one place</p>
@@ -26,12 +64,14 @@ input{width:100%;padding:10px;margin:5px 0;background:#0c1426;color:#fff;border:
 <div class="card">
 <h3>Arc Ecosystem</h3>
 
-<div class="arc" onclick="go('https://faucet.circle.com')">Faucet</div>
-<div class="arc" onclick="go('https://discord.gg/buildonarc')">Discord</div>
-<div class="arc" onclick="go('https://arc.network')">Arc Hub</div>
-<div class="arc" onclick="go('https://community.arc.network/home')">House</div>
-<div class="arc" onclick="go('https://x.com/arc')">Arc X</div>
-<div class="arc" onclick="go('https://x.com/circle')">Circle X</div>
+<div class="arc-container">
+  <div class="arc" onclick="go('https://faucet.circle.com')">Faucet</div>
+  <div class="arc" onclick="go('https://discord.gg/buildonarc')">Discord</div>
+  <div class="arc" onclick="go('https://arc.network')">Arc Hub</div>
+  <div class="arc" onclick="go('https://community.arc.network/home')">House</div>
+  <div class="arc" onclick="go('https://x.com/arc')">Arc X</div>
+  <div class="arc" onclick="go('https://x.com/circle')">Circle X</div>
+</div>
 
 </div>
 
@@ -76,7 +116,6 @@ input{width:100%;padding:10px;margin:5px 0;background:#0c1426;color:#fff;border:
 
 <script>
 
-// CONFIG
 const ARC_CHAIN = "0x4CE3CA";
 const ARC_RPC = "https://rpc.testnet.arc.network";
 const USDC = "0x3600000000000000000000000000000000000000";
@@ -84,7 +123,6 @@ const DECIMALS = 6;
 
 let provider, signer, user;
 
-// OPEN LINK
 function go(u){window.open(u,"_blank")}
 
 // CONNECT
