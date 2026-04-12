@@ -6,7 +6,7 @@
   <!-- Ethers -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 
-  <!-- WalletConnect v2 FIXED -->
+  <!-- WalletConnect v2 -->
   <script src="https://unpkg.com/@walletconnect/ethereum-provider@2.11.0/dist/index.umd.min.js"></script>
 
   <style>
@@ -59,10 +59,11 @@ const ARC_RPC = "https://rpc.testnet.arc.network";
 const PROJECT_ID = "a0031066837361c93d02ae2f139acc98";
 const USDC_ADDRESS = "0x3600000000000000000000000000000000000000";
 
-// ===== ABI =====
+// ⚠️ FIX: Arc USDC uses 6 decimals (NOT dynamic)
+const DECIMALS = 6;
+
 const ERC20_ABI = [
   "function transfer(address to, uint amount) returns (bool)",
-  "function decimals() view returns (uint8)",
   "function balanceOf(address owner) view returns (uint256)"
 ];
 
@@ -89,10 +90,9 @@ async function connectInjected() {
   }
 }
 
-// ===== WALLETCONNECT FIXED =====
+// ===== WALLETCONNECT FIX =====
 async function connectWC() {
   try {
-
     const EthereumProvider = window["@walletconnect/ethereum-provider"].EthereumProvider;
 
     const wcProvider = await EthereumProvider.init({
@@ -101,7 +101,7 @@ async function connectWC() {
       rpcMap: {
         [ARC_CHAIN_ID]: ARC_RPC
       },
-      showQrModal: true,
+      showQrModal: true, // desktop QR
     });
 
     await wcProvider.enable();
@@ -120,22 +120,23 @@ async function connectWC() {
   }
 }
 
-// ===== BALANCE =====
+// ===== BALANCE (FIXED) =====
 async function loadBalance() {
   try {
     const usdc = new ethers.Contract(USDC_ADDRESS, ERC20_ABI, provider);
+
     const bal = await usdc.balanceOf(userAddress);
-    const dec = await usdc.decimals();
 
     document.getElementById("balance").innerText =
-      "Balance: " + ethers.utils.formatUnits(bal, dec) + " USDC";
+      "Balance: " + ethers.utils.formatUnits(bal, DECIMALS) + " USDC";
 
   } catch (e) {
-    console.log(e);
+    document.getElementById("balance").innerText =
+      "Balance load failed";
   }
 }
 
-// ===== SEND =====
+// ===== SEND (FIXED) =====
 async function send() {
   try {
     const to = document.getElementById("address").value;
@@ -145,13 +146,12 @@ async function send() {
 
     const usdc = new ethers.Contract(USDC_ADDRESS, ERC20_ABI, signer);
 
-    const dec = await usdc.decimals();
-    const amt = ethers.utils.parseUnits(amount, dec);
+    const amt = ethers.utils.parseUnits(amount, DECIMALS);
 
     const tx = await usdc.transfer(to, amt);
 
     document.getElementById("status").innerText =
-      "Tx: " + tx.hash;
+      "Tx sent: " + tx.hash;
 
   } catch (err) {
     document.getElementById("status").innerText = err.message;
