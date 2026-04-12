@@ -32,6 +32,11 @@
       color: black;
       font-weight: bold;
     }
+
+    #txs p {
+      font-size: 12px;
+      opacity: 0.8;
+    }
   </style>
 </head>
 
@@ -42,24 +47,23 @@
 
   <button onclick="connectWallet()">Connect Wallet</button>
 
-  <br>
+  <p id="balance">Balance: --</p>
 
   <input id="address" placeholder="Recipient address" />
   <input id="amount" placeholder="Amount (USDC)" />
-
-  <br>
 
   <button onclick="send()">Send Smart</button>
 
   <p id="status"></p>
 
+  <h3>Recent Transactions</h3>
+  <div id="txs"></div>
+
 <script>
 
 // ================= ARC CONFIG =================
-
 const ARC_CHAIN_ID = 5042002;
 const ARC_RPC = "https://rpc.testnet.arc.network";
-
 // ==============================================
 
 let provider;
@@ -67,43 +71,39 @@ let signer;
 let userAddress = "";
 
 
-// 🔹 UNIVERSAL CONNECT (ALL WALLETS)
+// 🔹 CONNECT UNIVERSAL (ALL WALLETS)
 async function connectWallet() {
 
-  // 1️⃣ Try Injected Wallet (MetaMask, Rabby, OKX, Bitget)
+  // Injected wallets (MetaMask, Rabby, OKX, Bitget)
   if (window.ethereum) {
     try {
       provider = new ethers.providers.Web3Provider(window.ethereum);
 
       await provider.send("eth_requestAccounts", []);
 
-      // 🔹 Ensure Arc Network
-      try {
-        await window.ethereum.request({
-          method: "wallet_switchEthereumChain",
-          params: [{ chainId: "0x" + ARC_CHAIN_ID.toString(16) }]
-        });
-      } catch (switchError) {
-        alert("Please switch to Arc Testnet in your wallet");
-      }
+      await window.ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: "0x" + ARC_CHAIN_ID.toString(16) }]
+      });
 
       signer = provider.getSigner();
       userAddress = await signer.getAddress();
 
       document.getElementById("status").innerText =
-        "Connected (Injected): " + userAddress;
+        "Connected: " + userAddress;
 
+      loadBalance();
       return;
 
     } catch (err) {
-      console.log("Injected failed, fallback to WalletConnect");
+      console.log("Injected failed, fallback...");
     }
   }
 
-  // 2️⃣ WalletConnect v2 (ALL mobile wallets)
+  // WalletConnect fallback
   try {
     const wcProvider = await EthereumProvider.init({
-      projectId: "demo", // replace later if needed
+      projectId: "demo",
       chains: [ARC_CHAIN_ID],
       rpcMap: {
         [ARC_CHAIN_ID]: ARC_RPC
@@ -120,6 +120,8 @@ async function connectWallet() {
     document.getElementById("status").innerText =
       "Connected (WalletConnect): " + userAddress;
 
+    loadBalance();
+
   } catch (err) {
     document.getElementById("status").innerText =
       "Connection failed";
@@ -127,13 +129,28 @@ async function connectWallet() {
 }
 
 
-// 🔹 SMART ROUTING
+// 🔹 LOAD BALANCE (ARC NATIVE USDC)
+async function loadBalance() {
+  try {
+    const balance = await provider.getBalance(userAddress);
+    const formatted = ethers.utils.formatUnits(balance, 18);
+
+    document.getElementById("balance").innerText =
+      "Balance: " + parseFloat(formatted).toFixed(4) + " USDC";
+
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+
+// 🔹 ROUTING LOGIC
 function smartRoute(amount) {
   return amount < 50 ? "direct" : "bridge";
 }
 
 
-// 🔹 SEND NATIVE USDC (ARC)
+// 🔹 SEND TRANSACTION (ARC NATIVE USDC)
 async function send() {
 
   const to = document.getElementById("address").value;
@@ -154,13 +171,20 @@ async function send() {
   if (route === "direct") {
 
     try {
+      document.getElementById("status").innerText =
+        "Sending...";
+
       const tx = await signer.sendTransaction({
         to: to,
         value: ethers.utils.parseUnits(amount, 18)
       });
 
       document.getElementById("status").innerText =
-        "Transaction Sent: " + tx.hash;
+        "Tx Sent: " + tx.hash;
+
+      addTx(tx.hash, amount, to);
+
+      setTimeout(loadBalance, 3000);
 
     } catch (err) {
       document.getElementById("status").innerText =
@@ -168,14 +192,24 @@ async function send() {
     }
 
   } else {
-
     document.getElementById("status").innerText =
       "Bridge route (CCTP coming next)";
-
   }
+}
+
+
+// 🔹 LOCAL TX HISTORY
+function addTx(hash, amount, to) {
+  const el = document.getElementById("txs");
+
+  const item = document.createElement("p");
+  item.innerText =
+    "Sent " + amount + " → " + to.slice(0,6) + "... | " + hash.slice(0,10);
+
+  el.prepend(item);
 }
 
 </script>
 
 </body>
-                                                                                                             </html>
+                               </html>
