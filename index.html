@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ArcFlow</title>
+
+  <style>
+    body {
+      background: #0d1117;
+      color: white;
+      font-family: Arial;
+      text-align: center;
+      padding: 20px;
+    }
+    input, button {
+      padding: 12px;
+      margin: 8px;
+      border-radius: 8px;
+      border: none;
+    }
+    button {
+      background: #00c2ff;
+      color: black;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>ArcFlow</h1>
+  <p>Smart Value Router</p>
+
+  <button onclick="connectWallet()">Connect Wallet</button>
+
+  <br>
+
+  <input id="address" placeholder="Recipient address" />
+  <input id="amount" placeholder="Amount (USDC)" />
+
+  <br>
+
+  <button onclick="send()">Send Smart</button>
+
+  <p id="status"></p>
+
+  <script src="app.js"></script>
+
+</body>
+  </html>
