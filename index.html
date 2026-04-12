@@ -1,164 +1,239 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>ArcFlow</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ArcFlow Pro + Scanner</title>
 
-  <!-- Ethers -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
-  <!-- WalletConnect v2 -->
-  <script src="https://unpkg.com/@walletconnect/ethereum-provider@2.11.0/dist/index.umd.min.js"></script>
-
-  <style>
-    body {
-      background: #0d1117;
-      color: white;
-      font-family: Arial;
-      text-align: center;
-      padding: 20px;
-    }
-
-    input, button {
-      padding: 12px;
-      margin: 8px;
-      border-radius: 8px;
-      border: none;
-      width: 80%;
-      max-width: 320px;
-    }
-
-    button {
-      background: #00c2ff;
-      color: black;
-      font-weight: bold;
-    }
-  </style>
+<style>
+body{margin:0;background:#0b0f1a;color:#fff;font-family:sans-serif}
+.container{max-width:1000px;margin:auto;padding:20px}
+.card{background:#11182b;border:1px solid #1b2440;border-radius:14px;padding:16px;margin-bottom:16px}
+button{padding:10px;border-radius:8px;border:none;background:#3b5cff;color:#fff;cursor:pointer}
+input{width:100%;padding:10px;border-radius:8px;border:1px solid #1b2440;background:#0c1426;color:#fff}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.status{margin-top:10px;padding:8px;border-radius:8px;background:#0c1426}
+.copy{cursor:pointer;color:#3b5cff;margin-left:6px}
+.icon{margin:6px;cursor:pointer}
+.arc-circle{display:inline-block;padding:10px;border-radius:50%;background:#3b5cff;margin:5px;cursor:pointer}
+</style>
 </head>
 
 <body>
+<div class="container">
 
-<h1>ArcFlow</h1>
-<p>Universal Wallet Support (Arc Testnet)</p>
+<h2>ArcFlow Pro</h2>
 
-<button onclick="connectInjected()">Connect Wallet</button>
-<button onclick="connectWC()">WalletConnect</button>
+<!-- WALLET -->
+<div class="card">
+<div class="row">
+<button id="connectBtn">Connect</button>
+<button id="switchBtn">Switch Arc</button>
+<button id="refreshBtn">Refresh</button>
+</div>
 
-<p id="status">Not connected</p>
-<p id="balance">Balance: --</p>
+<p id="addr">Address: —</p>
+<p id="balance">Balance: —</p>
+<div id="status" class="status">Idle</div>
+</div>
 
-<input id="address" placeholder="Recipient address" />
-<input id="amount" placeholder="Amount (USDC)" />
+<!-- SEND -->
+<div class="card">
+<h3>Send</h3>
+<input id="to" placeholder="To address"/>
+<input id="data" placeholder="0x (optional)"/>
+<button id="sendBtn">Send</button>
+</div>
 
-<button onclick="send()">Send Smart</button>
+<!-- SCANNER -->
+<div class="card">
+<h3>Arc Scanner</h3>
+<input id="scanInput" placeholder="Address or Tx Hash"/>
+<button id="scanBtn">Scan</button>
+<div id="scanResult" class="status">Enter input</div>
+</div>
+
+<!-- SOCIAL -->
+<div class="card">
+<h3>Connect</h3>
+<div class="icon" onclick="openLink('https://x.com/pawansatoshix')"><i class="fab fa-x-twitter"></i></div>
+<div class="icon" onclick="openLink('https://github.com/pawansatoshi')"><i class="fab fa-github"></i></div>
+<div class="icon" onclick="openLink('https://youtube.com/@PawanSatoshi')"><i class="fab fa-youtube"></i></div>
+<div class="icon" onclick="openLink('https://t.me/pawansatoshi')"><i class="fab fa-telegram"></i></div>
+<div class="icon" onclick="openLink('mailto:pawansatoshi@gmail.com')"><i class="fa-solid fa-envelope"></i></div>
+
+<h3>Arc</h3>
+<div class="arc-circle" onclick="openLink('https://faucet.arc.network')">Faucet</div>
+<div class="arc-circle" onclick="openLink('https://discord.gg/arc')">Community</div>
+<div class="arc-circle" onclick="openLink('https://arc.network')">Arc</div>
+</div>
+
+</div>
 
 <script>
-
 // ===== CONFIG =====
-const ARC_CHAIN_ID = 5042002;
-const ARC_RPC = "https://rpc.testnet.arc.network";
-const PROJECT_ID = "a0031066837361c93d02ae2f139acc98";
-const USDC_ADDRESS = "0x3600000000000000000000000000000000000000";
+const ARC_CHAIN_ID="0x4CE3A2";
+const ARC_CHAIN={
+ chainId:ARC_CHAIN_ID,
+ chainName:"Arc Testnet",
+ rpcUrls:["https://rpc.testnet.arc.network"],
+ nativeCurrency:{name:"USDC",symbol:"USDC",decimals:6}
+};
 
-// ⚠️ FIX: Arc USDC uses 6 decimals (NOT dynamic)
-const DECIMALS = 6;
+let provider,user;
 
-const ERC20_ABI = [
-  "function transfer(address to, uint amount) returns (bool)",
-  "function balanceOf(address owner) view returns (uint256)"
-];
+// ===== HELPERS =====
+function $(id){return document.getElementById(id);}
+function log(msg){$("status").innerText=msg;}
+function openLink(url){window.open(url,"_blank");}
 
-let provider, signer, userAddress;
-
-// ===== INJECTED =====
-async function connectInjected() {
-  try {
-    if (!window.ethereum) return alert("No wallet found");
-
-    await window.ethereum.request({ method: "eth_requestAccounts" });
-
-    provider = new ethers.providers.Web3Provider(window.ethereum);
-    signer = provider.getSigner();
-    userAddress = await signer.getAddress();
-
-    document.getElementById("status").innerText =
-      "Injected: " + userAddress;
-
-    loadBalance();
-
-  } catch (err) {
-    document.getElementById("status").innerText = err.message;
-  }
+function copy(text){
+ navigator.clipboard.writeText(text);
+ alert("Copied");
 }
 
-// ===== WALLETCONNECT FIX =====
-async function connectWC() {
-  try {
-    const EthereumProvider = window["@walletconnect/ethereum-provider"].EthereumProvider;
-
-    const wcProvider = await EthereumProvider.init({
-      projectId: PROJECT_ID,
-      chains: [ARC_CHAIN_ID],
-      rpcMap: {
-        [ARC_CHAIN_ID]: ARC_RPC
-      },
-      showQrModal: true, // desktop QR
-    });
-
-    await wcProvider.enable();
-
-    provider = new ethers.providers.Web3Provider(wcProvider);
-    signer = provider.getSigner();
-    userAddress = await signer.getAddress();
-
-    document.getElementById("status").innerText =
-      "WalletConnect: " + userAddress;
-
-    loadBalance();
-
-  } catch (err) {
-    document.getElementById("status").innerText = err.message;
-  }
+// ===== WALLET =====
+function isOKX(){
+ return window.okxwallet||window.ethereum?.isOkxWallet;
 }
 
-// ===== BALANCE (FIXED) =====
-async function loadBalance() {
-  try {
-    const usdc = new ethers.Contract(USDC_ADDRESS, ERC20_ABI, provider);
-
-    const bal = await usdc.balanceOf(userAddress);
-
-    document.getElementById("balance").innerText =
-      "Balance: " + ethers.utils.formatUnits(bal, DECIMALS) + " USDC";
-
-  } catch (e) {
-    document.getElementById("balance").innerText =
-      "Balance load failed";
-  }
+function getProvider(){
+ if(!window.ethereum) throw new Error("No wallet");
+ return window.ethereum;
 }
 
-// ===== SEND (FIXED) =====
-async function send() {
-  try {
-    const to = document.getElementById("address").value;
-    const amount = document.getElementById("amount").value;
+async function ensureArc(){
+ const cid=await provider.request({method:"eth_chainId"});
+ if(cid===ARC_CHAIN_ID) return;
 
-    if (!to || !amount) return alert("Enter values");
-
-    const usdc = new ethers.Contract(USDC_ADDRESS, ERC20_ABI, signer);
-
-    const amt = ethers.utils.parseUnits(amount, DECIMALS);
-
-    const tx = await usdc.transfer(to, amt);
-
-    document.getElementById("status").innerText =
-      "Tx sent: " + tx.hash;
-
-  } catch (err) {
-    document.getElementById("status").innerText = err.message;
+ try{
+  await provider.request({
+   method:"wallet_switchEthereumChain",
+   params:[{chainId:ARC_CHAIN_ID}]
+  });
+ }catch(e){
+  if(e.code===4902){
+   await provider.request({
+    method:"wallet_addEthereumChain",
+    params:[ARC_CHAIN]
+   });
+  }else{
+   throw new Error("Switch to Arc");
   }
+ }
 }
+
+async function connect(){
+ try{
+  if(isOKX()) throw new Error("OKX not supported");
+  provider=getProvider();
+
+  const acc=await provider.request({method:"eth_requestAccounts"});
+  user=acc[0];
+
+  await ensureArc();
+
+  $("addr").innerText="Address: "+user;
+  log("Connected");
+
+  loadBalance();
+ }catch(e){log(e.message);}
+}
+
+async function loadBalance(){
+ const bal=await provider.request({
+  method:"eth_getBalance",
+  params:[user,"latest"]
+ });
+
+ $("balance").innerText="Balance: "+(parseInt(bal,16)/1e6)+" USDC";
+}
+
+async function send(){
+ try{
+  const tx={
+   from:user,
+   to:$("to").value,
+   value:"0x0",
+   data:$("data").value||"0x"
+  };
+
+  const hash=await provider.request({
+   method:"eth_sendTransaction",
+   params:[tx]
+  });
+
+  log("Tx: "+hash);
+ }catch(e){log("Failed");}
+}
+
+// ===== SCANNER =====
+function isTx(input){
+ return /^0x([A-Fa-f0-9]{64})$/.test(input);
+}
+function isAddr(input){
+ return /^0x[a-fA-F0-9]{40}$/.test(input);
+}
+
+function row(label,val){
+ return `<div><b>${label}:</b> ${val}
+ <span class="copy" onclick="copy('${val}')">copy</span></div>`;
+}
+
+async function scan(){
+ const input=$("scanInput").value.trim();
+ const out=$("scanResult");
+ out.innerHTML="Loading...";
+
+ try{
+  provider=getProvider();
+
+  if(isTx(input)){
+   const tx=await provider.request({
+    method:"eth_getTransactionByHash",
+    params:[input]
+   });
+
+   if(!tx){out.innerHTML="Not found";return;}
+
+   out.innerHTML=
+    row("Hash",tx.hash)+
+    row("From",tx.from)+
+    row("To",tx.to)+
+    row("Value",(parseInt(tx.value,16)/1e6)+" USDC");
+
+   return;
+  }
+
+  if(isAddr(input)){
+   const bal=await provider.request({
+    method:"eth_getBalance",
+    params:[input,"latest"]
+   });
+
+   out.innerHTML=
+    row("Address",input)+
+    row("Balance",(parseInt(bal,16)/1e6)+" USDC");
+
+   return;
+  }
+
+  out.innerHTML="Invalid input";
+
+ }catch(e){
+  out.innerHTML="Error";
+ }
+}
+
+// ===== EVENTS =====
+$("connectBtn").onclick=connect;
+$("refreshBtn").onclick=loadBalance;
+$("sendBtn").onclick=send;
+$("scanBtn").onclick=scan;
 
 </script>
 
 </body>
-  </html>
+                 </html>
