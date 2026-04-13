@@ -4,7 +4,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>ArcFlow Pro</title>
 
-<!-- ✅ cache bust added -->
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
@@ -112,15 +111,19 @@ input{width:100%;padding:10px;margin:5px 0;background:#0c1426;color:#fff;border:
 </div>
 
 <script>
-/* ✅ FINAL FIXED CHAIN ID */
-const ARC_CHAIN = "0x4CEB92"; // 5042002 correct
+const ARC_CHAIN = "0x4CEB92"; // fallback only
 const ARC_RPC = "https://rpc.testnet.arc.network";
 const USDC = "0x3600000000000000000000000000000000000000";
 const DECIMALS = 6;
 
 let provider, signer, user;
 
-console.log("CHAIN:", ARC_CHAIN); // debug confirm
+/* ✅ NEW (CHAIN FIX ADDED) */
+async function getChainId(){
+ const rpc = new ethers.providers.JsonRpcProvider(ARC_RPC);
+ const net = await rpc.getNetwork();
+ return "0x" + net.chainId.toString(16);
+}
 
 function go(u){window.open(u,"_blank")}
 function copyText(t){navigator.clipboard.writeText(t)}
@@ -138,14 +141,11 @@ async function connect(){
 async function switchWallet(){
  try{
   await window.ethereum.request({ method: "eth_requestAccounts" });
-
   provider = new ethers.providers.Web3Provider(window.ethereum);
   signer = provider.getSigner();
   user = await signer.getAddress();
-
   document.getElementById("addr").innerText = shortHash(user);
   await loadBalance();
-
  }catch{
   document.getElementById("status").innerText="Wallet switch cancelled";
  }
@@ -170,10 +170,7 @@ async function send(){
     "function transfer(address,uint256) returns(bool)"
   ],signer);
 
-  const tx = await contract.transfer(
-    to,
-    ethers.utils.parseUnits(amount, DECIMALS)
-  );
+  const tx = await contract.transfer(to, ethers.utils.parseUnits(amount, DECIMALS));
 
   document.getElementById("status").innerHTML = `
   <div class="tx-box">
@@ -196,20 +193,25 @@ async function send(){
  }
 }
 
-/* ✅ FIXED SWITCH ARC */
+/* ✅ UPDATED ONLY HERE */
 async function switchArc(){
  try{
+  const dynamicChain = await getChainId();
+
   await window.ethereum.request({
    method:"wallet_switchEthereumChain",
-   params:[{chainId: ARC_CHAIN}]
+   params:[{chainId: dynamicChain}]
   });
+
  }catch(e){
 
   if(e.code === 4902){
+    const dynamicChain = await getChainId();
+
     await window.ethereum.request({
      method:"wallet_addEthereumChain",
      params:[{
-      chainId: ARC_CHAIN,
+      chainId: dynamicChain,
       chainName:"Arc Testnet",
       rpcUrls:[ARC_RPC],
       nativeCurrency:{name:"USDC",symbol:"USDC",decimals:6},
@@ -229,7 +231,6 @@ async function scan(){
   const rpc = new ethers.providers.JsonRpcProvider(ARC_RPC);
 
   if(q.startsWith("0x") && q.length === 66){
-
     const tx = await rpc.getTransaction(q);
     const receipt = await rpc.getTransactionReceipt(q);
 
@@ -267,7 +268,6 @@ async function checkWallet(){
  const out = document.getElementById("walletResult");
 
  const rpc = new ethers.providers.JsonRpcProvider(ARC_RPC);
-
  const contract = new ethers.Contract(USDC,[
    "function balanceOf(address) view returns(uint256)"
  ],rpc);
@@ -283,4 +283,4 @@ async function checkWallet(){
 </script>
 
 </body>
-  </html>
+             </html>
