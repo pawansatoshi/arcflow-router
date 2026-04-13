@@ -7,7 +7,7 @@
   "miniapp": {
     "version": "1",
     "name": "ArcFlow Pro",
-    "description": "Arc ecosystem & wallet router all in one place.",
+    "description": "Arc ecosystem and wallet router all in one place",
     "iconUrl": "https://arcflow-router.vercel.app/logo.png",
     "homeUrl": "https://arcflow-router.vercel.app",
     "imageUrl": "https://arcflow-router.vercel.app/frame.png",
