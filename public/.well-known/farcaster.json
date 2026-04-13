@@ -1,0 +1,17 @@
+{
+  "accountAssociation": {
+    "header": "eyJmaWQiOjgxNzIwMCwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweDI4NzEzODVkZjlGYjU1ZkM5RmQwQUJFMjk0ODlGNjk1MTI4OTU1NUMifQ",
+    "payload": "eyJkb21haW4iOiJhcmNmbG93LXJvdXRlci52ZXJjZWwuYXBwIn0",
+    "signature": "yMgl7BWvStCW1S/lv9ov67PKMUIDoZm2JpJDHxxSeqQoRe+z6P3UjrpYJmRWsftGfkghV9YavqjQFBRZ7OiaJhs="
+  },
+  "frame": {
+    "version": "1",
+    "name": "ArcFlow Pro",
+    "iconUrl": "https://arcflow-router.vercel.app/logo.png",
+    "homeUrl": "https://arcflow-router.vercel.app",
+    "imageUrl": "https://arcflow-router.vercel.app/frame.png",
+    "buttonTitle": "Open ArcFlow",
+    "splashImageUrl": "https://arcflow-router.vercel.app/logo.png",
+    "splashBackgroundColor": "#0b0f1a"
+  }
+}
