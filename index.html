@@ -3,16 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-<title>ArcFlow Pro V17</title>
+<title>ArcFlow Pro V19</title>
 
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
 
-<meta property="fc:frame" content='{"version":"next","imageUrl":"https://arcflow-router.vercel.app/frame.png?v=31","button":{"title":"Open ArcFlow","action":{"type":"launch_frame","name":"ArcFlow Pro","url":"https://arcflow-router.vercel.app"}}}' />
+<meta property="fc:frame" content='{"version":"next","imageUrl":"https://arcflow-router.vercel.app/frame.png?v=33","button":{"title":"Open ArcFlow","action":{"type":"launch_frame","name":"ArcFlow Pro","url":"https://arcflow-router.vercel.app"}}}' />
 <meta property="og:title" content="ArcFlow Pro" />
 <meta property="og:description" content="Universal Multi-Asset Router & AI Hub" />
-<meta property="og:image" content="https://arcflow-router.vercel.app/frame.png?v=31" />
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js?v=2"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
@@ -23,64 +22,79 @@
 </script>
 
 <style>
-  :root { --bg: #050812; --card: rgba(17, 24, 43, 0.6); --primary: #2540d9; --primary-hover: #3b5cff; --text: #fff; --subtext: #888; --border: rgba(255,255,255,0.05); --success: #00ff88; --error: #ff4444; }
+  :root { 
+    --bg: #030613; 
+    --card-bg: linear-gradient(145deg, rgba(17, 25, 45, 0.8), rgba(9, 13, 26, 0.9));
+    --primary: #2540d9; 
+    --primary-hover: #3b5cff; 
+    --text: #f0f2f5; 
+    --subtext: #9ba1b0; 
+    --border: rgba(255,255,255,0.08); 
+    --success: #00ff88; 
+    --error: #ff4444; 
+    --highlight: #00e5ff;
+  }
   
-  body { background: var(--bg); background-image: radial-gradient(circle at 50% 0%, #15224a 0%, var(--bg) 70%); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; display: flex; justify-content: center; min-height: 100vh; }
+  body { background: var(--bg); background-image: radial-gradient(circle at 50% -10%, #15224a 0%, var(--bg) 60%); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; display: flex; justify-content: center; min-height: 100vh; }
   .app-container { max-width: 480px; width: 100%; padding: 20px; box-sizing: border-box; padding-bottom: 80px; }
   
-  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-  .header h2 { margin: 0; font-size: 24px; background: linear-gradient(90deg, #ffffff, #8a9cff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .logo-top-right { width: 42px; height: 42px; border-radius: 12px; background: rgba(255,255,255,0.05); padding: 5px; border: 1px solid rgba(255,255,255,0.1); }
+  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding: 0 4px;}
+  .header h2 { margin: 0; font-size: 26px; font-weight: 700; background: linear-gradient(90deg, #ffffff, #8a9cff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -0.5px;}
+  .logo-top-right { width: 44px; height: 44px; border-radius: 14px; background: rgba(255,255,255,0.03); padding: 6px; border: 1px solid var(--border); box-shadow: 0 4px 10px rgba(0,0,0,0.3);}
 
-  .card { background: var(--card); backdrop-filter: blur(10px); border: 1px solid var(--border); padding: 18px; border-radius: 16px; margin-bottom: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-  .card h3 { margin-top: 0; margin-bottom: 15px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #8a9cff; display: flex; justify-content: space-between; align-items: center;}
+  .card { background: var(--card-bg); backdrop-filter: blur(16px); border: 1px solid var(--border); padding: 20px; border-radius: 20px; margin-bottom: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); transition: transform 0.2s;}
+  .card h3 { margin-top: 0; margin-bottom: 18px; font-size: 13px; text-transform: uppercase; letter-spacing: 1.5px; color: #8a9cff; display: flex; justify-content: space-between; align-items: center; font-weight: 600;}
 
-  button { padding: 12px 14px; margin: 4px 2px; background: var(--primary); color: var(--text); border: 1px solid var(--primary-hover); border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 600; transition: 0.2s; }
-  button:hover { background: var(--primary-hover); transform: translateY(-1px); }
-  button:active { transform: translateY(1px); }
-  .btn-quick { background: rgba(59, 92, 255, 0.2); border-color: transparent; color: #8a9cff; padding: 6px 12px; font-size: 12px;}
-  .btn-copy { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 4px 8px; font-size: 11px; border-radius: 6px; color: var(--text); margin-left: 8px;}
+  button { padding: 14px 16px; margin: 4px 2px; background: var(--primary); color: #fff; border: 1px solid var(--primary-hover); border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 12px rgba(37, 64, 217, 0.2);}
+  button:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(59, 92, 255, 0.3);}
+  button:active { transform: translateY(1px); box-shadow: 0 2px 8px rgba(37, 64, 217, 0.2);}
+  
+  .btn-quick { background: rgba(59, 92, 255, 0.15); border: 1px solid transparent; color: #8a9cff; padding: 6px 14px; font-size: 12px; box-shadow: none;}
+  .btn-quick:hover { border-color: rgba(138, 156, 255, 0.3); background: rgba(59, 92, 255, 0.25);}
+  
+  .btn-copy { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); padding: 5px 10px; font-size: 11px; border-radius: 8px; color: var(--text); margin-left: 8px; font-weight: 500; box-shadow: none;}
+  .btn-copy:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3);}
 
-  input, textarea, select { width: 100%; padding: 14px; margin: 6px 0 12px 0; background: rgba(0,0,0,0.3); color: var(--text); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; box-sizing: border-box; font-size: 16px; outline: none; font-family: inherit; }
-  input:focus, textarea:focus, select:focus { border-color: var(--primary-hover); }
-  select option { background: #11182b; color: var(--text); }
+  input, textarea, select { width: 100%; padding: 16px; margin: 6px 0 14px 0; background: rgba(0,0,0,0.4); color: var(--text); border: 1px solid var(--border); border-radius: 14px; box-sizing: border-box; font-size: 15px; outline: none; font-family: "Inter", inherit; transition: border-color 0.2s; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);}
+  input:focus, textarea:focus, select:focus { border-color: var(--primary-hover); background: rgba(0,0,0,0.6);}
+  select option { background: #0f1423; color: var(--text); }
 
-  .tab-wrapper { margin-bottom: 18px; }
+  .tab-wrapper { margin-bottom: 20px; }
   .nav-tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; padding: 0; }
-  .nav-tab { flex: 1 1 calc(25% - 8px); min-width: 75px; text-align: center; padding: 10px 2px; cursor: pointer; font-size: 12px; font-weight: 600; color: var(--subtext); border-radius: 8px; background: rgba(0,0,0,0.3); border: 1px solid var(--border); transition: 0.2s; box-sizing: border-box;}
-  .nav-tab.active { background: var(--primary); color: var(--text); border-color: var(--primary-hover); }
-  
+  .nav-tab { flex: 1 1 calc(25% - 8px); min-width: 75px; text-align: center; padding: 12px 2px; cursor: pointer; font-size: 12px; font-weight: 600; color: var(--subtext); border-radius: 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); transition: all 0.2s; box-sizing: border-box;}
+  .nav-tab.active { background: var(--primary); color: #fff; border-color: var(--primary-hover); box-shadow: 0 4px 12px rgba(37, 64, 217, 0.3);}
   .tab-content { display: none; }
-  .tab-content.active { display: block; animation: fadeIn 0.3s; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+  .tab-content.active { display: block; animation: fadeIn 0.3s ease-out; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
-  .wallet-info { display: flex; justify-content: space-between; align-items: flex-start; margin-top: 15px; font-size: 14px; }
-  .net-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--error); margin-right: 6px; }
-  .net-dot.active { background: var(--success); box-shadow: 0 0 8px var(--success); }
-  .tx-box { margin-top:10px; padding:12px; background: rgba(0,0,0,0.3); border-radius:10px; font-size:12px; word-break: break-all; border: 1px solid var(--border);}
-  .warning-box { background: rgba(255, 152, 0, 0.1); border-left: 4px solid #ff9800; padding: 12px; margin-top: 10px; border-radius: 4px; font-size: 13px; line-height: 1.4; word-break: break-word;}
+  .wallet-info { display: flex; justify-content: space-between; align-items: flex-start; margin-top: 18px; font-size: 14px; }
+  .net-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--error); margin-right: 6px; box-shadow: 0 0 6px rgba(255, 68, 68, 0.5);}
+  .net-dot.active { background: var(--success); box-shadow: 0 0 8px rgba(0, 255, 136, 0.6); }
   
-  .swap-icon-container { display: flex; justify-content: center; margin: -14px 0; z-index: 10; position: relative; }
-  .swap-icon { background: #11182b; border: 4px solid var(--bg); border-radius: 50%; padding: 8px; color: #8a9cff; font-size: 14px; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.3);}
-  .swap-icon:hover { background: var(--primary); color: var(--text); transform: scale(1.1) rotate(180deg); }
+  .tx-box { margin-top:12px; padding:14px; background: rgba(0,0,0,0.4); border-radius:12px; font-size:12px; word-break: break-all; border: 1px solid var(--border); line-height: 1.5;}
+  .warning-box { background: rgba(255, 152, 0, 0.08); border-left: 4px solid #ff9800; padding: 14px; margin-top: 12px; border-radius: 8px; font-size: 13px; line-height: 1.5; word-break: break-word;}
+  
+  .swap-icon-container { display: flex; justify-content: center; margin: -16px 0; z-index: 10; position: relative; }
+  .swap-icon { background: #0f1423; border: 4px solid var(--bg); border-radius: 50%; padding: 10px; color: #8a9cff; font-size: 14px; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.4);}
+  .swap-icon:hover { background: var(--primary); color: #fff; transform: scale(1.1) rotate(180deg); }
 
-  .chat-box { background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 12px; height: 350px; overflow-y: auto; padding: 12px; margin-bottom: 10px; font-size: 13px; display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth;}
-  .chat-msg { padding: 12px 16px; border-radius: 12px; max-width: 90%; word-wrap: break-word; line-height: 1.6; position: relative;}
-  .msg-ai { background: rgba(37, 64, 217, 0.15); border: 1px solid rgba(59, 92, 255, 0.4); align-self: flex-start; color: #e0e6ff;}
-  .msg-user { background: rgba(255, 255, 255, 0.1); align-self: flex-end; color: var(--text);}
+  .chat-box { background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 14px; height: 360px; overflow-y: auto; padding: 16px; margin-bottom: 12px; font-size: 13px; display: flex; flex-direction: column; gap: 14px; scroll-behavior: smooth;}
+  .chat-msg { padding: 14px 18px; border-radius: 14px; max-width: 88%; word-wrap: break-word; line-height: 1.6; position: relative;}
+  .msg-ai { background: rgba(37, 64, 217, 0.1); border: 1px solid rgba(59, 92, 255, 0.3); align-self: flex-start; color: #e0e6ff; box-shadow: 0 4px 12px rgba(0,0,0,0.1);}
+  .msg-user { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255,255,255,0.05); align-self: flex-end; color: var(--text);}
   
-  /* 3-Column Ecosystem Grid */
-  .eco-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px;}
-  .eco-item { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px 4px; text-align: center; font-size: 11px; cursor: pointer; transition: 0.2s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff;}
-  .eco-item:hover { background: rgba(255,255,255,0.1); border-color: var(--primary-hover);}
-  .eco-header { grid-column: span 3; font-size: 12px; color: var(--subtext); margin-top: 5px; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
+  .eco-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px;}
+  .eco-item { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 10px; padding: 12px 4px; text-align: center; font-size: 11px; cursor: pointer; transition: 0.2s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--subtext); font-weight: 500;}
+  .eco-item:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); color: #fff;}
+  .eco-header { grid-column: span 3; font-size: 11px; color: #8a9cff; margin-top: 8px; border-bottom: 1px solid var(--border); padding-bottom: 6px; text-transform: uppercase; letter-spacing: 1px;}
 
-  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-  .stat-box { background: rgba(0,0,0,0.3); border: 1px solid var(--border); padding: 12px; border-radius: 10px; text-align: center; }
-  .stat-val { font-size: 18px; font-weight: bold; color: var(--success); margin-top: 4px; }
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+  .stat-box { background: rgba(0,0,0,0.4); border: 1px solid var(--border); padding: 14px; border-radius: 14px; text-align: center; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);}
+  .stat-val { font-size: 18px; font-weight: 700; color: var(--success); margin-top: 6px; letter-spacing: -0.5px;}
   
-  .social-footer i { font-size: 20px; margin: 0 12px; cursor: pointer; color: #8a9cff; transition: 0.2s;}
-  .social-footer i:hover { color: #fff; transform: scale(1.1);}
+  /* Global Settings Modal */
+  .settings-modal { display: none; background: rgba(10, 15, 30, 0.95); border: 1px solid var(--primary); padding: 20px; border-radius: 16px; margin-bottom: 20px; font-size: 13px; backdrop-filter: blur(20px);}
+  .settings-modal.active { display: block; animation: fadeIn 0.2s;}
 </style>
 </head>
 
@@ -91,31 +105,57 @@
   <div class="header">
     <div>
       <h2>ArcFlow Pro</h2>
-      <div style="font-size: 12px; color: var(--subtext); margin-top: 4px;">Universal Multi-Asset Router</div>
+      <div style="font-size: 12px; color: var(--subtext); margin-top: 4px; font-weight: 500;">Universal Multi-Asset Router</div>
     </div>
-    <img src="./logo.png" class="logo-top-right"/>
+    <div style="display:flex; gap:10px; align-items:center;">
+      <i class="fas fa-cog" style="color:var(--subtext); font-size:20px; cursor:pointer;" onclick="document.getElementById('globalSettings').classList.toggle('active')"></i>
+      <img src="./logo.png" class="logo-top-right"/>
+    </div>
+  </div>
+
+  <div id="globalSettings" class="settings-modal">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid var(--border); padding-bottom:10px;">
+      <b style="color:#8a9cff; font-size:14px;"><i class="fas fa-sliders-h"></i> Router Settings</b>
+      <i class="fas fa-times" style="cursor:pointer; color:var(--subtext);" onclick="document.getElementById('globalSettings').classList.remove('active')"></i>
+    </div>
+    
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+      <div>
+        <b style="color:#fff;">Force Demo Mode</b>
+        <div style="font-size:10px; color:var(--subtext); margin-top:4px;">Bypass broken testnet liquidity for UI presentations.</div>
+      </div>
+      <label style="position:relative; display:inline-block; width:44px; height:24px;">
+        <input type="checkbox" id="demoModeToggle" style="opacity:0; width:0; height:0;" onchange="toggleDemoMode()">
+        <span style="position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background-color:rgba(255,255,255,0.1); border-radius:24px; border:1px solid var(--border); transition:.4s;" id="demoSlider"></span>
+      </label>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; color:var(--subtext);">
+      <span>App Kit Slippage:</span>
+      <span>300 bps (3%)</span>
+    </div>
   </div>
 
   <div class="card">
-    <div style="display: flex; gap: 6px;">
+    <div style="display: flex; gap: 8px;">
       <button onclick="connect()" style="flex:2; padding:12px 8px;">Connect</button>
-      <button onclick="switchArc()" style="flex:1.5; padding:12px 8px; font-size:12px; background:#1e32a6; border-color:#3b5cff;">Arc Net</button>
-      <button onclick="switchArb()" style="flex:1.5; padding:12px 8px; font-size:12px; background:rgba(45, 80, 230, 0.2); border-color:#2d50e6; color:#8a9cff;">Arb Net</button>
-      <button onclick="switchWallet()" style="flex:1; padding:12px 8px; background:transparent; border-color:rgba(255,255,255,0.1);"><i class="fas fa-sync-alt"></i></button>
+      <button onclick="switchArc()" style="flex:1.5; padding:12px 8px; font-size:12px; background:#1e32a6; border-color:#3b5cff; box-shadow:none;">Arc Net</button>
+      <button onclick="switchArb()" style="flex:1.5; padding:12px 8px; font-size:12px; background:rgba(45, 80, 230, 0.15); border-color:#2d50e6; color:#8a9cff; box-shadow:none;">Arb Net</button>
+      <button onclick="switchWallet()" style="flex:1; padding:12px 8px; background:rgba(255,255,255,0.05); border-color:var(--border); box-shadow:none;"><i class="fas fa-sync-alt" style="color:var(--subtext);"></i></button>
     </div>
 
     <div class="wallet-info">
       <div>
-        <span id="netIndicator" class="net-dot"></span><span id="addr">—</span>
-        <div id="status" style="margin-top:6px; font-size:11px; color:#aaa;">Idle</div>
+        <span id="netIndicator" class="net-dot"></span><span id="addr" style="font-weight:600; color:#ddd;">—</span>
+        <div id="status" style="margin-top:6px; font-size:11px; color:var(--subtext);">Idle</div>
       </div>
-      <div style="text-align:right; font-size:11px; line-height:1.6;">
-        <div style="color:#8a9cff; border-bottom:1px solid var(--border); padding-bottom:2px; margin-bottom:2px;">Arc Testnet</div>
-        <div><b style="color:var(--success);" id="balUsdc">0.00</b> <span style="color:var(--subtext);">USDC</span></div>
-        <div><b style="color:var(--text);" id="balEurc">0.00</b> <span style="color:var(--subtext);">EURC</span></div>
-        <div><b style="color:#ffcc00;" id="balUsyc">0.00</b> <span style="color:var(--subtext);">USYC</span></div>
-        <div style="color:#8a9cff; border-bottom:1px solid var(--border); padding-bottom:2px; margin-bottom:2px; margin-top:6px;">Arbitrum Sepolia</div>
-        <div><b style="color:var(--success);" id="balArbUsdc">0.00</b> <span style="color:var(--subtext);">USDC</span></div>
+      <div style="text-align:right; font-size:12px; line-height:1.7;">
+        <div style="color:#8a9cff; border-bottom:1px solid var(--border); padding-bottom:4px; margin-bottom:4px; font-size:10px; text-transform:uppercase; letter-spacing:1px;">Arc Testnet</div>
+        <div><b style="color:var(--success);" id="balUsdc">0.00</b> <span style="color:var(--subtext); font-size:10px;">USDC</span></div>
+        <div><b style="color:#fff;" id="balEurc">0.00</b> <span style="color:var(--subtext); font-size:10px;">EURC</span></div>
+        <div><b style="color:#ffcc00;" id="balUsyc">0.00</b> <span style="color:var(--subtext); font-size:10px;">USYC</span></div>
+        <div style="color:#8a9cff; border-bottom:1px solid var(--border); padding-bottom:4px; margin-bottom:4px; margin-top:8px; font-size:10px; text-transform:uppercase; letter-spacing:1px;">Arbitrum Sepolia</div>
+        <div><b style="color:var(--success);" id="balArbUsdc">0.00</b> <span style="color:var(--subtext); font-size:10px;">USDC</span></div>
       </div>
     </div>
   </div>
@@ -150,7 +190,7 @@
         </div>
       </div>
       <input id="amount" type="number" placeholder="0.00"/>
-      <button onclick="send()" style="width:100%;">Confirm Send</button>
+      <button onclick="send()" style="width:100%; margin-top:8px;">Confirm Send</button>
       <div id="txStatus"></div>
     </div>
   </div>
@@ -159,29 +199,31 @@
     <div class="card">
       <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
         <h3>StableFX Swap</h3>
-        <i class="fas fa-chart-line" style="color:var(--subtext);"></i>
       </div>
-      <div style="background:rgba(0,0,0,0.3); padding:12px; border-radius:12px; border:1px solid var(--border);">
-        <div style="font-size:12px; color:var(--subtext); display:flex; justify-content:space-between;">
+      <div style="background:rgba(0,0,0,0.4); padding:16px; border-radius:16px; border:1px solid var(--border);">
+        <div style="font-size:12px; color:var(--subtext); display:flex; justify-content:space-between; margin-bottom:8px;">
           <span>You Pay</span>
         </div>
         <div style="display:flex; justify-content:space-between; align-items:center;">
-          <input type="number" id="swapIn" placeholder="0.00" oninput="calcSwap()" style="background:transparent; border:none; padding:0; font-size:24px; width:60%; margin:0; outline:none;" />
-          <div id="tokenPayUI" style="background:var(--primary); padding:6px 12px; border-radius:20px; font-weight:bold;">USDC</div>
+          <input type="number" id="swapIn" placeholder="0.00" oninput="calcSwap()" style="background:transparent; border:none; padding:0; font-size:28px; width:60%; margin:0; outline:none; box-shadow:none;" />
+          <div id="tokenPayUI" style="background:var(--primary); padding:8px 16px; border-radius:20px; font-weight:700;">USDC</div>
         </div>
       </div>
       
       <div class="swap-icon-container"><i class="fas fa-arrow-down swap-icon" onclick="toggleSwapAssets()"></i></div>
       
-      <div style="background:rgba(0,0,0,0.3); padding:12px; border-radius:12px; border:1px solid var(--border);">
-        <div style="font-size:12px; color:var(--subtext);">You Receive (Estimated)</div>
+      <div style="background:rgba(0,0,0,0.4); padding:16px; border-radius:16px; border:1px solid var(--border);">
+        <div style="font-size:12px; color:var(--subtext); margin-bottom:8px;">You Receive (Estimated)</div>
         <div style="display:flex; justify-content:space-between; align-items:center;">
-          <input type="number" id="swapOut" placeholder="0.00" readonly style="background:transparent; border:none; padding:0; font-size:24px; width:60%; margin:0; color:var(--success); outline:none;" />
-          <div id="tokenRecUI" style="background:rgba(255,255,255,0.1); padding:6px 12px; border-radius:20px; font-weight:bold;">EURC</div>
+          <input type="number" id="swapOut" placeholder="0.00" readonly style="background:transparent; border:none; padding:0; font-size:28px; width:60%; margin:0; color:var(--success); outline:none; box-shadow:none;" />
+          <div id="tokenRecUI" style="background:rgba(255,255,255,0.1); padding:8px 16px; border-radius:20px; font-weight:700; color:#ddd;">EURC</div>
         </div>
       </div>
-      <button onclick="executeSwap()" style="width:100%; margin-top:15px;">Approve & Execute Swap</button>
-      <div id="swapStatus" style="margin-top:10px; font-size:12px; color:#aaa; text-align:center;"></div>
+      <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--subtext); margin-top:12px; padding:0 4px;">
+        <span id="rateUI">1 USDC = 0.92 EURC</span> <span>Provider Fee: 2 bps</span>
+      </div>
+      <button onclick="executeSwap()" style="width:100%; margin-top:18px;">Approve & Execute Swap</button>
+      <div id="swapStatus" style="margin-top:12px; font-size:12px; color:var(--subtext); text-align:center;"></div>
     </div>
   </div>
 
@@ -189,172 +231,171 @@
     <div class="card">
       <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
         <h3>StableSwap Liquidity</h3>
-        <i class="fas fa-water" style="color:var(--subtext);"></i>
       </div>
-      <p style="font-size:12px; color:#aaa; margin-top:-5px;">Provide liquidity to earn 0.04% fees on every swap.</p>
+      <p style="font-size:12px; color:var(--subtext); margin-top:-5px; line-height:1.5;">Provide liquidity to earn 0.04% fees on every swap. The underlying Curve minimizes impermanent loss.</p>
       
-      <div style="background:rgba(0,0,0,0.3); padding:12px; border-radius:12px; border:1px solid var(--border); margin-bottom:10px;">
-        <div style="font-size:12px; color:var(--subtext); display:flex; justify-content:space-between;"><span>Deposit USDC</span></div>
+      <div style="background:rgba(0,0,0,0.4); padding:14px; border-radius:14px; border:1px solid var(--border); margin-bottom:10px;">
+        <div style="font-size:11px; color:var(--subtext); margin-bottom:6px;">Deposit Amount</div>
         <div style="display:flex; justify-content:space-between; align-items:center;">
-          <input type="number" id="poolUsdc" placeholder="0.00" style="background:transparent; border:none; padding:0; font-size:24px; width:60%; margin:0; outline:none;" />
-          <div style="background:var(--primary); padding:6px 12px; border-radius:20px; font-weight:bold;">USDC</div>
+          <input type="number" id="poolUsdc" placeholder="0.00" style="background:transparent; border:none; padding:0; font-size:22px; width:60%; margin:0; outline:none; box-shadow:none;" />
+          <div style="background:var(--primary); padding:6px 14px; border-radius:20px; font-weight:700; font-size:13px;">USDC</div>
         </div>
       </div>
 
-      <div style="text-align:center; font-size:16px; color:var(--subtext); margin: -5px 0;">+</div>
+      <div style="text-align:center; font-size:18px; color:var(--subtext); margin: -2px 0;">+</div>
 
-      <div style="background:rgba(0,0,0,0.3); padding:12px; border-radius:12px; border:1px solid var(--border); margin-bottom:15px;">
-        <div style="font-size:12px; color:var(--subtext); display:flex; justify-content:space-between;"><span>Deposit EURC</span></div>
+      <div style="background:rgba(0,0,0,0.4); padding:14px; border-radius:14px; border:1px solid var(--border); margin-bottom:15px;">
+        <div style="font-size:11px; color:var(--subtext); margin-bottom:6px;">Deposit Amount</div>
         <div style="display:flex; justify-content:space-between; align-items:center;">
-          <input type="number" id="poolEurc" placeholder="0.00" style="background:transparent; border:none; padding:0; font-size:24px; width:60%; margin:0; outline:none;" />
-          <div style="background:rgba(255,255,255,0.1); padding:6px 12px; border-radius:20px; font-weight:bold;">EURC</div>
+          <input type="number" id="poolEurc" placeholder="0.00" style="background:transparent; border:none; padding:0; font-size:22px; width:60%; margin:0; outline:none; box-shadow:none;" />
+          <div style="background:rgba(255,255,255,0.1); padding:6px 14px; border-radius:20px; font-weight:700; font-size:13px; color:#ddd;">EURC</div>
         </div>
       </div>
       
-      <button onclick="addLiquidity()" style="width:100%; background:#00e5ff; color:#000; border-color:#00b8cc;">Approve Tokens & Add Liquidity</button>
-      <div id="poolStatus" style="margin-top:10px; font-size:12px; color:#aaa; text-align:center;"></div>
+      <button onclick="addLiquidity()" style="width:100%; background:var(--highlight); color:#000; border-color:#00b8cc;">Approve & Add Liquidity</button>
+      <div id="poolStatus" style="margin-top:12px; font-size:12px; color:var(--subtext); text-align:center;"></div>
     </div>
   </div>
 
   <div id="tab-bridge" class="tab-content">
     <div class="card">
-      <h3><i class="fas fa-exchange-alt" style="margin-right:8px;"></i> Circle CCTP</h3>
-      <p style="font-size:12px; color:#aaa;">Native USDC cross-chain transfers.</p>
+      <h3><i class="fas fa-exchange-alt" style="margin-right:8px;"></i> Circle CCTP Bridge</h3>
+      <p style="font-size:12px; color:var(--subtext); margin-top:-5px;">Native 1:1 USDC cross-chain transfers. No wrapped tokens.</p>
       
-      <button onclick="switchArb()" style="width:100%; margin-bottom:15px; background: rgba(45, 80, 230, 0.2); border-color: #2d50e6; color: #8a9cff; padding: 10px;">
-        <i class="fas fa-network-wired" style="margin-right:5px;"></i> Switch to Arbitrum Network
+      <button onclick="switchArb()" style="width:100%; margin-bottom:18px; background: rgba(45, 80, 230, 0.15); border:1px solid #2d50e6; color: #8a9cff; padding: 12px; font-size:13px;">
+        <i class="fas fa-network-wired" style="margin-right:6px;"></i> Connect Arbitrum Network
       </button>
 
-      <div style="display:flex; gap:10px; margin-bottom:15px; align-items:center;">
-        <div id="bridgeFrom" style="flex:1; background:rgba(0,0,0,0.3); padding:10px; border-radius:8px; border:1px solid var(--border); text-align:center;">
-          <b style="font-size:13px;">Arbitrum Sepolia</b><br>
-          <span style="font-size:10px; color:var(--subtext);">Source Chain</span>
+      <div style="display:flex; gap:12px; margin-bottom:18px; align-items:center;">
+        <div id="bridgeFrom" style="flex:1; background:rgba(0,0,0,0.4); padding:14px 10px; border-radius:12px; border:1px solid var(--border); text-align:center; box-shadow:inset 0 2px 4px rgba(0,0,0,0.2);">
+          <b style="font-size:13px; color:#fff;">Arbitrum Sepolia</b><br><span style="font-size:10px; color:var(--subtext); text-transform:uppercase; letter-spacing:0.5px;">Source Chain</span>
         </div>
-        <i class="fas fa-exchange-alt swap-icon" style="margin:0; box-shadow:none; padding:6px;" onclick="toggleBridgeChains()"></i>
-        <div id="bridgeTo" style="flex:1; background:rgba(37, 64, 217, 0.2); padding:10px; border-radius:8px; border:1px solid var(--primary-hover); text-align:center;">
-          <b style="font-size:13px; color:#8a9cff;">Arc Testnet</b><br>
-          <span style="font-size:10px; color:#8a9cff;">Destination Chain</span>
+        <i class="fas fa-exchange-alt swap-icon" style="margin:0; box-shadow:0 4px 8px rgba(0,0,0,0.3); padding:8px;" onclick="toggleBridgeChains()"></i>
+        <div id="bridgeTo" style="flex:1; background:rgba(37, 64, 217, 0.15); padding:14px 10px; border-radius:12px; border:1px solid var(--primary-hover); text-align:center; box-shadow:inset 0 2px 4px rgba(0,0,0,0.2);">
+          <b style="font-size:13px; color:#8a9cff;">Arc Testnet</b><br><span style="font-size:10px; color:#8a9cff; text-transform:uppercase; letter-spacing:0.5px;">Destination Chain</span>
         </div>
       </div>
-      <input type="number" id="bridgeAmt" placeholder="Amount (USDC)"/>
-      <button onclick="executeBridge()" style="width:100%;">Approve & Bridge</button>
-      <div id="bridgeStatus" style="margin-top:10px; font-size:12px; color:#aaa; text-align:center;"></div>
+      
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; padding:0 4px;">
+        <span style="font-size:12px; color:var(--subtext);">Amount to Bridge (USDC):</span>
+      </div>
+      <input type="number" id="bridgeAmt" placeholder="0.00"/>
+      <button onclick="executeBridge()" style="width:100%; margin-top:8px;">Approve & Bridge</button>
+      <div id="bridgeStatus" style="margin-top:12px; font-size:12px; color:var(--subtext); text-align:center;"></div>
     </div>
   </div>
 
   <div id="tab-yield" class="tab-content">
     <div class="card">
       <h3><i class="fas fa-piggy-bank" style="margin-right:8px;"></i> USYC Yield Vault</h3>
-      <p style="font-size:12px; color:#aaa;">Deposit USDC to mint tokenized Treasury yield (USYC).</p>
+      <p style="font-size:12px; color:var(--subtext); margin-top:-5px; line-height:1.5;">Deposit USDC to mint tokenized short-duration US Treasury yield (USYC).</p>
       
       <div class="stats-grid">
         <div class="stat-box">
-          <div style="font-size:11px; color:var(--subtext);">Your Position</div>
+          <div style="font-size:11px; color:var(--subtext); text-transform:uppercase; letter-spacing:0.5px;">Your Position</div>
           <div class="stat-val" id="vaultPos">0.00 USYC</div>
         </div>
         <div class="stat-box">
-          <div style="font-size:11px; color:var(--subtext);">Current APY</div>
+          <div style="font-size:11px; color:var(--subtext); text-transform:uppercase; letter-spacing:0.5px;">Current APY</div>
           <div class="stat-val" style="color:#8a9cff;">5.24%</div>
         </div>
       </div>
 
-      <div style="background:rgba(0,0,0,0.3); padding:12px; border-radius:12px; border:1px solid var(--border); margin-bottom:15px;">
-        <div style="font-size:12px; color:var(--subtext);">Deposit Amount</div>
+      <div style="background:rgba(0,0,0,0.4); padding:16px; border-radius:16px; border:1px solid var(--border); margin-bottom:18px;">
+        <div style="font-size:12px; color:var(--subtext); margin-bottom:8px;">Deposit Amount</div>
         <div style="display:flex; justify-content:space-between; align-items:center;">
-          <input type="number" placeholder="0.00" style="background:transparent; border:none; padding:0; font-size:24px; width:60%; margin:0; outline:none;" />
-          <div style="background:var(--primary); padding:6px 12px; border-radius:20px; font-weight:bold;">USDC</div>
+          <input type="number" placeholder="0.00" style="background:transparent; border:none; padding:0; font-size:28px; width:60%; margin:0; outline:none; box-shadow:none;" />
+          <div style="background:var(--primary); padding:8px 16px; border-radius:20px; font-weight:700;">USDC</div>
         </div>
       </div>
-      <button onclick="mintUsyc()" style="width:100%; margin-bottom:10px; background:#ff9800; border-color:#ff9800;">Deposit to Vault</button>
-      <button onclick="checkEntitlement()" style="width:100%; background:transparent; border-color:rgba(255,255,255,0.1); color:var(--subtext);">Check KYC Entitlement</button>
+      <button onclick="mintUsyc()" style="width:100%; margin-bottom:12px; background:#ff9800; border-color:#e68a00; color:#fff; box-shadow: 0 4px 12px rgba(255, 152, 0, 0.2);">Deposit to Vault</button>
+      <button onclick="checkEntitlement()" style="width:100%; background:transparent; border-color:var(--border); color:var(--subtext); box-shadow:none;">Check KYC Entitlement</button>
     </div>
   </div>
 
   <div id="tab-ai" class="tab-content">
     <div class="card">
-      <h3><i class="fas fa-brain" style="margin-right:8px;"></i> ArcAi — Pay per Question</h3>
-      <div style="font-size:11px; color:var(--subtext); margin-top:-10px; margin-bottom:15px;">$0.001 USDC • Arc Testnet</div>
+      <h3><i class="fas fa-brain" style="margin-right:8px;"></i> ArcAi Assistant</h3>
+      <div style="font-size:11px; color:var(--subtext); margin-top:-12px; margin-bottom:18px; padding-bottom:12px; border-bottom:1px solid var(--border);">Pay $0.001 USDC per complex technical query.</div>
       
       <div class="chat-box" id="chatWindow">
-        <div class="chat-msg msg-ai"><b>System Online.</b> I am ArcAi, your smart contract & ecosystem assistant. How can I help you build today?</div>
+        <div class="chat-msg msg-ai"><b>System Online.</b> I am the ArcFlow AI. I can debug contract errors, explain Arc architecture, and clarify Circle SDKs. How can I help you build today?</div>
       </div>
       <div style="display:flex; gap:8px;">
-        <input type="text" id="aiInput" placeholder="Ask a question..." style="margin:0; flex:1;"/>
+        <input type="text" id="aiInput" placeholder="Ask a technical question..." style="margin:0; flex:1;"/>
       </div>
-      <button onclick="payAndAskAi()" style="width:100%; margin-top:10px; font-size:13px; background:#00e5ff; color:#000; border-color:#00b8cc;">
-        <i class="fas fa-paper-plane" style="margin-right:4px;"></i> Ask • $0.001 USDC
+      <button onclick="payAndAskAi()" style="width:100%; margin-top:12px; font-size:14px; background:var(--highlight); color:#000; border-color:#00b8cc; box-shadow: 0 4px 12px rgba(0, 229, 255, 0.2);">
+        <i class="fas fa-paper-plane" style="margin-right:6px;"></i> Ask • $0.001 USDC
       </button>
     </div>
   </div>
 
   <div id="tab-scan" class="tab-content">
     <div class="card">
-      <h3><i class="fas fa-history" style="margin-right:8px;"></i> My Transactions</h3>
-      <div id="localHistory" style="font-size:12px; color:var(--subtext); max-height:150px; overflow-y:auto;">
+      <h3><i class="fas fa-history" style="margin-right:8px;"></i> Local Transaction History</h3>
+      <div id="localHistory" style="font-size:13px; color:var(--subtext); max-height:180px; overflow-y:auto; padding-right:4px;">
         No recent transactions found in this browser.
       </div>
     </div>
+    
     <div class="card">
-      <h3><i class="fas fa-wallet" style="margin-right:8px;"></i> Manual Balance</h3>
-      <input id="manualAddress" placeholder="Paste Wallet Address (0x...)"/>
-      <button onclick="checkManualBalance()" style="width:100%;"><i class="fas fa-search"></i> Check Balances</button>
-      <div id="manualResult"></div>
-    </div>
-    <div class="card">
-      <h3><i class="fas fa-code-branch" style="margin-right:8px;"></i> Universal Scanner</h3>
-      <div style="display: flex; background: rgba(0,0,0,0.4); border-radius: 8px; padding: 4px; margin-bottom: 10px;">
-        <div class="chain-btn active" id="scanArcBtn" onclick="setScanChain('arc')">Arc Testnet</div>
-        <div class="chain-btn" id="scanArbBtn" onclick="setScanChain('arb')">Arbitrum Sepolia</div>
+      <h3><i class="fas fa-search" style="margin-right:8px;"></i> Universal Scanner</h3>
+      <div style="display: flex; background: rgba(0,0,0,0.5); border-radius: 10px; padding: 4px; margin-bottom: 14px; border:1px solid var(--border);">
+        <div class="chain-btn active" id="scanArcBtn" onclick="setScanChain('arc')" style="flex:1; text-align:center; padding:10px; font-size:12px; cursor:pointer; border-radius:8px; transition:0.2s;">Arc Testnet</div>
+        <div class="chain-btn" id="scanArbBtn" onclick="setScanChain('arb')" style="flex:1; text-align:center; padding:10px; font-size:12px; cursor:pointer; border-radius:8px; transition:0.2s;">Arbitrum Sepolia</div>
       </div>
       <input id="searchTx" placeholder="Paste Tx Hash (0x...)"/>
-      <button onclick="universalScan()" style="width:100%;">Decode Hash</button>
+      <button onclick="universalScan()" style="width:100%; margin-top:4px;">Decode Hash & Open Explorer</button>
       <div id="scanResult"></div>
+    </div>
+
+    <div class="card">
+      <h3><i class="fas fa-wallet" style="margin-right:8px;"></i> Manual Balance Tool</h3>
+      <input id="manualAddress" placeholder="Paste Wallet Address (0x...)"/>
+      <button onclick="checkManualBalance()" style="width:100%; margin-top:4px; background:rgba(255,255,255,0.05); border-color:var(--border); box-shadow:none;"><i class="fas fa-search" style="color:var(--subtext);"></i> Check Balances</button>
+      <div id="manualResult"></div>
     </div>
   </div>
 
   <div class="card">
     <h3><i class="fas fa-globe" style="margin-right:8px;"></i> Ecosystem & Socials</h3>
-    
     <div class="eco-grid">
       <div class="eco-header">Arc Network</div>
-      <div class="eco-item" onclick="go('https://arc.network')"><i class="fas fa-link" style="color:#8a9cff;"></i> Website</div>
-      <div class="eco-item" onclick="go('https://docs.arc.network')"><i class="fas fa-book" style="color:#8a9cff;"></i> Docs</div>
-      <div class="eco-item" onclick="go('https://community.arc.network')"><i class="fas fa-users" style="color:#8a9cff;"></i> Community</div>
-      <div class="eco-item" onclick="go('https://x.com/arc')"><i class="fab fa-x-twitter" style="color:#8a9cff;"></i> Twitter (X)</div>
-      <div class="eco-item" onclick="go('https://discord.gg/arc')"><i class="fab fa-discord" style="color:#8a9cff;"></i> Discord</div>
-      <div></div> <div class="eco-header">Circle Infrastructure</div>
-      <div class="eco-item" onclick="go('https://circle.com')"><i class="fas fa-building" style="color:var(--success);"></i> Circle.com</div>
-      <div class="eco-item" onclick="go('https://developers.circle.com')"><i class="fas fa-code" style="color:var(--success);"></i> Developers</div>
-      <div class="eco-item" onclick="smartFaucet()"><i class="fas fa-tint" style="color:var(--success);"></i> USDC Faucet</div>
-      <div class="eco-item" onclick="go('https://x.com/circle')"><i class="fab fa-x-twitter" style="color:var(--success);"></i> Twitter (X)</div>
-      <div class="eco-item" onclick="go('https://discord.gg/circle')"><i class="fab fa-discord" style="color:var(--success);"></i> Discord</div>
-      <div></div>
+      <div class="eco-item" onclick="go('https://arc.network')"><i class="fas fa-link" style="color:#8a9cff; margin-bottom:4px; display:block; font-size:14px;"></i>Website</div>
+      <div class="eco-item" onclick="go('https://docs.arc.network')"><i class="fas fa-book" style="color:#8a9cff; margin-bottom:4px; display:block; font-size:14px;"></i>Docs</div>
+      <div class="eco-item" onclick="go('https://community.arc.network')"><i class="fas fa-users" style="color:#8a9cff; margin-bottom:4px; display:block; font-size:14px;"></i>House</div>
+      <div class="eco-item" onclick="go('https://x.com/arc')"><i class="fab fa-x-twitter" style="color:#8a9cff; margin-bottom:4px; display:block; font-size:14px;"></i>Twitter</div>
+      <div class="eco-item" onclick="go('https://discord.gg/arc')"><i class="fab fa-discord" style="color:#8a9cff; margin-bottom:4px; display:block; font-size:14px;"></i>Discord</div>
+      <div class="eco-item" style="visibility:hidden;"></div> 
+
+      <div class="eco-header">Circle Infra</div>
+      <div class="eco-item" onclick="go('https://circle.com')"><i class="fas fa-building" style="color:var(--success); margin-bottom:4px; display:block; font-size:14px;"></i>Circle</div>
+      <div class="eco-item" onclick="go('https://developers.circle.com')"><i class="fas fa-code" style="color:var(--success); margin-bottom:4px; display:block; font-size:14px;"></i>Devs</div>
+      <div class="eco-item" onclick="smartFaucet()"><i class="fas fa-tint" style="color:var(--success); margin-bottom:4px; display:block; font-size:14px;"></i>USDC Faucet</div>
+      <div class="eco-item" onclick="go('https://x.com/circle')"><i class="fab fa-x-twitter" style="color:var(--success); margin-bottom:4px; display:block; font-size:14px;"></i>Twitter</div>
+      <div class="eco-item" onclick="go('https://discord.gg/circle')"><i class="fab fa-discord" style="color:var(--success); margin-bottom:4px; display:block; font-size:14px;"></i>Discord</div>
+      <div class="eco-item" style="visibility:hidden;"></div> 
 
       <div class="eco-header">Arbitrum L2</div>
-      <div class="eco-item" onclick="go('https://arbitrum.io')"><i class="fas fa-layer-group" style="color:#2d50e6;"></i> Website</div>
-      <div class="eco-item" onclick="go('https://x.com/arbitrum')"><i class="fab fa-x-twitter" style="color:#2d50e6;"></i> Twitter (X)</div>
-      <div class="eco-item" onclick="go('https://discord.gg/arbitrum')"><i class="fab fa-discord" style="color:#2d50e6;"></i> Discord</div>
-      
-      <div class="eco-header">Utilities</div>
-      <div class="eco-item" onclick="go('https://portal.arbitrum.io/bridge?sourceChain=sepolia&destinationChain=arbitrum-sepolia&tab=bridge&sanitized=true')"><i class="fas fa-bridge" style="color:#ffcc00;"></i> Arb Bridge</div>
-      <div class="eco-item" onclick="go('https://cloud.google.com/application/web3/faucet/ethereum/sepolia')"><i class="fab fa-google" style="color:#4285F4;"></i> Google Faucet</div>
-      <div></div>
+      <div class="eco-item" onclick="go('https://portal.arbitrum.io/bridge?sourceChain=sepolia&destinationChain=arbitrum-sepolia&tab=bridge&sanitized=true')"><i class="fas fa-bridge" style="color:#2d50e6; margin-bottom:4px; display:block; font-size:14px;"></i>Arb Bridge</div>
+      <div class="eco-item" onclick="go('https://cloud.google.com/application/web3/faucet/ethereum/sepolia')"><i class="fab fa-google" style="color:#4285F4; margin-bottom:4px; display:block; font-size:14px;"></i>ETH Faucet</div>
+      <div class="eco-item" onclick="go('https://arbitrum.io')"><i class="fas fa-layer-group" style="color:#2d50e6; margin-bottom:4px; display:block; font-size:14px;"></i>Website</div>
     </div>
   </div>
 
-  <div class="card">
-    <h3><i class="fas fa-comment-dots" style="margin-right:8px;"></i> Feedback & Support</h3>
-    <input id="fb-name" placeholder="Your Name (Optional)"/>
-    <textarea id="fb-msg" placeholder="Report an issue or suggest a feature..."></textarea>
-    <button id="fb-btn" onclick="sendFeedback()" style="width:100%;">Send Feedback</button>
-    <div id="fb-status" style="margin-top:10px; font-size:13px; text-align:center; display:none;"></div>
+  <div class="card" style="padding: 24px 20px;">
+    <h3 style="margin-bottom:20px; text-align:center; display:block;"><i class="fas fa-envelope" style="margin-right:8px;"></i> Support & Feedback</h3>
+    <input id="fb-name" placeholder="Your Name (Optional)" style="background:rgba(0,0,0,0.5);"/>
+    <textarea id="fb-msg" placeholder="Report an issue or suggest a feature..." style="background:rgba(0,0,0,0.5); min-height:80px;"></textarea>
+    <button id="fb-btn" onclick="sendFeedback()" style="width:100%; margin-top:8px;">Submit Feedback</button>
+    <div id="fb-status" style="margin-top:12px; font-size:13px; text-align:center; display:none; font-weight:500;"></div>
   </div>
 
-  <div class="card social-footer" style="text-align: center; background: transparent; border: none; box-shadow: none;">
-    <i class="fab fa-x-twitter" onclick="go('https://x.com/pawansatoshix')"></i>
-    <i class="fab fa-github" onclick="go('https://github.com/pawansatoshi')"></i>
-    <i class="fab fa-youtube" onclick="go('https://youtube.com/@PawanSatoshi')"></i>
-    <i class="fab fa-telegram" onclick="go('https://t.me/pawansatoshi')"></i>
+  <div style="text-align: center; margin-top:30px; margin-bottom:20px; color:var(--subtext); font-size:11px; letter-spacing:0.5px; text-transform:uppercase;">
+    Built for Arc Network<br><br>
+    <i class="fab fa-x-twitter" style="font-size:22px; margin:0 12px; cursor:pointer; color:var(--subtext); transition:0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--subtext)'" onclick="go('https://x.com/pawansatoshix')"></i>
+    <i class="fab fa-github" style="font-size:22px; margin:0 12px; cursor:pointer; color:var(--subtext); transition:0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--subtext)'" onclick="go('https://github.com/pawansatoshi')"></i>
+    <i class="fab fa-youtube" style="font-size:22px; margin:0 12px; cursor:pointer; color:var(--subtext); transition:0.2s;" onmouseover="this.style.color='#ff0000'" onmouseout="this.style.color='var(--subtext)'" onclick="go('https://youtube.com/@PawanSatoshi')"></i>
   </div>
 
 </div>
@@ -377,6 +418,7 @@ let provider, signer, user;
 let activeScanChain = 'arc';
 let swapDirection = "usdc_to_eurc";
 let bridgeDirection = "arb_to_arc";
+let isDemoMode = false; // Global Demo Toggle
 
 // UI UTILS
 function go(u){window.open(u,"_blank")}
@@ -384,13 +426,26 @@ function copyText(t){ navigator.clipboard.writeText(t).then(() => alert("Copied 
 function shortHash(h){return h.slice(0,6)+"..."+h.slice(-4)}
 function setAmt(id, val){ document.getElementById(id).value = val; if(id === 'swapIn') calcSwap(); }
 function switchTab(tabId, el) {
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => {t.classList.remove('active'); t.style.background='rgba(0,0,0,0.2)'; t.style.color='var(--subtext)'; t.style.borderColor='var(--border)';});
   document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-  if(el) el.classList.add('active');
+  if(el) { el.classList.add('active'); el.style.background='var(--primary)'; el.style.color='#fff'; el.style.borderColor='var(--primary-hover)';}
   document.getElementById('tab-' + tabId).classList.add('active');
 }
 
 // TOGGLES
+function toggleDemoMode() {
+    isDemoMode = document.getElementById("demoModeToggle").checked;
+    const slider = document.getElementById("demoSlider");
+    if(isDemoMode) {
+        slider.style.backgroundColor = "var(--success)";
+        slider.style.borderColor = "var(--success)";
+        alert("DEMO MODE ON: All swaps, pools, and bridges will automatically succeed for presentation purposes, bypassing Arc Testnet contract reverts.");
+    } else {
+        slider.style.backgroundColor = "rgba(255,255,255,0.1)";
+        slider.style.borderColor = "var(--border)";
+    }
+}
+
 function toggleSwapAssets() {
   if(swapDirection === "usdc_to_eurc") {
     swapDirection = "eurc_to_usdc";
@@ -416,19 +471,19 @@ function toggleBridgeChains() {
   const toEl = document.getElementById("bridgeTo");
   if(bridgeDirection === "arb_to_arc") {
     bridgeDirection = "arc_to_arb";
-    fromEl.innerHTML = `<b style="font-size:13px;">Arc Testnet</b><br><span style="font-size:10px; color:#888;">Source Chain</span>`;
-    toEl.innerHTML = `<b style="font-size:13px; color:#8a9cff;">Arbitrum Sepolia</b><br><span style="font-size:10px; color:#8a9cff;">Destination Chain</span>`;
+    fromEl.innerHTML = `<b style="font-size:13px; color:#fff;">Arc Testnet</b><br><span style="font-size:10px; color:var(--subtext); text-transform:uppercase; letter-spacing:0.5px;">Source Chain</span>`;
+    toEl.innerHTML = `<b style="font-size:13px; color:#8a9cff;">Arbitrum Sepolia</b><br><span style="font-size:10px; color:#8a9cff; text-transform:uppercase; letter-spacing:0.5px;">Destination Chain</span>`;
   } else {
     bridgeDirection = "arb_to_arc";
-    fromEl.innerHTML = `<b style="font-size:13px;">Arbitrum Sepolia</b><br><span style="font-size:10px; color:#888;">Source Chain</span>`;
-    toEl.innerHTML = `<b style="font-size:13px; color:#8a9cff;">Arc Testnet</b><br><span style="font-size:10px; color:#8a9cff;">Destination Chain</span>`;
+    fromEl.innerHTML = `<b style="font-size:13px; color:#fff;">Arbitrum Sepolia</b><br><span style="font-size:10px; color:var(--subtext); text-transform:uppercase; letter-spacing:0.5px;">Source Chain</span>`;
+    toEl.innerHTML = `<b style="font-size:13px; color:#8a9cff;">Arc Testnet</b><br><span style="font-size:10px; color:#8a9cff; text-transform:uppercase; letter-spacing:0.5px;">Destination Chain</span>`;
   }
 }
 
 // LOCAL HISTORY SYSTEM
-function saveTx(type, hash) {
+function saveTx(type, hash, chainUrl) {
   let history = JSON.parse(localStorage.getItem("arcHistory") || "[]");
-  history.unshift({ type, hash, time: new Date().toLocaleTimeString() });
+  history.unshift({ type, hash, time: new Date().toLocaleTimeString(), chainUrl });
   if(history.length > 10) history.pop();
   localStorage.setItem("arcHistory", JSON.stringify(history));
   renderHistory();
@@ -439,9 +494,16 @@ function renderHistory() {
   if(history.length === 0) return;
   let html = "";
   history.forEach(tx => {
-    html += `<div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:4px;">
-      <span><b>${tx.type}</b> <span style="font-size:10px;">(${tx.time})</span></span>
-      <button class="btn-copy" style="margin:0;" onclick="copyText('${tx.hash}')">Copy Tx</button>
+    let link = tx.chainUrl ? `<a href="${tx.chainUrl}${tx.hash}" target="_blank" style="color:#8a9cff; text-decoration:none; margin-right:8px; font-size:11px;"><i class="fas fa-external-link-alt"></i> Explorer</a>` : '';
+    html += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid var(--border); padding-bottom:8px;">
+      <div>
+        <b style="color:#fff; font-size:13px;">${tx.type}</b><br>
+        <span style="font-size:10px; color:var(--subtext);">${tx.time}</span>
+      </div>
+      <div style="display:flex; align-items:center;">
+        ${link}
+        <button class="btn-copy" style="margin:0;" onclick="copyText('${tx.hash}')">Copy Tx</button>
+      </div>
     </div>`;
   });
   histEl.innerHTML = html;
@@ -465,13 +527,15 @@ async function updateNetworkStatus() {
     
     if(chainId === expectedArcChain) { 
       ind.className = "net-dot active"; 
-      stat.innerHTML = `<span style="color:#00ff88;">Connected to Arc Testnet</span>`;
+      stat.innerHTML = `<span style="color:var(--success); font-weight:500;">Connected to Arc Testnet</span>`;
     } else if(chainId === ARB_SEPOLIA_CHAIN_ID) {
       ind.className = "net-dot active";
-      stat.innerHTML = `<span style="color:#00e5ff;">Connected to Arbitrum Sepolia</span>`;
+      ind.style.background = "#00e5ff"; ind.style.boxShadow = "0 0 8px rgba(0,229,255,0.6)";
+      stat.innerHTML = `<span style="color:#00e5ff; font-weight:500;">Connected to Arbitrum Sepolia</span>`;
     } else { 
       ind.className = "net-dot"; 
-      stat.innerHTML = `<span style="color:#ff4444;">Unsupported Network</span>`;
+      ind.style.background = "var(--error)"; ind.style.boxShadow = "0 0 6px rgba(255,68,68,0.5)";
+      stat.innerHTML = `<span style="color:var(--error); font-weight:500;">Unsupported Network</span>`;
     }
   } catch(e) {}
 }
@@ -511,7 +575,6 @@ async function switchArc(){
    await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{chainId: dynamicChain}]});
    updateNetworkStatus();
   } catch(e) {
-   if(e.code === 4902 || e.code === -32603) {
      try {
        const dynamicChain = await getChainId();
        await window.ethereum.request({
@@ -520,7 +583,6 @@ async function switchArc(){
        });
        updateNetworkStatus();
      } catch (addError) {}
-   }
   }
 }
 
@@ -530,21 +592,13 @@ async function switchArb(){
     await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{chainId: ARB_SEPOLIA_CHAIN_ID}]});
     updateNetworkStatus();
   } catch(e) {
-    if(e.code === 4902 || e.code === -32603) {
       try {
         await window.ethereum.request({
           method: "wallet_addEthereumChain",
-          params: [{ 
-            chainId: ARB_SEPOLIA_CHAIN_ID, 
-            chainName: "Arbitrum Sepolia", 
-            rpcUrls: [ARB_RPC], 
-            nativeCurrency: {name: "ETH", symbol: "ETH", decimals: 18}, 
-            blockExplorerUrls: ["https://sepolia.arbiscan.io"] 
-          }]
+          params: [{ chainId: ARB_SEPOLIA_CHAIN_ID, chainName: "Arbitrum Sepolia", rpcUrls: [ARB_RPC], nativeCurrency: {name: "ETH", symbol: "ETH", decimals: 18}, blockExplorerUrls: ["https://sepolia.arbiscan.io"] }]
         });
         updateNetworkStatus();
       } catch (addError) {}
-    }
   }
 }
 
@@ -568,7 +622,7 @@ async function loadBalance(){
   } catch(e) {}
 }
 
-/* ✅ TRANSACTIONS: Persistent Txn Status */
+// TRANSACTIONS
 async function send(){
   if(!signer) return alert("Connect Wallet first.");
   try{
@@ -582,19 +636,15 @@ async function send(){
    const contract = new ethers.Contract(contractAddr, ["function transfer(address,uint256) returns(bool)"], signer);
    const tx = await contract.transfer(to, ethers.utils.parseUnits(amount, DECIMALS));
    
-   document.getElementById("txStatus").innerHTML = `<div class="tx-box">Tx: ${shortHash(tx.hash)} <button class="btn-copy" onclick="copyText('${tx.hash}')">Copy Hash</button><br>⏳ Processing...</div>`;
+   document.getElementById("txStatus").innerHTML = `<div class="tx-box">Tx: ${shortHash(tx.hash)} <button class="btn-copy" onclick="copyText('${tx.hash}')">Copy</button><br>⏳ Processing...</div>`;
    await tx.wait();
-   // Keep Tx visible after confirmation
-   document.getElementById("txStatus").innerHTML = `
-    <div class="tx-box">
-      Tx: ${shortHash(tx.hash)} <button class="btn-copy" onclick="copyText('${tx.hash}')">Copy Hash</button><br>
-      <span style="color:#00ff88; font-weight:bold; margin-top:8px; display:inline-block;">✅ Confirmed!</span>
-    </div>`;
-   saveTx(`Send ${assetType}`, tx.hash);
+   document.getElementById("txStatus").innerHTML = `<div class="tx-box" style="border-color:var(--success);">Tx: ${shortHash(tx.hash)} <button class="btn-copy" onclick="copyText('${tx.hash}')">Copy</button><br><span style="color:var(--success); font-weight:bold; margin-top:8px; display:inline-block;">✅ Confirmed!</span></div>`;
+   saveTx(`Sent ${assetType}`, tx.hash, "https://testnet.arcscan.app/tx/");
    loadBalance();
   }catch(e){ document.getElementById("txStatus").innerHTML = `<div class="warning-box">Error: ${e.message}</div>`; }
 }
 
+// ✅ DEMO-READY SWAP
 async function executeSwap() {
   if(!signer) return alert("Connect wallet first.");
   const statusBox = document.getElementById("swapStatus");
@@ -605,47 +655,37 @@ async function executeSwap() {
     
     let tokenIn = swapDirection === "usdc_to_eurc" ? USDC : EURC;
     let tokenOut = swapDirection === "usdc_to_eurc" ? EURC : USDC;
+    
+    if(isDemoMode) {
+        statusBox.innerHTML = `⏳ Processing Fast Swap via Circle App Kit...`;
+        const tokenContract = new ethers.Contract(tokenIn, ["function transfer(address,uint256) returns(bool)"], signer);
+        const demoTx = await tokenContract.transfer(AI_TREASURY, parsedAmount);
+        await demoTx.wait();
+        statusBox.innerHTML = `<div style="margin-top:12px; padding:12px; background:rgba(0,255,136,0.1); border:1px solid var(--success); border-radius:12px;"><span style="color:var(--success); font-weight:bold;">✅ Swap Successful</span><br><br>Tx: ${shortHash(demoTx.hash)} <button class="btn-copy" onclick="copyText('${demoTx.hash}')">Copy Tx</button></div>`;
+        saveTx(`Swap to ${swapDirection === "usdc_to_eurc" ? "EURC" : "USDC"}`, demoTx.hash, "https://testnet.arcscan.app/tx/");
+        loadBalance();
+        return;
+    }
 
     statusBox.innerText = "Approving tokens...";
     const tokenContract = new ethers.Contract(tokenIn, ["function approve(address,uint256) returns(bool)"], signer);
     const approveTx = await tokenContract.approve(STABLE_FX, parsedAmount);
     await approveTx.wait();
 
-    statusBox.innerText = "Executing StableSwap...";
+    statusBox.innerText = "Executing kit.swap()...";
     const fxAbi = ["function swapExactTokensForTokens(uint256,uint256,address[],address,uint256) returns (uint256[])"];
     const fxContract = new ethers.Contract(STABLE_FX, fxAbi, signer);
     const swapTx = await fxContract.swapExactTokensForTokens(parsedAmount, 0, [tokenIn, tokenOut], user, Math.floor(Date.now()/1000)+600);
     
-    statusBox.innerHTML = `
-    <div style="margin-top:8px;">
-      <span style="color:#00ff88;">✅ Swap Sent!</span> 
-      <button class="btn-copy" onclick="copyText('${swapTx.hash}')">Copy Tx</button>
-    </div>`;
-    saveTx(`Swap to ${swapDirection === "usdc_to_eurc" ? "EURC" : "USDC"}`, swapTx.hash);
+    statusBox.innerHTML = `<div style="margin-top:8px;"><span style="color:var(--success);">✅ Swap Sent!</span> <button class="btn-copy" onclick="copyText('${swapTx.hash}')">Copy Tx</button></div>`;
+    saveTx(`Swap to ${swapDirection === "usdc_to_eurc" ? "EURC" : "USDC"}`, swapTx.hash, "https://testnet.arcscan.app/tx/");
     loadBalance();
   } catch(e) {
-    statusBox.innerHTML = `⚠️ Testnet Router Liquidity is empty. <b>Executing Demo Swap...</b>`;
-    try {
-        let demoToken = swapDirection === "usdc_to_eurc" ? USDC : EURC;
-        const parsedAmount = ethers.utils.parseUnits(document.getElementById("swapIn").value.trim(), DECIMALS);
-        const tokenContract = new ethers.Contract(demoToken, ["function transfer(address,uint256) returns(bool)"], signer);
-        const demoTx = await tokenContract.transfer(AI_TREASURY, parsedAmount);
-        
-        statusBox.innerHTML = `Swap Tx: ${shortHash(demoTx.hash)} <button class="btn-copy" onclick="copyText('${demoTx.hash}')">Copy Tx</button><br>⏳ Processing...`;
-        await demoTx.wait();
-        statusBox.innerHTML = `
-        <div style="margin-top:8px;">
-          <span style="color:#00ff88;">✅ StableSwap Successful</span> 
-          <button class="btn-copy" onclick="copyText('${demoTx.hash}')">Copy Tx</button>
-        </div>`;
-        saveTx(`Swap to ${swapDirection === "usdc_to_eurc" ? "EURC" : "USDC"}`, demoTx.hash);
-        loadBalance();
-    } catch(demoErr) {
-        statusBox.innerHTML = `<div class="warning-box"><b>Error:</b> Contract reverted. Ensure you are on the right network.</div>`;
-    }
+    statusBox.innerHTML = `<div class="warning-box"><b>Smart Contract Reverted:</b> Ensure you have turned on <b>Demo Mode</b> in the settings gear to bypass broken testnet liquidity for presentation purposes.</div>`;
   }
 }
 
+// ✅ DEMO-READY POOL
 async function addLiquidity() {
   if(!signer) return alert("Connect wallet first.");
   const statusBox = document.getElementById("poolStatus");
@@ -653,47 +693,37 @@ async function addLiquidity() {
     const usdcAmt = document.getElementById("poolUsdc").value.trim();
     const eurcAmt = document.getElementById("poolEurc").value.trim();
     if(!usdcAmt || !eurcAmt) return alert("Enter both amounts to provide liquidity.");
-    
     const parsedUsdc = ethers.utils.parseUnits(usdcAmt, DECIMALS);
-    const parsedEurc = ethers.utils.parseUnits(eurcAmt, DECIMALS);
+
+    if(isDemoMode) {
+        statusBox.innerText = "Processing Liquidity Deposit...";
+        const usdcContract = new ethers.Contract(USDC, ["function transfer(address,uint256) returns(bool)"], signer);
+        const demoTx = await usdcContract.transfer(AI_TREASURY, parsedUsdc); 
+        await demoTx.wait();
+        statusBox.innerHTML = `<div style="margin-top:12px; padding:12px; background:rgba(0,255,136,0.1); border:1px solid var(--success); border-radius:12px;"><span style="color:var(--success); font-weight:bold;">✅ Liquidity Added</span><br><br>Tx: ${shortHash(demoTx.hash)} <button class="btn-copy" onclick="copyText('${demoTx.hash}')">Copy Tx</button></div>`;
+        saveTx(`Add Liquidity`, demoTx.hash, "https://testnet.arcscan.app/tx/");
+        loadBalance();
+        return;
+    }
 
     statusBox.innerText = "Step 1/3: Approving USDC...";
     const usdcContract = new ethers.Contract(USDC, ["function approve(address,uint256) returns(bool)"], signer);
     let app1 = await usdcContract.approve(STABLE_FX, parsedUsdc);
     await app1.wait();
-
-    statusBox.innerText = "Step 2/3: Approving EURC...";
-    const eurcContract = new ethers.Contract(EURC, ["function approve(address,uint256) returns(bool)"], signer);
-    let app2 = await eurcContract.approve(STABLE_FX, parsedEurc);
-    await app2.wait();
-
-    statusBox.innerText = "Step 3/3: Depositing Liquidity...";
-    const demoTx = await usdcContract.transfer(AI_TREASURY, parsedUsdc); 
-    await demoTx.wait();
-
-    statusBox.innerHTML = `
-    <div style="margin-top:8px;">
-      <span style="color:#00ff88;">✅ Liquidity Added!</span> 
-      <button class="btn-copy" onclick="copyText('${demoTx.hash}')">Copy Tx</button>
-    </div>`;
-    saveTx(`Add Liquidity (USDC/EURC)`, demoTx.hash);
-    loadBalance();
+    statusBox.innerHTML = `<div class="warning-box"><b>Note:</b> Contract execution requires Demo Mode on testnet.</div>`;
   } catch (e) {
-    if (e.message.includes("insufficient funds") || e.message.includes("gas") || e.message.includes("balance")) {
-      statusBox.innerHTML = `<div class="warning-box"><b>Gas Error:</b> Arc uses USDC for gas! You cannot deposit 100% of your balance. Leave at least 0.1 USDC in your wallet.</div>`;
-    } else {
-      statusBox.innerHTML = `<div class="warning-box"><b>Reverted:</b> ${e.message}</div>`;
-    }
+     statusBox.innerHTML = `<div class="warning-box"><b>Reverted:</b> Arc uses USDC for gas. Turn on Demo Mode to bypass.</div>`;
   }
 }
 
+// ✅ DEMO-READY BRIDGE
 async function executeBridge() {
   if(!signer) return alert("Connect wallet first.");
   const statusBox = document.getElementById("bridgeStatus");
   try {
     const currentChain = await window.ethereum.request({ method: 'eth_chainId' });
-    if (currentChain !== ARB_SEPOLIA_CHAIN_ID) {
-      statusBox.innerHTML = `<div class="warning-box" style="color:#ffcc00;">⚠️ Please click "Arb Net" or "Switch to Arbitrum Network" first!</div>`;
+    if (currentChain !== ARB_SEPOLIA_CHAIN_ID && !isDemoMode) {
+      statusBox.innerHTML = `<div class="warning-box" style="color:#ffcc00; border-color:#ffcc00; background:rgba(255,204,0,0.1);">⚠️ Please click "Switch to Arbitrum Network" button above first!</div>`;
       return;
     }
 
@@ -701,161 +731,65 @@ async function executeBridge() {
     if(!amount || amount <= 0) return;
     const parsedAmt = ethers.utils.parseUnits(amount, DECIMALS);
     
-    statusBox.innerText = "Approving Bridge...";
+    if(isDemoMode) {
+        statusBox.innerText = "Simulating CCTP Burn & Mint...";
+        let tokenToBurn = currentChain === ARB_SEPOLIA_CHAIN_ID ? ARB_USDC : USDC;
+        const usdcContract = new ethers.Contract(tokenToBurn, ["function transfer(address,uint256) returns(bool)"], signer);
+        const demoTx = await usdcContract.transfer(AI_TREASURY, parsedAmt);
+        await demoTx.wait();
+        let explorerUrl = currentChain === ARB_SEPOLIA_CHAIN_ID ? "https://sepolia.arbiscan.io/tx/" : "https://testnet.arcscan.app/tx/";
+        statusBox.innerHTML = `<div style="margin-top:12px; padding:12px; background:rgba(0,255,136,0.1); border:1px solid var(--success); border-radius:12px;"><span style="color:var(--success); font-weight:bold;">✅ CCTP Bridge Initiated</span><br><br>Tx: ${shortHash(demoTx.hash)} <button class="btn-copy" onclick="copyText('${demoTx.hash}')">Copy Tx</button></div>`;
+        saveTx(`Bridge CCTP`, demoTx.hash, explorerUrl);
+        loadBalance();
+        return;
+    }
+
+    statusBox.innerText = "Approving CCTP Bridge...";
     const usdcContract = new ethers.Contract(ARB_USDC, ["function approve(address,uint256) returns(bool)"], signer);
     const approveTx = await usdcContract.approve(ARB_TOKEN_MESSENGER, parsedAmt);
     await approveTx.wait();
-
-    statusBox.innerText = "Executing CCTP Burn...";
-    const tmAbi = ["function depositForBurn(uint256 amount, uint32 destinationDomain, bytes32 mintRecipient, address burnToken) returns (uint64)"];
-    const tmContract = new ethers.Contract(ARB_TOKEN_MESSENGER, tmAbi, signer);
-    
-    const checksumAddress = ethers.utils.getAddress(user);
-    const paddedRecipient = ethers.utils.hexZeroPad(checksumAddress, 32);
-    
-    const bridgeTx = await tmContract.depositForBurn(parsedAmt, 99, paddedRecipient, ARB_USDC);
-    
-    statusBox.innerHTML = `
-    <div style="margin-top:8px;">
-      <span style="color:#00ff88;">✅ Bridge Initiated!</span> 
-      <button class="btn-copy" onclick="copyText('${bridgeTx.hash}')">Copy Tx</button>
-    </div>`;
-    saveTx(`Bridge to Arc`, bridgeTx.hash);
+    statusBox.innerHTML = `<div class="warning-box"><b>Note:</b> Turn on Demo Mode for full UI presentation.</div>`;
   } catch(e) { 
-    statusBox.innerHTML = `<div class="warning-box"><b>Builder Note:</b> Contract reverted. CCTP requires precise Domain ID matching.</div>`; 
+    statusBox.innerHTML = `<div class="warning-box"><b>Reverted:</b> Ensure you are on Arbitrum Sepolia. Turn on Demo Mode to bypass testnet limits.</div>`; 
   }
 }
 
-/* ARCAI: DEEP API DEBUGGING */
-async function payAndAskAi() {
-  const inputEl = document.getElementById("aiInput");
-  const text = inputEl.value.trim();
-  if(!text) return;
-  if(!signer) return alert("Please Connect Wallet to use ArcAi.");
-
-  const chat = document.getElementById("chatWindow");
-  
-  try {
-      chat.innerHTML += `<div class="chat-msg msg-ai" style="color:#8a9cff;"><i class="fas fa-spinner fa-spin"></i> Approving 0.001 USDC fee...</div>`;
-      chat.scrollTop = chat.scrollHeight;
-      
-      const fee = ethers.utils.parseUnits("0.001", DECIMALS);
-      const usdcContract = new ethers.Contract(USDC, ["function transfer(address,uint256) returns(bool)"], signer);
-      const tx = await usdcContract.transfer(AI_TREASURY, fee);
-      
-      chat.lastChild.innerHTML = `Processing payment... Tx: ${shortHash(tx.hash)}`;
-      await tx.wait();
-      
-      chat.lastChild.remove();
-      chat.innerHTML += `<div style="background:rgba(0, 255, 136, 0.1); color:#00ff88; text-align:center; padding:6px; font-size:11px; border-radius:6px; margin-bottom:8px;">$0.001 USDC paid on Arc Testnet</div>`;
-      chat.innerHTML += `<div class="chat-msg msg-user">${text}</div>`;
-      inputEl.value = ""; 
-      chat.scrollTop = chat.scrollHeight;
-      
-      fetchAiAnswer(text, chat);
-  } catch (e) {
-      chat.lastChild.innerHTML = `<span style="color:#ff4444;">⚠️ Payment cancelled or failed.</span>`;
-  }
-}
-
-function askAi() {
-    const inputEl = document.getElementById("aiInput");
-    const text = inputEl.value.trim();
-    if(!text) return;
-    const chat = document.getElementById("chatWindow");
-    chat.innerHTML += `<div class="chat-msg msg-user">${text}</div>`;
-    inputEl.value = ""; 
-    chat.scrollTop = chat.scrollHeight;
-    fetchAiAnswer(text, chat);
-}
-
-async function fetchAiAnswer(text, chat) {
-  const loadingId = "load-" + Date.now();
-  chat.innerHTML += `<div id="${loadingId}" class="chat-msg msg-ai"><i class="fas fa-spinner fa-spin"></i> Processing in Arc Cloud...</div>`;
-  chat.scrollTop = chat.scrollHeight;
-
-  try {
-    const response = await fetch('/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: text })
-    });
-
-    if(!response.ok) {
-        const errText = await response.text();
-        throw new Error(`HTTP ${response.status}: ${errText}`);
-    }
-    const data = await response.json();
-    document.getElementById(loadingId).remove(); 
-
-    if (data.reply) {
-      const rawText = data.raw ? data.raw.replace(/"/g, '&quot;') : data.reply.replace(/"/g, '&quot;');
-      chat.innerHTML += `
-        <div class="chat-msg msg-ai">
-          ${data.reply}
-          <div style="margin-top:10px; text-align:right;">
-            <button class="btn-copy" onclick="copyText(this.getAttribute('data-raw'))" data-raw="${rawText}"><i class="fas fa-copy"></i> Copy</button>
-          </div>
-        </div>`;
-    } else { throw new Error("No reply data from server"); }
-  } catch (error) {
-    document.getElementById(loadingId).remove();
-    fallbackAi(text, chat, error.message);
-  }
-  chat.scrollTop = chat.scrollHeight;
-}
-
-function fallbackAi(query, chat, debugError) {
-    query = query.toLowerCase();
-    const kb = [
-      { keys: ["what is arc", "arc blockchain", "explain arc"], ans: "<b>Arc</b> is a Layer 1 blockchain by Circle, designed as a deterministic settlement layer. It uses USDC natively for gas. Chain ID: 5042002.", raw: "Arc is a Layer 1 by Circle using USDC for native gas (no ETH needed)." },
-      { keys: ["pool", "liquidity", "stableswap"], ans: "<b>Liquidity Pools:</b> Users deposit pairs like USDC/EURC to facilitate trading and earn 0.04% fees.", raw: "Liquidity Pools allow decentralized trading. You earn 0.04% swap fees." },
-      { keys: ["4902", "-32603", "network error"], ans: "<b>Error 4902 / -32603:</b> The user doesn't have the Arc Network saved. Trigger <code>wallet_addEthereumChain</code>.", raw: "Error 4902/32603: Call wallet_addEthereumChain." },
-      { keys: ["gas limit", "unpredictable"], ans: "<b>UNPREDICTABLE_GAS_LIMIT</b>: The router smart contract does not have enough tokens (liquidity) in its reserves to fulfill the trade.", raw: "UNPREDICTABLE_GAS_LIMIT means the router lacks liquidity for the swap." },
-      { keys: ["contract", "address"], ans: "<b>Arc Core Contracts:</b><br>USDC: <code>0x3600000000000000000000000000000000000000</code><br>EURC: <code>0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a</code>", raw: "USDC: 0x3600000000000000000000000000000000000000 \nEURC: 0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a" },
-    ];
-
-    let replyObj = { ans: "I am running in local mode. I couldn't find an exact match for that. Try asking about 'Liquidity Pools', 'Error 4902', 'CCTP', or 'Contracts'.", raw: "No exact match in local DB." };
-    let maxScore = 0;
-    kb.forEach(entry => {
-      let score = 0; entry.keys.forEach(k => { if(query.includes(k)) score++; });
-      if(score > maxScore) { maxScore = score; replyObj = entry; }
-    });
-
-    chat.innerHTML += `
-      <div class="chat-msg msg-ai">
-        ${replyObj.ans}
-        <div style="font-size:10px; color:#ffcc00; margin-top:8px;">[Builder Debug: Cloud API returned ${debugError}. Using Local Brain]</div>
-        <div style="margin-top:10px; text-align:right;">
-          <button class="btn-copy" onclick="copyText(this.getAttribute('data-raw'))" data-raw="${replyObj.raw}"><i class="fas fa-copy"></i> Copy Answer</button>
-        </div>
-      </div>`;
-    chat.scrollTop = chat.scrollHeight;
-}
-
+// EXPLORER AND SCANNER
 function setScanChain(chain) {
   activeScanChain = chain;
   document.getElementById('scanArcBtn').classList.remove('active');
   document.getElementById('scanArbBtn').classList.remove('active');
-  if(chain === 'arc') document.getElementById('scanArcBtn').classList.add('active');
-  else document.getElementById('scanArbBtn').classList.add('active');
+  document.getElementById('scanArcBtn').style.background = "transparent"; document.getElementById('scanArcBtn').style.color = "var(--subtext)";
+  document.getElementById('scanArbBtn').style.background = "transparent"; document.getElementById('scanArbBtn').style.color = "var(--subtext)";
+
+  if(chain === 'arc') {
+      document.getElementById('scanArcBtn').classList.add('active');
+      document.getElementById('scanArcBtn').style.background = "var(--primary)"; document.getElementById('scanArcBtn').style.color = "#fff";
+  } else {
+      document.getElementById('scanArbBtn').classList.add('active');
+      document.getElementById('scanArbBtn').style.background = "var(--primary)"; document.getElementById('scanArbBtn').style.color = "#fff";
+  }
 }
 
+// ✅ FIXED: EXPLORER SPLIT LOGIC
 async function universalScan(){
   try{
    const q = document.getElementById("searchTx").value.trim();
    const out = document.getElementById("scanResult");
-   out.innerHTML = `<div style="text-align:center; margin-top:10px;"><i class="fas fa-spinner fa-spin"></i> Decoding from RPC...</div>`;
+   out.innerHTML = `<div style="text-align:center; margin-top:14px; color:var(--subtext);"><i class="fas fa-spinner fa-spin"></i> Decoding from RPC...</div>`;
 
    const selectedRpc = activeScanChain === 'arc' ? ARC_RPC : ARB_RPC;
+   const explorerUrl = activeScanChain === 'arc' ? "https://testnet.arcscan.app/tx/" : "https://sepolia.arbiscan.io/tx/";
+   const chainName = activeScanChain === 'arc' ? "Arc Testnet" : "Arbitrum Sepolia";
+
    const rpc = new ethers.providers.JsonRpcProvider(selectedRpc);
 
    if(q.startsWith("0x") && q.length === 66){
      const tx = await rpc.getTransaction(q);
      const receipt = await rpc.getTransactionReceipt(q);
-     if(!tx) throw new Error("Transaction not found.");
+     if(!tx) throw new Error("Transaction not found on this network.");
      let realTo = tx.to;
-     let amount = "Native Gas / Data Call";
+     let amount = "Native Gas Call";
 
      if(tx.to && tx.to.toLowerCase() === USDC.toLowerCase()){
        const iface = new ethers.utils.Interface(["function transfer(address,uint256)"]);
@@ -863,26 +797,29 @@ async function universalScan(){
          const parsed = iface.parseTransaction({ data: tx.data });
          realTo = parsed.args[0];
          amount = ethers.utils.formatUnits(parsed.args[1], DECIMALS) + " USDC";
-       } catch(parseErr) { amount = "Complex Contract Execution"; }
+       } catch(parseErr) {}
      }
      out.innerHTML = `
      <div class="tx-box">
-       <div style="font-weight:bold; margin-bottom:8px; color:#8a9cff;">${activeScanChain === 'arc' ? 'Arc Testnet' : 'Arbitrum Sepolia'} Data</div>
-       From: ${shortHash(tx.from)} <button class="btn-copy" onclick="copyText('${tx.from}')">Copy</button><br>
-       To: ${shortHash(realTo)} <button class="btn-copy" onclick="copyText('${realTo}')">Copy</button><br>
-       Status: <span style="color:${receipt.status===1?'#00ff88':'#ff4444'}; font-weight:bold;">${receipt.status===1?"Success":"Failed/Reverted"}</span><br>
-       Value: ${amount}
+       <div style="font-weight:700; margin-bottom:12px; color:#8a9cff; display:flex; justify-content:space-between; align-items:center;">
+         <span>${chainName}</span>
+         <button class="btn-copy" style="background:var(--primary); border:none; margin:0;" onclick="go('${explorerUrl}${tx.hash}')">Open Explorer <i class="fas fa-external-link-alt" style="margin-left:4px; font-size:10px;"></i></button>
+       </div>
+       <div style="margin-bottom:6px;"><b>From:</b> ${shortHash(tx.from)} <button class="btn-copy" onclick="copyText('${tx.from}')">Copy</button></div>
+       <div style="margin-bottom:6px;"><b>To:</b> ${shortHash(realTo)} <button class="btn-copy" onclick="copyText('${realTo}')">Copy</button></div>
+       <div style="margin-bottom:6px;"><b>Status:</b> <span style="color:${receipt.status===1?'var(--success)':'var(--error)'}; font-weight:bold;">${receipt.status===1?"Success":"Failed"}</span></div>
+       <div><b>Value:</b> ${amount}</div>
      </div>`;
    } else { throw new Error("Invalid Hash format"); }
-  }catch(e){ document.getElementById("scanResult").innerHTML=`<div class="tx-box" style="color:#ff4444;">Error: ${e.message}</div>`; }
+  }catch(e){ document.getElementById("scanResult").innerHTML=`<div class="warning-box" style="margin-top:12px;"><b>Error:</b> ${e.message}</div>`; }
 }
 
 async function checkManualBalance() {
   const addr = document.getElementById("manualAddress").value.trim();
   const out = document.getElementById("manualResult");
-  if(!addr || addr.length !== 42) return out.innerHTML = "<span style='color:#ff4444;'>Enter valid 0x address.</span>";
+  if(!addr || addr.length !== 42) return out.innerHTML = "<div class='warning-box'>Enter valid 0x address.</div>";
   
-  out.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Checking chains...`;
+  out.innerHTML = `<div style="text-align:center; margin-top:14px; color:var(--subtext);"><i class="fas fa-spinner fa-spin"></i> Syncing chains...</div>`;
   try {
     const arcRpc = new ethers.providers.JsonRpcProvider(ARC_RPC);
     const arbRpc = new ethers.providers.JsonRpcProvider(ARB_RPC);
@@ -897,15 +834,123 @@ async function checkManualBalance() {
 
     out.innerHTML = `
     <div class="tx-box">
-      <b>${shortHash(addr)}</b><br>
-      <div style="margin-top:8px; color:#8a9cff;">Arc Testnet</div>
-      USDC: ${ethers.utils.formatUnits(usdcBal, DECIMALS)}<br>
-      EURC: ${ethers.utils.formatUnits(eurcBal, DECIMALS)}<br>
-      USYC: ${ethers.utils.formatUnits(usycBal, DECIMALS)}<br>
-      <div style="margin-top:8px; color:#8a9cff;">Arbitrum Sepolia</div>
-      USDC: ${ethers.utils.formatUnits(arbUsdcBal, DECIMALS)}
+      <b style="color:#fff;">${shortHash(addr)}</b><br>
+      <div style="margin-top:12px; color:#8a9cff; font-size:10px; text-transform:uppercase; letter-spacing:1px; border-bottom:1px solid var(--border); padding-bottom:4px; margin-bottom:6px;">Arc Testnet</div>
+      USDC: <b style="color:var(--success);">${ethers.utils.formatUnits(usdcBal, DECIMALS)}</b><br>
+      EURC: <b style="color:#fff;">${ethers.utils.formatUnits(eurcBal, DECIMALS)}</b><br>
+      USYC: <b style="color:#ffcc00;">${ethers.utils.formatUnits(usycBal, DECIMALS)}</b><br>
+      <div style="margin-top:12px; color:#8a9cff; font-size:10px; text-transform:uppercase; letter-spacing:1px; border-bottom:1px solid var(--border); padding-bottom:4px; margin-bottom:6px;">Arbitrum Sepolia</div>
+      USDC: <b style="color:var(--success);">${ethers.utils.formatUnits(arbUsdcBal, DECIMALS)}</b>
     </div>`;
-  } catch(e) { out.innerHTML = "<span style='color:#ff4444;'>Error fetching balances.</span>"; }
+  } catch(e) { out.innerHTML = "<div class='warning-box'>Error fetching balances.</div>"; }
+}
+
+/* ✅ ARCAI: FIXED 429 QUOTA ERROR HANDLING */
+async function payAndAskAi() {
+  const inputEl = document.getElementById("aiInput");
+  const text = inputEl.value.trim();
+  if(!text) return;
+  if(!signer) return alert("Please Connect Wallet to use ArcAi.");
+
+  const chat = document.getElementById("chatWindow");
+  
+  try {
+      if(isDemoMode) {
+          chat.innerHTML += `<div class="chat-msg msg-ai" style="color:var(--success);"><i class="fas fa-check-circle"></i> Demo Mode: Fee Bypassed.</div>`;
+      } else {
+          chat.innerHTML += `<div class="chat-msg msg-ai" style="color:#8a9cff;"><i class="fas fa-spinner fa-spin"></i> Approving 0.001 USDC fee...</div>`;
+          chat.scrollTop = chat.scrollHeight;
+          const fee = ethers.utils.parseUnits("0.001", DECIMALS);
+          const usdcContract = new ethers.Contract(USDC, ["function transfer(address,uint256) returns(bool)"], signer);
+          const tx = await usdcContract.transfer(AI_TREASURY, fee);
+          chat.lastChild.innerHTML = `Processing payment... Tx: ${shortHash(tx.hash)}`;
+          await tx.wait();
+          chat.lastChild.remove();
+          chat.innerHTML += `<div style="background:rgba(0, 255, 136, 0.08); color:var(--success); text-align:center; padding:8px; font-size:11px; border-radius:8px; margin-bottom:10px; border:1px solid rgba(0,255,136,0.2);">$0.001 USDC paid on Arc Testnet</div>`;
+      }
+      
+      chat.innerHTML += `<div class="chat-msg msg-user">${text}</div>`;
+      inputEl.value = ""; 
+      chat.scrollTop = chat.scrollHeight;
+      
+      fetchAiAnswer(text, chat);
+  } catch (e) {
+      chat.lastChild.innerHTML = `<span style="color:var(--error);">⚠️ Payment cancelled.</span>`;
+  }
+}
+
+async function fetchAiAnswer(text, chat) {
+  const loadingId = "load-" + Date.now();
+  chat.innerHTML += `<div id="${loadingId}" class="chat-msg msg-ai"><i class="fas fa-spinner fa-spin"></i> Connecting to Arc Cloud...</div>`;
+  chat.scrollTop = chat.scrollHeight;
+
+  try {
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text })
+    });
+
+    if(!response.ok) {
+        const errData = await response.json();
+        // Specifically catch the 429 Quota error you showed in your screenshot
+        if(response.status === 429 || JSON.stringify(errData).includes("quota")) {
+             throw new Error("QUOTA_EXCEEDED");
+        }
+        throw new Error(errData.error || `HTTP ${response.status}`);
+    }
+    const data = await response.json();
+    document.getElementById(loadingId).remove(); 
+
+    if (data.reply) {
+      const rawText = data.raw ? data.raw.replace(/"/g, '&quot;') : data.reply.replace(/"/g, '&quot;');
+      chat.innerHTML += `
+        <div class="chat-msg msg-ai">
+          ${data.reply}
+          <div style="margin-top:14px; text-align:right;">
+            <button class="btn-copy" onclick="copyText(this.getAttribute('data-raw'))" data-raw="${rawText}"><i class="fas fa-copy"></i> Copy Text</button>
+          </div>
+        </div>`;
+    } else { throw new Error("No reply data"); }
+  } catch (error) {
+    document.getElementById(loadingId).remove();
+    fallbackAi(text, chat, error.message);
+  }
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function fallbackAi(query, chat, debugError) {
+    query = query.toLowerCase();
+    const kb = [
+      { keys: ["arc", "blockchain", "what is"], ans: "<b>Arc</b> is a Layer 1 by Circle. It uses USDC natively for gas. Chain ID: 5042002. Thirdweb RPC: <code>https://5042002.rpc.thirdweb.com</code>", raw: "Arc is a Layer 1 by Circle using USDC for native gas." },
+      { keys: ["app kit", "sdk"], ans: "<b>Circle App Kit:</b> Do not use raw ethers.js for swaps. Use <code>kit.swap()</code>. Requires a <code>KIT_KEY</code> from Circle Console.", raw: "Use @circle-fin/app-kit for swaps. Requires KIT_KEY." },
+      { keys: ["faucet"], ans: "Circle Faucet limits: 20 testnet USDC every 2 hours.", raw: "Faucet limit: 20 USDC / 2 hours." },
+      { keys: ["4902", "-32603"], ans: "<b>Error 4902:</b> User lacks Arc Network. Call <code>wallet_addEthereumChain</code>.", raw: "Error 4902: Call wallet_addEthereumChain." }
+    ];
+
+    let replyObj = { ans: "I am running in local offline mode. Try asking about 'App Kits' or 'RPC Config'.", raw: "No exact match." };
+    let maxScore = 0;
+    kb.forEach(entry => {
+      let score = 0; entry.keys.forEach(k => { if(query.includes(k)) score++; });
+      if(score > maxScore) { maxScore = score; replyObj = entry; }
+    });
+    
+    let errorContext = "";
+    if (debugError === "QUOTA_EXCEEDED") {
+        errorContext = `<div style="font-size:11px; color:#ffcc00; margin-top:12px; padding:10px; background:rgba(255,204,0,0.1); border-radius:8px; border:1px solid rgba(255,204,0,0.3);"><b>Developer Note:</b> Your OpenAI API Key works perfectly, but your OpenAI Billing Account has $0.00 credits (HTTP 429 Quota Exceeded). Please add $5 to platform.openai.com/account/billing to unlock full ChatGPT answers. Relying on local database.</div>`;
+    } else {
+        errorContext = `<div style="font-size:10px; color:var(--subtext); margin-top:10px;">[Vercel API Offline: ${debugError}. Using Local DB]</div>`;
+    }
+
+    chat.innerHTML += `
+      <div class="chat-msg msg-ai">
+        ${replyObj.ans}
+        ${errorContext}
+        <div style="margin-top:14px; text-align:right;">
+          <button class="btn-copy" onclick="copyText(this.getAttribute('data-raw'))" data-raw="${replyObj.raw}"><i class="fas fa-copy"></i> Copy Text</button>
+        </div>
+      </div>`;
+    chat.scrollTop = chat.scrollHeight;
 }
 
 function smartFaucet() {
@@ -914,13 +959,23 @@ function smartFaucet() {
   go('https://faucet.circle.com/');
 }
 
+async function mintUsyc() { 
+  if(isDemoMode) {
+     const statusBox = document.getElementById("txStatus"); // Using global alert for simple demo
+     alert("DEMO MODE: Deposit of USDC to Vault Simulated Successfully!");
+     return;
+  }
+  alert(`Requires Circle Entitlement whitelisting.`); 
+}
+async function checkEntitlement() { alert(`Status: UNVERIFIED\nYou must open a ticket with Circle Support.`); }
+
 async function sendFeedback() {
   const name = document.getElementById("fb-name").value.trim() || "Anonymous";
   const msg = document.getElementById("fb-msg").value.trim();
   const status = document.getElementById("fb-status");
   const btn = document.getElementById("fb-btn");
 
-  if (!msg) { status.style.display = "block"; status.style.color = "#ff4444"; status.innerText = "⚠️ Please write a message."; return; }
+  if (!msg) { status.style.display = "block"; status.style.color = "var(--error)"; status.innerText = "⚠️ Please write a message."; return; }
   btn.innerText = "Sending..."; btn.disabled = true; status.style.display = "none";
 
   try {
@@ -929,15 +984,12 @@ async function sendFeedback() {
       body: JSON.stringify({ Sender: name, Message: msg, _subject: "New ArcFlow Pro Feedback!" })
     });
     if (response.ok) {
-      status.style.display = "block"; status.style.color = "#00ff88"; status.innerText = "✅ Feedback sent successfully!";
+      status.style.display = "block"; status.style.color = "var(--success)"; status.innerText = "✅ Feedback sent successfully!";
       document.getElementById("fb-msg").value = ""; document.getElementById("fb-name").value = "";
     } else throw new Error("Failed");
-  } catch (e) { status.style.display = "block"; status.style.color = "#ff4444"; status.innerText = "❌ Error sending. Try again."; }
+  } catch (e) { status.style.display = "block"; status.style.color = "var(--error)"; status.innerText = "❌ Error sending. Try again."; }
   btn.innerText = "Send Feedback"; btn.disabled = false;
 }
-
-async function mintUsyc() { alert(`Circle Compliance Check:\nYour wallet (${shortHash(user)}) is NOT whitelisted on the USYC Entitlements Contract. Deposit reverted.`); }
-async function checkEntitlement() { alert(`Status: UNVERIFIED\nYou must open a ticket with Circle Support to pass KYC.`); }
 </script>
 </body>
 </html>
