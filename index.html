@@ -4,14 +4,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>ArcFlow Pro</title>
 
-<!-- ✅ FINAL FIXED FARCASTER FRAME -->
-<meta property="fc:frame" content='{"version":"next","imageUrl":"https://arcflow-router.vercel.app/frame.png?v=14","button":{"title":"Open ArcFlow","action":{"type":"link","url":"https://arcflow-router.vercel.app"}}}' />
+<!-- ✅ FARCASTER FRAME (STABLE v1) -->
+<meta property="fc:frame" content="vNext" />
+<meta property="fc:frame:image" content="https://arcflow-router.vercel.app/frame.png?v=21" />
+<meta property="fc:frame:button:1" content="Open ArcFlow" />
+<meta property="fc:frame:button:1:action" content="link" />
+<meta property="fc:frame:button:1:target" content="https://arcflow-router.vercel.app" />
 
-<!-- OPEN GRAPH -->
+<!-- ✅ OPEN GRAPH -->
 <meta property="og:title" content="ArcFlow Pro" />
 <meta property="og:description" content="Arc ecosystem + wallet router in one place" />
-<meta property="og:image" content="https://arcflow-router.vercel.app/frame.png?v=14" />
+<meta property="og:image" content="https://arcflow-router.vercel.app/frame.png?v=21" />
 <meta property="og:url" content="https://arcflow-router.vercel.app/" />
+<meta property="og:type" content="website" />
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
@@ -66,6 +71,11 @@ input{width:100%;padding:10px;margin:5px 0;background:#0c1426;color:#fff;border:
 <h2>ArcFlow Pro</h2>
 <p style="opacity:0.6;">Arc ecosystem + wallet router in one place</p>
 
+<!-- ✅ Wallet notice (Farcaster safe) -->
+<p style="color:#f39c12;font-size:12px;">
+Note: Wallet features may not work inside Farcaster. Open in browser for full access.
+</p>
+
 <div class="card">
 <h3>Arc Ecosystem</h3>
 <div class="arc-container">
@@ -118,13 +128,16 @@ const DECIMALS = 6;
 
 let provider, signer, user;
 
-function go(u){window.open(u,"_blank")}
+// ✅ Farcaster-safe navigation
+function go(u){
+  window.location.href = u;
+}
 
-// ✅ FIXED CONNECT (NO CRASH IN FARCASTER)
+// CONNECT
 async function connect(){
  try{
   if(!window.ethereum){
-    document.getElementById("status").innerText = "Wallet not available in Farcaster";
+    document.getElementById("status").innerText = "Wallet not available here";
     return;
   }
 
@@ -144,6 +157,7 @@ async function connect(){
  }
 }
 
+// SWITCH NETWORK
 async function switchArc(){
  try{
   if(!window.ethereum){
@@ -168,8 +182,11 @@ async function switchArc(){
  }
 }
 
+// BALANCE
 async function loadBalance(){
  try{
+  if(!provider || !user) return;
+
   const contract = new ethers.Contract(USDC,[
     "function balanceOf(address) view returns(uint256)"
   ],provider);
@@ -184,10 +201,11 @@ async function loadBalance(){
  }
 }
 
+// SEND
 async function send(){
  try{
-  if(!window.ethereum){
-    document.getElementById("status").innerText = "Wallet not available";
+  if(!signer){
+    alert("Connect wallet first");
     return;
   }
 
@@ -210,6 +228,7 @@ async function send(){
  }
 }
 
+// SCANNER
 function isAddress(x){return /^0x[a-fA-F0-9]{40}$/.test(x)}
 function isTx(x){return /^0x([A-Fa-f0-9]{64})$/.test(x)}
 
@@ -220,6 +239,11 @@ async function scan(){
 
  try{
   const p = window.ethereum;
+
+  if(!p){
+    out.innerHTML="Scanner not supported here";
+    return;
+  }
 
   if(isTx(q)){
    const tx = await p.request({
@@ -262,4 +286,4 @@ async function scan(){
 </script>
 
 </body>
-                                                                             </html>
+  </html>
