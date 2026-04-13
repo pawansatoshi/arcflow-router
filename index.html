@@ -4,14 +4,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>ArcFlow Pro</title>
 
-<meta property="fc:frame" content='{"version":"next","imageUrl":"https://arcflow-router.vercel.app/frame.png?v=13","button":{"title":"Open ArcFlow","action":{"type":"launch_frame","name":"ArcFlow Pro","url":"https://arcflow-router.vercel.app"}}}' />
+<!-- ✅ cache bust added -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+
+<meta property="fc:frame" content='{"version":"next","imageUrl":"https://arcflow-router.vercel.app/frame.png?v=14","button":{"title":"Open ArcFlow","action":{"type":"launch_frame","name":"ArcFlow Pro","url":"https://arcflow-router.vercel.app"}}}' />
 
 <meta property="og:title" content="ArcFlow Pro" />
 <meta property="og:description" content="Arc ecosystem + wallet router in one place" />
-<meta property="og:image" content="https://arcflow-router.vercel.app/frame.png?v=13" />
+<meta property="og:image" content="https://arcflow-router.vercel.app/frame.png?v=14" />
 <meta property="og:url" content="https://arcflow-router.vercel.app/" />
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js?v=2"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
 <style>
@@ -107,13 +112,15 @@ input{width:100%;padding:10px;margin:5px 0;background:#0c1426;color:#fff;border:
 </div>
 
 <script>
-/* ✅ FIXED CHAIN ID */
-const ARC_CHAIN = "0x4CEB92"; // correct
+/* ✅ FINAL FIXED CHAIN ID */
+const ARC_CHAIN = "0x4CEB92"; // 5042002 correct
 const ARC_RPC = "https://rpc.testnet.arc.network";
 const USDC = "0x3600000000000000000000000000000000000000";
 const DECIMALS = 6;
 
 let provider, signer, user;
+
+console.log("CHAIN:", ARC_CHAIN); // debug confirm
 
 function go(u){window.open(u,"_blank")}
 function copyText(t){navigator.clipboard.writeText(t)}
@@ -189,7 +196,7 @@ async function send(){
  }
 }
 
-/* ✅ FIXED SWITCH ARC FUNCTION */
+/* ✅ FIXED SWITCH ARC */
 async function switchArc(){
  try{
   await window.ethereum.request({
