@@ -4,13 +4,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>ArcFlow Pro</title>
 
-<!-- ✅ FIXED FARCASTER FRAME (v2 MINI APP) -->
-<meta property="fc:frame" content='{"version":"next","imageUrl":"https://arcflow-router.vercel.app/frame.png?v=13","button":{"title":"Open ArcFlow","action":{"type":"launch_frame","name":"ArcFlow Pro","url":"https://arcflow-router.vercel.app"}}}' />
+<!-- ✅ FINAL FIXED FARCASTER FRAME -->
+<meta property="fc:frame" content='{"version":"next","imageUrl":"https://arcflow-router.vercel.app/frame.png?v=14","button":{"title":"Open ArcFlow","action":{"type":"link","url":"https://arcflow-router.vercel.app"}}}' />
 
 <!-- OPEN GRAPH -->
 <meta property="og:title" content="ArcFlow Pro" />
 <meta property="og:description" content="Arc ecosystem + wallet router in one place" />
-<meta property="og:image" content="https://arcflow-router.vercel.app/frame.png?v=13" />
+<meta property="og:image" content="https://arcflow-router.vercel.app/frame.png?v=14" />
 <meta property="og:url" content="https://arcflow-router.vercel.app/" />
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
@@ -120,9 +120,13 @@ let provider, signer, user;
 
 function go(u){window.open(u,"_blank")}
 
+// ✅ FIXED CONNECT (NO CRASH IN FARCASTER)
 async function connect(){
  try{
-  if(!window.ethereum) return alert("Install wallet");
+  if(!window.ethereum){
+    document.getElementById("status").innerText = "Wallet not available in Farcaster";
+    return;
+  }
 
   provider = new ethers.providers.Web3Provider(window.ethereum);
   await provider.send("eth_requestAccounts",[]);
@@ -142,6 +146,11 @@ async function connect(){
 
 async function switchArc(){
  try{
+  if(!window.ethereum){
+    document.getElementById("status").innerText = "Wallet not available";
+    return;
+  }
+
   await window.ethereum.request({
    method:"wallet_switchEthereumChain",
    params:[{chainId:ARC_CHAIN}]
@@ -177,6 +186,11 @@ async function loadBalance(){
 
 async function send(){
  try{
+  if(!window.ethereum){
+    document.getElementById("status").innerText = "Wallet not available";
+    return;
+  }
+
   const to = document.getElementById("to").value.trim();
   const amount = document.getElementById("amount").value.trim();
 
@@ -248,4 +262,4 @@ async function scan(){
 </script>
 
 </body>
-    </html>
+                                                                             </html>
