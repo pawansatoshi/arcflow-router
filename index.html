@@ -26,35 +26,6 @@ input{width:100%;padding:10px;margin:5px 0;background:#0c1426;color:#fff;border:
   right: 15px;
   width: 42px;
   height: 42px;
-  object-fit: contain;
-  z-index: 999;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.05);
-  padding: 6px;
-}
-
-.arc-container{display:flex;overflow-x:auto;gap:8px;padding-bottom:5px}
-.arc-container::-webkit-scrollbar{display:none;}
-
-.arc{
-  flex:0 0 auto;
-  padding:10px 14px;
-  background:#3b5cff;
-  border-radius:20px;
-  cursor:pointer;
-  font-size:12px;
-  white-space:nowrap;
-}
-
-.icon{font-size:22px;margin:10px;cursor:pointer}
-
-.warning{
-  background:#ff9800;
-  color:#000;
-  padding:10px;
-  border-radius:8px;
-  margin-bottom:15px;
-  font-size:13px;
 }
 
 .tx-box{
@@ -75,30 +46,13 @@ import sdk from "https://esm.sh/@farcaster/frame-sdk";
 sdk.actions.ready();
 </script>
 
-<div id="warn"></div>
-
-<a href="https://arc.network" target="_blank">
-  <img src="./logo.png" class="logo-top-right"/>
-</a>
-
 <h2>ArcFlow Pro</h2>
-<p style="opacity:0.6;">Arc ecosystem + wallet router in one place</p>
-
-<div class="card">
-<h3>Arc Ecosystem</h3>
-<div class="arc-container">
-  <div class="arc" onclick="go('https://faucet.circle.com')">Faucet</div>
-  <div class="arc" onclick="go('https://discord.gg/buildonarc')">Discord</div>
-  <div class="arc" onclick="go('https://arc.network')">Arc Hub</div>
-  <div class="arc" onclick="go('https://community.arc.network/home')">House</div>
-  <div class="arc" onclick="go('https://x.com/arc')">Arc X</div>
-  <div class="arc" onclick="go('https://x.com/circle')">Circle X</div>
-</div>
-</div>
 
 <div class="card">
 <button onclick="connect()">Connect</button>
 <button onclick="switchArc()">Switch Arc</button>
+<button onclick="switchWallet()">Switch Wallet</button>
+
 <p id="addr">—</p>
 <p id="bal">—</p>
 <div id="status">Idle</div>
@@ -106,26 +60,16 @@ sdk.actions.ready();
 
 <div class="card">
 <h3>Send USDC</h3>
-<input id="to" placeholder="Recipient address"/>
-<input id="amount" placeholder="Amount (USDC)"/>
+<input id="to"/>
+<input id="amount"/>
 <button onclick="send()">Send</button>
 </div>
 
 <div class="card">
 <h3>Arc Scanner</h3>
-<input id="search" placeholder="Address / Tx Hash"/>
+<input id="search"/>
 <button onclick="scan()">Search</button>
 <div id="result"></div>
-</div>
-
-<div class="card">
-<h3>Connect</h3>
-<i class="fab fa-x-twitter icon" onclick="go('https://x.com/pawansatoshix')"></i>
-<i class="fab fa-github icon" onclick="go('https://github.com/pawansatoshi')"></i>
-<i class="fab fa-youtube icon" onclick="go('https://youtube.com/@PawanSatoshi')"></i>
-<i class="fab fa-telegram icon" onclick="go('https://t.me/pawansatoshi')"></i>
-<i class="fas fa-envelope icon" onclick="go('mailto:pawansatoshi@gmail.com')"></i>
-<i class="fab fa-discord icon" onclick="go('https://discord.com/channels/1214957080218435634/1214957080654512250')"></i>
 </div>
 
 <script>
@@ -136,26 +80,52 @@ const DECIMALS = 6;
 
 let provider, signer, user;
 
-function go(u){window.open(u,"_blank")}
-function copyText(text){navigator.clipboard.writeText(text)}
 function shortHash(h){return h.slice(0,6)+"..."+h.slice(-4)}
+function copyText(t){navigator.clipboard.writeText(t)}
+function go(u){window.open(u,"_blank")}
 
-async function loadBalance(){
- try{
-  const contract = new ethers.Contract(USDC,[
-    "function balanceOf(address) view returns(uint256)"
-  ],provider);
+// CONNECT
+async function connect(){
+ provider = new ethers.providers.Web3Provider(window.ethereum);
+ await provider.send("eth_requestAccounts",[]);
+ signer = provider.getSigner();
+ user = await signer.getAddress();
 
-  const bal = await contract.balanceOf(user);
-
-  document.getElementById("bal").innerText =
-    ethers.utils.formatUnits(bal, DECIMALS)+" USDC";
-
- }catch{
-  document.getElementById("bal").innerText="Balance error";
- }
+ document.getElementById("addr").innerText = shortHash(user);
+ await loadBalance();
 }
 
+// SWITCH WALLET
+async function switchWallet(){
+ const acc = await window.ethereum.request({method:"eth_requestAccounts"});
+ user = acc[0];
+ signer = provider.getSigner();
+ document.getElementById("addr").innerText = shortHash(user);
+ await loadBalance();
+}
+
+// AUTO CHANGE
+if(window.ethereum){
+ window.ethereum.on("accountsChanged", async (acc)=>{
+  user = acc[0];
+  signer = provider.getSigner();
+  document.getElementById("addr").innerText = shortHash(user);
+  await loadBalance();
+ });
+}
+
+// BALANCE
+async function loadBalance(){
+ const contract = new ethers.Contract(USDC,[
+  "function balanceOf(address) view returns(uint256)"
+ ],provider);
+
+ const bal = await contract.balanceOf(user);
+ document.getElementById("bal").innerText =
+  ethers.utils.formatUnits(bal, DECIMALS)+" USDC";
+}
+
+// SEND
 async function send(){
  try{
   const to = document.getElementById("to").value.trim();
@@ -165,30 +135,19 @@ async function send(){
     "function transfer(address,uint256) returns(bool)"
   ],signer);
 
-  const amt = ethers.utils.parseUnits(amount, DECIMALS);
-
-  const tx = await contract.transfer(to, amt);
+  const tx = await contract.transfer(
+    to,
+    ethers.utils.parseUnits(amount, DECIMALS)
+  );
 
   document.getElementById("status").innerHTML = `
     <div class="tx-box">
-      <b>Tx:</b> ${shortHash(tx.hash)}<br><br>
+      ${shortHash(tx.hash)}<br>
       <button onclick="copyText('${tx.hash}')">Copy</button>
-      <button onclick="go('https://explorer.arc.network/tx/${tx.hash}')">View</button><br><br>
-      Pending...
     </div>
   `;
 
   await tx.wait();
-
-  document.getElementById("status").innerHTML = `
-    <div class="tx-box">
-      <b>Tx:</b> ${shortHash(tx.hash)}<br><br>
-      <button onclick="copyText('${tx.hash}')">Copy</button>
-      <button onclick="go('https://explorer.arc.network/tx/${tx.hash}')">View</button><br><br>
-      ✅ Confirmed
-    </div>
-  `;
-
   await loadBalance();
 
  }catch(e){
@@ -196,19 +155,78 @@ async function send(){
  }
 }
 
-async function connect(){
- provider = new ethers.providers.Web3Provider(window.ethereum);
- await provider.send("eth_requestAccounts",[]);
+// SWITCH NETWORK
+async function switchArc(){
+ try{
+  await window.ethereum.request({
+   method:"wallet_switchEthereumChain",
+   params:[{chainId:ARC_CHAIN}]
+  });
+ }catch{
+  await window.ethereum.request({
+   method:"wallet_addEthereumChain",
+   params:[{
+    chainId:ARC_CHAIN,
+    chainName:"Arc Testnet",
+    rpcUrls:[ARC_RPC],
+    nativeCurrency:{name:"USDC",symbol:"USDC",decimals:6}
+   }]
+  });
+ }
+}
 
- signer = provider.getSigner();
- user = await signer.getAddress();
+// SCANNER (FINAL FIXED)
+async function scan(){
+ try{
+  const q = document.getElementById("search").value.trim();
+  const out = document.getElementById("result");
 
- document.getElementById("addr").innerText = shortHash(user);
- document.getElementById("status").innerText="Connected";
+  if(!q){
+    out.innerHTML = "Enter input";
+    return;
+  }
 
- await loadBalance();
+  out.innerHTML = "Loading...";
+
+  const rpc = new ethers.providers.JsonRpcProvider(ARC_RPC);
+
+  // TX
+  if(q.length === 66){
+    const tx = await rpc.getTransaction(q);
+    const receipt = await rpc.getTransactionReceipt(q);
+
+    out.innerHTML = `
+    <div class="tx-box">
+      ${shortHash(q)}<br>
+      <button onclick="copyText('${q}')">Copy</button><br><br>
+      Status: ${receipt && receipt.status === 1 ? "Success" : "Pending"}
+    </div>`;
+    return;
+  }
+
+  // WALLET
+  if(q.length === 42){
+    const contract = new ethers.Contract(USDC,[
+      "function balanceOf(address) view returns(uint256)"
+    ],rpc);
+
+    const bal = await contract.balanceOf(q);
+
+    out.innerHTML = `
+    <div class="tx-box">
+      ${shortHash(q)}<br><br>
+      Balance: ${ethers.utils.formatUnits(bal, DECIMALS)} USDC
+    </div>`;
+    return;
+  }
+
+  out.innerHTML = "Invalid input";
+
+ }catch(e){
+  document.getElementById("result").innerText = "Error";
+ }
 }
 </script>
 
 </body>
-    </html>
+</html>
