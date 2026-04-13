@@ -53,6 +53,14 @@ input{width:100%;padding:10px;margin:5px 0;background:#0c1426;color:#fff;border:
   font-size:12px;
   word-break: break-all;
 }
+.warning-box {
+  background: rgba(255, 152, 0, 0.1);
+  border-left: 4px solid #ff9800;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 4px;
+  font-size: 13px;
+}
 </style>
 </head>
 
@@ -127,7 +135,6 @@ if (window.ethereum) {
   window.ethereum.on("accountsChanged", () => location.reload());
 }
 
-/* ✅ DYNAMIC CHAIN FIX: Fetches live chain ID directly from RPC */
 async function getChainId(){
  const rpc = new ethers.providers.JsonRpcProvider(ARC_RPC);
  const net = await rpc.getNetwork();
@@ -138,9 +145,13 @@ function go(u){window.open(u,"_blank")}
 function copyText(t){navigator.clipboard.writeText(t)}
 function shortHash(h){return h.slice(0,6)+"..."+h.slice(-4)}
 
-/* ✅ MOBILE FIX: Uses "any" so ethers doesn't crash when switching accounts */
 async function connect(){
+  if(!window.ethereum) {
+    document.getElementById("status").innerText = "No Web3 wallet detected.";
+    return;
+  }
   try {
+    document.getElementById("status").innerText = "Connecting...";
     await window.ethereum.request({ method: "eth_requestAccounts" });
     provider = new ethers.providers.Web3Provider(window.ethereum, "any");
     signer = provider.getSigner();
@@ -153,49 +164,48 @@ async function connect(){
   }
 }
 
-/* ✅ MOBILE FALLBACK FIX: Handles OKX/Brave blocking popup permissions */
+/* ✅ NEW MOBILE-NATIVE SWITCH WALLET LOGIC */
 async function switchWallet(){
-  if(!window.ethereum){
-    document.getElementById("status").innerText = "Wallet not available";
-    return;
-  }
+  // Disconnect the app state
+  provider = null;
+  signer = null;
+  user = null;
+  document.getElementById("addr").innerText = "—";
+  document.getElementById("bal").innerText = "—";
   
-  try {
-    document.getElementById("status").innerText = "Opening wallet...";
-    await window.ethereum.request({
-      method: "wallet_requestPermissions",
-      params: [{ eth_accounts: {} }]
-    });
-    await connect();
-  } catch (e) {
-    document.getElementById("status").innerHTML = `
-      <div style="background:#ff9800;color:#000;padding:10px;border-radius:8px;margin-top:10px;font-size:12px;">
-        <b>⚠️ Mobile Browser Detected</b><br><br>
-        Your browser blocks automatic wallet switching.<br>
-        To switch: Tap the Wallet icon in your browser menu (OKX/Brave) and select a different account manually. This app will auto-update.
-      </div>`;
-  }
+  // Guide the mobile user
+  document.getElementById("status").innerHTML = `
+    <div class="warning-box">
+      <b>🔄 Action Required</b><br><br>
+      Mobile browsers do not allow apps to force account popups.<br><br>
+      1. Open your wallet menu (OKX/Brave/MetaMask).<br>
+      2. Switch your active account natively.<br>
+      3. Click 'Connect' again.
+    </div>
+  `;
 }
 
 async function loadBalance(){
-  const contract = new ethers.Contract(USDC,[
-   "function balanceOf(address) view returns(uint256)"
-  ],provider);
-
-  const bal = await contract.balanceOf(user);
-  document.getElementById("bal").innerText =
-   ethers.utils.formatUnits(bal, DECIMALS)+" USDC";
+  if(!provider || !user) return;
+  try {
+    const contract = new ethers.Contract(USDC, ["function balanceOf(address) view returns(uint256)"], provider);
+    const bal = await contract.balanceOf(user);
+    document.getElementById("bal").innerText = ethers.utils.formatUnits(bal, DECIMALS)+" USDC";
+  } catch(e) {
+    document.getElementById("bal").innerText = "0.00 USDC";
+  }
 }
 
 async function send(){
+  if(!signer) {
+    document.getElementById("status").innerText = "Please connect wallet first.";
+    return;
+  }
   try{
    const to = document.getElementById("to").value.trim();
    const amount = document.getElementById("amount").value.trim();
 
-   const contract = new ethers.Contract(USDC,[
-     "function transfer(address,uint256) returns(bool)"
-   ],signer);
-
+   const contract = new ethers.Contract(USDC, ["function transfer(address,uint256) returns(bool)"], signer);
    const tx = await contract.transfer(to, ethers.utils.parseUnits(amount, DECIMALS));
 
    document.getElementById("status").innerHTML = `
@@ -215,41 +225,39 @@ async function send(){
    await loadBalance();
 
   }catch(e){
-   document.getElementById("status").innerText = e.message;
+   document.getElementById("status").innerText = "Error: " + e.message;
   }
 }
 
-/* ✅ MERGED FIX: Dynamic Chain ID integrated into the switch logic */
+/* ✅ OKX-SPECIFIC ERROR FIX FOR ADDING CHAIN */
 async function switchArc(){
-  try{
-   await window.ethereum.request({ method: "eth_requestAccounts" });
+  if(!window.ethereum) return;
+  try {
    const dynamicChain = await getChainId();
-   
    await window.ethereum.request({
-    method:"wallet_switchEthereumChain",
-    params:[{chainId: dynamicChain}]
+    method: "wallet_switchEthereumChain",
+    params: [{chainId: dynamicChain}]
    });
-
-  }catch(e){
-   // Error 4902 (or -32603 on some mobile wallets) means chain is missing.
-   if(e.code === 4902 || e.code === -32603){
+  } catch(e) {
+   // OKX sometimes throws -32603, MetaMask throws 4902. We catch both.
+   if(e.code === 4902 || e.code === -32603 || (e.message && e.message.includes("add"))) {
      try {
        const dynamicChain = await getChainId();
        await window.ethereum.request({
-        method:"wallet_addEthereumChain",
-        params:[{
+        method: "wallet_addEthereumChain",
+        params: [{
          chainId: dynamicChain,
-         chainName:"Arc Testnet",
-         rpcUrls:[ARC_RPC],
-         nativeCurrency:{name:"USDC",symbol:"USDC",decimals:6},
-         blockExplorerUrls:["https://testnet.arcscan.app"]
+         chainName: "Arc Testnet",
+         rpcUrls: [ARC_RPC],
+         nativeCurrency: {name: "USDC", symbol: "USDC", decimals: 6},
+         blockExplorerUrls: ["https://testnet.arcscan.app"]
         }]
        });
      } catch (addError) {
-       document.getElementById("status").innerText="Add chain cancelled: " + addError.message;
+       document.getElementById("status").innerText = "Add chain cancelled: " + addError.message;
      }
-   }else{
-     document.getElementById("status").innerText="Switch cancelled: " + e.message;
+   } else {
+     document.getElementById("status").innerText = "Switch failed: " + e.message;
    }
   }
 }
@@ -269,9 +277,7 @@ async function scan(){
      let amount = "";
 
      if(tx.to && tx.to.toLowerCase() === USDC.toLowerCase()){
-       const iface = new ethers.utils.Interface([
-         "function transfer(address,uint256)"
-       ]);
+       const iface = new ethers.utils.Interface(["function transfer(address,uint256)"]);
        const parsed = iface.parseTransaction({ data: tx.data });
        realTo = parsed.args[0];
        amount = ethers.utils.formatUnits(parsed.args[1], DECIMALS)+" USDC";
@@ -279,17 +285,15 @@ async function scan(){
 
      out.innerHTML = `
      <div class="tx-box">
-       Hash: ${q} <button onclick="copyText('${q}')">Copy</button><br>
-       From: ${tx.from} <button onclick="copyText('${tx.from}')">Copy</button><br>
-       To: ${realTo} <button onclick="copyText('${realTo}')">Copy</button><br>
-       Contract: ${contract} <button onclick="copyText('${contract}')">Copy</button><br>
+       Hash: ${shortHash(q)} <button onclick="copyText('${q}')">Copy</button><br>
+       From: ${shortHash(tx.from)} <button onclick="copyText('${tx.from}')">Copy</button><br>
+       To: ${shortHash(realTo)} <button onclick="copyText('${realTo}')">Copy</button><br>
        Status: ${receipt.status===1?"Success":"Pending"}<br><br>
        ${amount}
      </div>`;
    }
-
   }catch(e){
-   document.getElementById("result").innerText="Error";
+   document.getElementById("result").innerText="Error fetching tx";
   }
 }
 
@@ -297,18 +301,19 @@ async function checkWallet(){
   const addr = document.getElementById("walletSearch").value.trim();
   const out = document.getElementById("walletResult");
 
-  const rpc = new ethers.providers.JsonRpcProvider(ARC_RPC);
-  const contract = new ethers.Contract(USDC,[
-    "function balanceOf(address) view returns(uint256)"
-  ],rpc);
+  try {
+    const rpc = new ethers.providers.JsonRpcProvider(ARC_RPC);
+    const contract = new ethers.Contract(USDC, ["function balanceOf(address) view returns(uint256)"], rpc);
+    const bal = await contract.balanceOf(addr);
 
-  const bal = await contract.balanceOf(addr);
-
-  out.innerHTML=`
-  <div class="tx-box">
-   ${addr} <button onclick="copyText('${addr}')">Copy</button><br>
-   Balance: ${ethers.utils.formatUnits(bal,DECIMALS)} USDC
-  </div>`;
+    out.innerHTML=`
+    <div class="tx-box">
+     ${shortHash(addr)} <button onclick="copyText('${addr}')">Copy</button><br>
+     Balance: ${ethers.utils.formatUnits(bal,DECIMALS)} USDC
+    </div>`;
+  } catch(e) {
+    out.innerText = "Invalid address or network error";
+  }
 }
 </script>
 
