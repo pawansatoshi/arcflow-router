@@ -4,24 +4,56 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>ArcFlow Pro</title>
 
-<!-- ✅ KEEP YOUR FRAME -->
 <meta property="fc:frame" content='{"version":"next","imageUrl":"https://arcflow-router.vercel.app/frame.png?v=13","button":{"title":"Open ArcFlow","action":{"type":"launch_frame","name":"ArcFlow Pro","url":"https://arcflow-router.vercel.app"}}}' />
 
-<!-- OPEN GRAPH -->
 <meta property="og:title" content="ArcFlow Pro" />
 <meta property="og:description" content="Arc ecosystem + wallet router in one place" />
 <meta property="og:image" content="https://arcflow-router.vercel.app/frame.png?v=13" />
 <meta property="og:url" content="https://arcflow-router.vercel.app/" />
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
 <style>
 body{background:#0b0f1a;color:#fff;font-family:sans-serif;padding:20px}
 .card{background:#11182b;padding:15px;border-radius:10px;margin-bottom:15px}
-button{padding:10px;margin:5px;background:#3b5cff;color:#fff;border:none;border-radius:6px}
+button{padding:10px;margin:5px;background:#3b5cff;color:#fff;border:none;border-radius:6px;cursor:pointer}
 input{width:100%;padding:10px;margin:5px 0;background:#0c1426;color:#fff;border:1px solid #1b2440;border-radius:6px}
 
-/* WARNING BAR */
+.logo-top-right{
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  z-index: 999;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.05);
+  padding: 6px;
+}
+
+.arc-container{
+  display:flex;
+  overflow-x:auto;
+  gap:8px;
+  padding-bottom:5px;
+}
+.arc-container::-webkit-scrollbar{display:none;}
+
+.arc{
+  flex:0 0 auto;
+  padding:10px 14px;
+  background:#3b5cff;
+  border-radius:20px;
+  cursor:pointer;
+  font-size:12px;
+  white-space:nowrap;
+}
+
+.icon{font-size:22px;margin:10px;cursor:pointer}
+
+/* ✅ NEW: WARNING BAR */
 .warning{
   background:#ff9800;
   color:#000;
@@ -35,10 +67,27 @@ input{width:100%;padding:10px;margin:5px 0;background:#0c1426;color:#fff;border:
 
 <body>
 
+<!-- ✅ NEW: Farcaster warning -->
 <div id="warn"></div>
+
+<a href="https://arc.network" target="_blank">
+  <img src="./logo.png" class="logo-top-right"/>
+</a>
 
 <h2>ArcFlow Pro</h2>
 <p style="opacity:0.6;">Arc ecosystem + wallet router in one place</p>
+
+<div class="card">
+<h3>Arc Ecosystem</h3>
+<div class="arc-container">
+  <div class="arc" onclick="go('https://faucet.circle.com')">Faucet</div>
+  <div class="arc" onclick="go('https://discord.gg/buildonarc')">Discord</div>
+  <div class="arc" onclick="go('https://arc.network')">Arc Hub</div>
+  <div class="arc" onclick="go('https://community.arc.network/home')">House</div>
+  <div class="arc" onclick="go('https://x.com/arc')">Arc X</div>
+  <div class="arc" onclick="go('https://x.com/circle')">Circle X</div>
+</div>
+</div>
 
 <div class="card">
 <button onclick="connect()">Connect</button>
@@ -46,6 +95,30 @@ input{width:100%;padding:10px;margin:5px 0;background:#0c1426;color:#fff;border:
 <p id="addr">—</p>
 <p id="bal">—</p>
 <p id="status">Idle</p>
+</div>
+
+<div class="card">
+<h3>Send USDC</h3>
+<input id="to" placeholder="Recipient address"/>
+<input id="amount" placeholder="Amount (USDC)"/>
+<button onclick="send()">Send</button>
+</div>
+
+<div class="card">
+<h3>Arc Scanner</h3>
+<input id="search" placeholder="Address / Tx Hash"/>
+<button onclick="scan()">Search</button>
+<div id="result"></div>
+</div>
+
+<div class="card">
+<h3>Connect</h3>
+<i class="fab fa-x-twitter icon" onclick="go('https://x.com/pawansatoshix')"></i>
+<i class="fab fa-github icon" onclick="go('https://github.com/pawansatoshi')"></i>
+<i class="fab fa-youtube icon" onclick="go('https://youtube.com/@PawanSatoshi')"></i>
+<i class="fab fa-telegram icon" onclick="go('https://t.me/pawansatoshi')"></i>
+<i class="fas fa-envelope icon" onclick="go('mailto:pawansatoshi@gmail.com')"></i>
+<i class="fab fa-discord icon" onclick="go('https://discord.com/channels/1214957080218435634/1214957080654512250')"></i>
 </div>
 
 <script>
@@ -56,29 +129,29 @@ const DECIMALS = 6;
 
 let provider, signer, user;
 
-/* ✅ DETECT FARCASTER */
+/* ✅ NEW: detect Farcaster */
 const isFarcaster = navigator.userAgent.toLowerCase().includes("farcaster");
 
-/* ✅ SHOW WARNING */
+/* ✅ NEW: show banner */
 if(isFarcaster){
  document.getElementById("warn").innerHTML = `
   <div class="warning">
-   ⚠️ Running inside Farcaster (Test Mode)<br>
-   Wallet features may not work.<br>
-   Open in browser for full functionality.
+   ⚠️ Running inside Farcaster (Testing Mode)<br>
+   Some features may not work. Open in browser for full access.
   </div>
  `;
 }
 
-/* ✅ SAFE CONNECT */
+function go(u){window.open(u,"_blank")}
+
+/* ✅ FIX: prevent blank crash */
 async function connect(){
  try{
-
   if(!window.ethereum){
     document.getElementById("status").innerText =
       isFarcaster
-      ? "Wallet not available inside Farcaster"
-      : "Install MetaMask";
+      ? "Wallet not available in Farcaster"
+      : "Install wallet";
     return;
   }
 
@@ -91,16 +164,15 @@ async function connect(){
   document.getElementById("addr").innerText = user;
   document.getElementById("status").innerText="Connected";
 
-  loadBalance();
+  await loadBalance();
 
  }catch(e){
   document.getElementById("status").innerText=e.message;
  }
 }
 
-/* ✅ SAFE SWITCH */
+/* ✅ FIX */
 async function switchArc(){
-
  if(!window.ethereum){
   document.getElementById("status").innerText="Wallet not available";
   return;
@@ -123,26 +195,7 @@ async function switchArc(){
   });
  }
 }
-
-/* ✅ BALANCE SAFE */
-async function loadBalance(){
- if(!provider || !user) return;
-
- try{
-  const contract = new ethers.Contract(USDC,[
-    "function balanceOf(address) view returns(uint256)"
-  ],provider);
-
-  const bal = await contract.balanceOf(user);
-
-  document.getElementById("bal").innerText =
-    ethers.utils.formatUnits(bal, DECIMALS)+" USDC";
-
- }catch{
-  document.getElementById("bal").innerText="Balance error";
- }
-}
 </script>
 
 </body>
- </html>
+  </html>
