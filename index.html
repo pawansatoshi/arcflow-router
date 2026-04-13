@@ -124,8 +124,6 @@ input{width:100%;padding:10px;margin:5px 0;background:#0c1426;color:#fff;border:
 </div>
 
 <script>
-// ✅ FIX 1: Hardcoded Chain ID to prevent mobile browser from blocking the popup!
-const ARC_CHAIN = "0x4ceb92"; 
 const ARC_RPC = "https://rpc.testnet.arc.network";
 const USDC = "0x3600000000000000000000000000000000000000";
 const DECIMALS = 6;
@@ -135,6 +133,13 @@ let provider, signer, user;
 if (window.ethereum) {
   window.ethereum.on("chainChanged", () => location.reload());
   window.ethereum.on("accountsChanged", () => location.reload());
+}
+
+// ✅ BROUGHT BACK THE DYNAMIC CHAIN ID FETCHER FOR OKX
+async function getChainId(){
+ const rpc = new ethers.providers.JsonRpcProvider(ARC_RPC);
+ const net = await rpc.getNetwork();
+ return "0x" + net.chainId.toString(16);
 }
 
 function go(u){window.open(u,"_blank")}
@@ -160,7 +165,6 @@ async function connect(){
   }
 }
 
-// ✅ FIX 2: Tries popup first. If blocked, shows clear fallback instructions.
 async function switchWallet(){
   if(!window.ethereum){
     document.getElementById("status").innerText = "Wallet not available";
@@ -169,18 +173,12 @@ async function switchWallet(){
   
   try {
     document.getElementById("status").innerText = "Requesting wallet change...";
-    
-    // Attempt to force the popup menu open
     await window.ethereum.request({
       method: "wallet_requestPermissions",
       params: [{ eth_accounts: {} }]
     });
-
-    // If accepted, reconnect
     await connect();
-
   } catch (e) {
-    // If popup is blocked by mobile security, wipe memory and instruct user
     provider = null;
     signer = null;
     user = null;
@@ -199,10 +197,13 @@ async function switchWallet(){
   }
 }
 
+// ✅ UNIVERSAL BALANCE FIX: Bypasses OKX's buggy injected provider. Reads directly from Arc RPC.
 async function loadBalance(){
-  if(!provider || !user) return;
+  if(!user) return;
   try {
-    const contract = new ethers.Contract(USDC, ["function balanceOf(address) view returns(uint256)"], provider);
+    // Force read from public RPC, ensuring OKX network cache doesn't show 0
+    const directRpc = new ethers.providers.JsonRpcProvider(ARC_RPC);
+    const contract = new ethers.Contract(USDC, ["function balanceOf(address) view returns(uint256)"], directRpc);
     const bal = await contract.balanceOf(user);
     document.getElementById("bal").innerText = ethers.utils.formatUnits(bal, DECIMALS)+" USDC";
   } catch(e) {
@@ -243,23 +244,24 @@ async function send(){
   }
 }
 
-// ✅ FIX 3: Fully synchronous call handles OKX and Brave perfectly.
+// ✅ RESTORED DYNAMIC SWITCHING FOR OKX
 async function switchArc(){
   if(!window.ethereum) return;
   try {
+   const dynamicChain = await getChainId();
    await window.ethereum.request({
     method: "wallet_switchEthereumChain",
-    params: [{chainId: ARC_CHAIN}]
+    params: [{chainId: dynamicChain}]
    });
    document.getElementById("status").innerText = "Switched to Arc Testnet!";
   } catch(e) {
-   // Catch missing network for MetaMask (4902) AND OKX (-32603/string match)
    if(e.code === 4902 || e.code === -32603 || (e.message && e.message.includes("add"))) {
      try {
+       const dynamicChain = await getChainId();
        await window.ethereum.request({
         method: "wallet_addEthereumChain",
         params: [{
-         chainId: ARC_CHAIN,
+         chainId: dynamicChain,
          chainName: "Arc Testnet",
          rpcUrls: [ARC_RPC],
          nativeCurrency: {name: "USDC", symbol: "USDC", decimals: 6},
@@ -332,4 +334,4 @@ async function checkWallet(){
 </script>
 
 </body>
-    </html>
+  </html>
