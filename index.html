@@ -20,6 +20,18 @@ body{background:#0b0f1a;color:#fff;font-family:sans-serif;padding:20px}
 button{padding:8px 12px;margin:5px;background:#3b5cff;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:12px}
 input{width:100%;padding:10px;margin:5px 0;background:#0c1426;color:#fff;border:1px solid #1b2440;border-radius:6px}
 
+.logo-top-right{
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.05);
+  padding: 6px;
+  z-index: 999;
+}
+
 .arc-container{display:flex;overflow-x:auto;gap:8px;padding-bottom:5px}
 .arc{padding:10px 14px;background:#3b5cff;border-radius:20px;cursor:pointer;font-size:12px}
 .icon{font-size:22px;margin:10px;cursor:pointer}
@@ -37,9 +49,11 @@ input{width:100%;padding:10px;margin:5px 0;background:#0c1426;color:#fff;border:
 
 <body>
 
+<!-- ✅ LOGO RESTORED -->
+<img src="./logo.png" class="logo-top-right"/>
+
 <h2>ArcFlow Pro</h2>
 
-<!-- ARC LINKS -->
 <div class="card">
 <h3>Arc Ecosystem</h3>
 <div class="arc-container">
@@ -52,7 +66,6 @@ input{width:100%;padding:10px;margin:5px 0;background:#0c1426;color:#fff;border:
 </div>
 </div>
 
-<!-- WALLET -->
 <div class="card">
 <button onclick="connect()">Connect</button>
 <button onclick="switchArc()">Switch Arc</button>
@@ -63,7 +76,6 @@ input{width:100%;padding:10px;margin:5px 0;background:#0c1426;color:#fff;border:
 <div id="status">Idle</div>
 </div>
 
-<!-- SEND -->
 <div class="card">
 <h3>Send USDC</h3>
 <input id="to" placeholder="Recipient address"/>
@@ -71,7 +83,6 @@ input{width:100%;padding:10px;margin:5px 0;background:#0c1426;color:#fff;border:
 <button onclick="send()">Send</button>
 </div>
 
-<!-- SCANNER -->
 <div class="card">
 <h3>Arc Scanner</h3>
 <input id="search" placeholder="Tx Hash"/>
@@ -79,7 +90,6 @@ input{width:100%;padding:10px;margin:5px 0;background:#0c1426;color:#fff;border:
 <div id="result"></div>
 </div>
 
-<!-- ✅ NEW: WALLET SEARCH -->
 <div class="card">
 <h3>Wallet Balance (No Connect)</h3>
 <input id="walletSearch" placeholder="Wallet address"/>
@@ -87,7 +97,6 @@ input{width:100%;padding:10px;margin:5px 0;background:#0c1426;color:#fff;border:
 <div id="walletResult"></div>
 </div>
 
-<!-- SOCIAL -->
 <div class="card">
 <h3>Connect</h3>
 <i class="fab fa-x-twitter icon" onclick="go('https://x.com/pawansatoshix')"></i>
@@ -122,12 +131,18 @@ async function connect(){
 async function switchWallet(){
  try{
   await window.ethereum.request({
-    method:"wallet_requestPermissions",
-    params:[{eth_accounts:{}}]
+    method: "eth_requestAccounts"
   });
-  await connect();
+
+  provider = new ethers.providers.Web3Provider(window.ethereum);
+  signer = provider.getSigner();
+  user = await signer.getAddress();
+
+  document.getElementById("addr").innerText = shortHash(user);
+  await loadBalance();
+
  }catch{
-  document.getElementById("status").innerText="Switch manually in wallet";
+  document.getElementById("status").innerText="Wallet switch cancelled";
  }
 }
 
@@ -195,52 +210,63 @@ async function switchArc(){
  }
 }
 
-// ✅ SCANNER FULL
 async function scan(){
  try{
   const q = document.getElementById("search").value.trim();
   const out = document.getElementById("result");
   const rpc = new ethers.providers.JsonRpcProvider(ARC_RPC);
 
-  if(q.length===66){
+  if(q.startsWith("0x") && q.length === 66){
+
     const tx = await rpc.getTransaction(q);
     const receipt = await rpc.getTransactionReceipt(q);
 
-    out.innerHTML=`
+    let realTo = tx.to;
+    let contract = tx.to;
+    let amount = "";
+
+    if(tx.to && tx.to.toLowerCase() === USDC.toLowerCase()){
+      const iface = new ethers.utils.Interface([
+        "function transfer(address,uint256)"
+      ]);
+      const parsed = iface.parseTransaction({ data: tx.data });
+      realTo = parsed.args[0];
+      amount = ethers.utils.formatUnits(parsed.args[1], DECIMALS)+" USDC";
+    }
+
+    out.innerHTML = `
     <div class="tx-box">
       Hash: ${q} <button onclick="copyText('${q}')">Copy</button><br>
       From: ${tx.from} <button onclick="copyText('${tx.from}')">Copy</button><br>
-      To: ${tx.to} <button onclick="copyText('${tx.to}')">Copy</button><br>
-      Status: ${receipt.status===1?"Success":"Pending"}
+      To: ${realTo} <button onclick="copyText('${realTo}')">Copy</button><br>
+      Contract: ${contract} <button onclick="copyText('${contract}')">Copy</button><br>
+      Status: ${receipt.status===1?"Success":"Pending"}<br><br>
+      ${amount}
     </div>`;
   }
+
  }catch(e){
   document.getElementById("result").innerText="Error";
  }
 }
 
-// ✅ WALLET SEARCH
 async function checkWallet(){
- try{
-  const addr = document.getElementById("walletSearch").value.trim();
-  const out = document.getElementById("walletResult");
+ const addr = document.getElementById("walletSearch").value.trim();
+ const out = document.getElementById("walletResult");
 
-  const rpc = new ethers.providers.JsonRpcProvider(ARC_RPC);
+ const rpc = new ethers.providers.JsonRpcProvider(ARC_RPC);
 
-  const contract = new ethers.Contract(USDC,[
-    "function balanceOf(address) view returns(uint256)"
-  ],rpc);
+ const contract = new ethers.Contract(USDC,[
+   "function balanceOf(address) view returns(uint256)"
+ ],rpc);
 
-  const bal = await contract.balanceOf(addr);
+ const bal = await contract.balanceOf(addr);
 
-  out.innerHTML=`
-  <div class="tx-box">
-    ${addr} <button onclick="copyText('${addr}')">Copy</button><br>
-    Balance: ${ethers.utils.formatUnits(bal,DECIMALS)} USDC
-  </div>`;
- }catch{
-  document.getElementById("walletResult").innerText="Error";
- }
+ out.innerHTML=`
+ <div class="tx-box">
+  ${addr} <button onclick="copyText('${addr}')">Copy</button><br>
+  Balance: ${ethers.utils.formatUnits(bal,DECIMALS)} USDC
+ </div>`;
 }
 </script>
 
