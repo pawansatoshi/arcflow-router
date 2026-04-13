@@ -17,7 +17,7 @@
 <style>
 body{background:#0b0f1a;color:#fff;font-family:sans-serif;padding:20px}
 .card{background:#11182b;padding:15px;border-radius:10px;margin-bottom:15px}
-button{padding:10px;margin:5px;background:#3b5cff;color:#fff;border:none;border-radius:6px;cursor:pointer}
+button{padding:8px 12px;margin:5px;background:#3b5cff;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:12px}
 input{width:100%;padding:10px;margin:5px 0;background:#0c1426;color:#fff;border:1px solid #1b2440;border-radius:6px}
 
 .logo-top-right{
@@ -61,6 +61,14 @@ input{width:100%;padding:10px;margin:5px 0;background:#0c1426;color:#fff;border:
   margin-bottom:15px;
   font-size:13px;
 }
+
+.tx-box{
+  margin-top:10px;
+  padding:10px;
+  background:#0c1426;
+  border-radius:8px;
+  font-size:12px;
+}
 </style>
 </head>
 
@@ -97,7 +105,7 @@ sdk.actions.ready();
 <button onclick="switchArc()">Switch Arc</button>
 <p id="addr">—</p>
 <p id="bal">—</p>
-<p id="status">Idle</p>
+<div id="status">Idle</div>
 </div>
 
 <div class="card">
@@ -147,7 +155,10 @@ function go(u){window.open(u,"_blank")}
 
 function copyText(text){
  navigator.clipboard.writeText(text);
- alert("Copied");
+}
+
+function shortHash(h){
+ return h.slice(0,6)+"..."+h.slice(-4);
 }
 
 async function loadBalance(){
@@ -170,9 +181,7 @@ async function send(){
  try{
   if(!window.ethereum){
     document.getElementById("status").innerText =
-      isFarcaster
-      ? "Open in browser to send transaction"
-      : "Wallet not found";
+      isFarcaster ? "Open in browser to send transaction" : "Wallet not found";
     return;
   }
 
@@ -187,7 +196,15 @@ async function send(){
 
   const tx = await contract.transfer(to, amt);
 
-  document.getElementById("status").innerText = "Tx: " + tx.hash;
+  document.getElementById("status").innerHTML = `
+    <div class="tx-box">
+      <b>Tx:</b> ${shortHash(tx.hash)}<br><br>
+      <button onclick="copyText('${tx.hash}')">Copy</button>
+      <button onclick="go('https://explorer.arc.network/tx/${tx.hash}')">View</button>
+    </div>
+  `;
+
+  await loadBalance();
 
  }catch(e){
   document.getElementById("status").innerText = e.message;
@@ -203,16 +220,11 @@ async function scan(){
  if(q.startsWith("0x") && q.length === 66){
 
   const tx = await provider.getTransaction(q);
-  if(!tx){
-    out.innerHTML="Not found";
-    return;
-  }
-
   const receipt = await provider.getTransactionReceipt(q);
 
   let decoded = "";
 
-  if(tx.to.toLowerCase() === USDC.toLowerCase()){
+  if(tx && tx.to.toLowerCase() === USDC.toLowerCase()){
     try{
       const iface = new ethers.utils.Interface([
         "function transfer(address,uint256)"
@@ -220,26 +232,21 @@ async function scan(){
 
       const parsed = iface.parseTransaction({ data: tx.data });
 
-      const realTo = parsed.args[0];
-      const amount = ethers.utils.formatUnits(parsed.args[1], DECIMALS);
-
       decoded = `
-        <b>Token Transfer:</b><br>
-        To: ${realTo}<br>
-        Amount: ${amount} USDC<br>
+        <b>To:</b> ${parsed.args[0]}<br>
+        <b>Amount:</b> ${ethers.utils.formatUnits(parsed.args[1], DECIMALS)} USDC<br>
       `;
     }catch{}
   }
 
   out.innerHTML = `
-  <b>Hash:</b> ${tx.hash}
-  <button onclick="copyText('${tx.hash}')">Copy</button><br><br>
-
-  <b>From:</b> ${tx.from}<br>
-  <b>Contract:</b> ${tx.to}<br>
-  <b>Status:</b> ${receipt && receipt.status === 1 ? "Success" : "Pending"}<br><br>
-
-  ${decoded}
+  <div class="tx-box">
+    <b>Hash:</b> ${shortHash(q)}<br><br>
+    <button onclick="copyText('${q}')">Copy</button>
+    <button onclick="go('https://explorer.arc.network/tx/${q}')">View</button><br><br>
+    <b>Status:</b> ${receipt && receipt.status === 1 ? "Success" : "Pending"}<br>
+    ${decoded}
+  </div>
   `;
  }
 }
@@ -269,11 +276,6 @@ async function connect(){
 }
 
 async function switchArc(){
- if(!window.ethereum){
-  document.getElementById("status").innerText="Wallet not available";
-  return;
- }
-
  try{
   await window.ethereum.request({
    method:"wallet_switchEthereumChain",
