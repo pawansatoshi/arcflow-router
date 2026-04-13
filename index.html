@@ -66,7 +66,6 @@ input{width:100%;padding:10px;margin:5px 0;background:#0c1426;color:#fff;border:
 
 <body>
 
-<!-- ✅ FARCASTER FIX -->
 <script type="module">
 import sdk from "https://esm.sh/@farcaster/frame-sdk";
 sdk.actions.ready();
@@ -146,6 +145,23 @@ if(isFarcaster){
 
 function go(u){window.open(u,"_blank")}
 
+/* ✅ ONLY ADDED THIS FUNCTION */
+async function loadBalance(){
+ try{
+  const contract = new ethers.Contract(USDC,[
+    "function balanceOf(address) view returns(uint256)"
+  ],provider);
+
+  const bal = await contract.balanceOf(user);
+
+  document.getElementById("bal").innerText =
+    ethers.utils.formatUnits(bal, DECIMALS)+" USDC";
+
+ }catch{
+  document.getElementById("bal").innerText="Balance error";
+ }
+}
+
 async function connect(){
  try{
   if(!window.ethereum){
@@ -196,4 +212,4 @@ async function switchArc(){
 </script>
 
 </body>
-  </html>
+    </html>
