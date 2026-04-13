@@ -98,6 +98,11 @@ sdk.actions.ready();
 <p id="addr">—</p>
 <p id="bal">—</p>
 <p id="status">Idle</p>
+
+<!-- ✅ NEW: Manual balance input -->
+<input id="manual" placeholder="Enter address to check balance"/>
+<button onclick="checkManual()">Check Balance</button>
+
 </div>
 
 <div class="card">
@@ -145,7 +150,6 @@ if(isFarcaster){
 
 function go(u){window.open(u,"_blank")}
 
-/* ✅ ADDED */
 async function loadBalance(){
  try{
   const contract = new ethers.Contract(USDC,[
@@ -162,7 +166,6 @@ async function loadBalance(){
  }
 }
 
-/* ✅ ADDED */
 async function send(){
  try{
   if(!window.ethereum){
@@ -186,7 +189,6 @@ async function send(){
   ],signer);
 
   const amt = ethers.utils.parseUnits(amount, DECIMALS);
-
   const tx = await contract.transfer(to, amt);
 
   document.getElementById("status").innerText = "Tx: " + tx.hash;
@@ -243,7 +245,83 @@ async function switchArc(){
   });
  }
 }
+
+/* ✅ NEW: Manual balance (works in Farcaster) */
+async function checkManual(){
+ try{
+  const addr = document.getElementById("manual").value.trim();
+
+  if(!/^0x[a-fA-F0-9]{40}$/.test(addr)){
+    document.getElementById("status").innerText = "Invalid address";
+    return;
+  }
+
+  const provider = new ethers.providers.JsonRpcProvider(ARC_RPC);
+
+  const contract = new ethers.Contract(USDC,[
+    "function balanceOf(address) view returns(uint256)"
+  ],provider);
+
+  const bal = await contract.balanceOf(addr);
+
+  document.getElementById("bal").innerText =
+    ethers.utils.formatUnits(bal, DECIMALS)+" USDC";
+
+  document.getElementById("addr").innerText = addr;
+
+ }catch(e){
+  document.getElementById("status").innerText = e.message;
+ }
+}
+
+/* ✅ FIXED: Scanner works everywhere */
+function isAddress(x){return /^0x[a-fA-F0-9]{40}$/.test(x)}
+function isTx(x){return /^0x([A-Fa-f0-9]{64})$/.test(x)}
+
+async function scan(){
+ const q = document.getElementById("search").value.trim();
+ const out = document.getElementById("result");
+
+ if(!q){ out.innerHTML="Enter valid input"; return; }
+
+ out.innerHTML="Loading...";
+
+ try{
+  const provider = new ethers.providers.JsonRpcProvider(ARC_RPC);
+
+  if(isTx(q)){
+    const tx = await provider.getTransaction(q);
+    if(!tx){ out.innerHTML="Not found"; return; }
+
+    const receipt = await provider.getTransactionReceipt(q);
+
+    out.innerHTML=`
+    <b>Hash:</b> ${tx.hash}<br>
+    <b>From:</b> ${tx.from}<br>
+    <b>To:</b> ${tx.to}<br>
+    <b>Status:</b> ${receipt && receipt.status===1 ? "Success":"Pending"}<br>
+    `;
+    return;
+  }
+
+  if(isAddress(q)){
+    const contract = new ethers.Contract(USDC,[
+      "function balanceOf(address) view returns(uint256)"
+    ],provider);
+
+    const bal = await contract.balanceOf(q);
+
+    out.innerHTML=`<b>Balance:</b> ${ethers.utils.formatUnits(bal, DECIMALS)} USDC`;
+    return;
+  }
+
+  out.innerHTML="Invalid input";
+
+ }catch(e){
+  out.innerHTML="Error: "+e.message;
+ }
+}
 </script>
 
 </body>
-  </html>
+    </html>
