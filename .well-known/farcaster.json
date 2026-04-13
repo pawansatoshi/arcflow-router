@@ -4,9 +4,10 @@
     "payload": "eyJkb21haW4iOiJhcmNmbG93LXJvdXRlci52ZXJjZWwuYXBwIn0",
     "signature": "yMgl7BWvStCW1S/lv9ov67PKMUIDoZm2JpJDHxxSeqQoRe+z6P3UjrpYJmRWsftGfkghV9YavqjQFBRZ7OiaJhs="
   },
-  "frame": {
+  "miniapp": {
     "version": "1",
     "name": "ArcFlow Pro",
+    "description": "Arc ecosystem & wallet router all in one place.",
     "iconUrl": "https://arcflow-router.vercel.app/logo.png",
     "homeUrl": "https://arcflow-router.vercel.app",
     "imageUrl": "https://arcflow-router.vercel.app/frame.png",
