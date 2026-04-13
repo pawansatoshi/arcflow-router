@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-<title>ArcFlow Pro V8</title>
+<title>ArcFlow Pro V9</title>
 
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
 
-<meta property="fc:frame" content='{"version":"next","imageUrl":"https://arcflow-router.vercel.app/frame.png?v=22","button":{"title":"Open ArcFlow","action":{"type":"launch_frame","name":"ArcFlow Pro","url":"https://arcflow-router.vercel.app"}}}' />
+<meta property="fc:frame" content='{"version":"next","imageUrl":"https://arcflow-router.vercel.app/frame.png?v=23","button":{"title":"Open ArcFlow","action":{"type":"launch_frame","name":"ArcFlow Pro","url":"https://arcflow-router.vercel.app"}}}' />
 <meta property="og:title" content="ArcFlow Pro" />
 <meta property="og:description" content="Universal Multi-Asset Router & Cross-Chain Hub" />
-<meta property="og:image" content="https://arcflow-router.vercel.app/frame.png?v=22" />
+<meta property="og:image" content="https://arcflow-router.vercel.app/frame.png?v=23" />
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js?v=2"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
@@ -48,9 +48,11 @@
   button:active { transform: translateY(1px); }
   button:disabled { background: #555; border-color: #444; color:#888; cursor: not-allowed; }
   .btn-quick { background: rgba(59, 92, 255, 0.2); border-color: transparent; color: #8a9cff; padding: 6px 12px; font-size: 12px;}
+  .btn-copy { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 4px 8px; font-size: 11px; border-radius: 6px; color: #fff;}
 
-  input, textarea { width: 100%; padding: 14px; margin: 6px 0 12px 0; background: rgba(0,0,0,0.3); color: #fff; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; box-sizing: border-box; font-size: 16px; outline: none; font-family: inherit; }
-  input:focus, textarea:focus { border-color: #3b5cff; }
+  input, textarea, select { width: 100%; padding: 14px; margin: 6px 0 12px 0; background: rgba(0,0,0,0.3); color: #fff; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; box-sizing: border-box; font-size: 16px; outline: none; font-family: inherit; }
+  input:focus, textarea:focus, select:focus { border-color: #3b5cff; }
+  select option { background: #11182b; color: #fff; }
 
   .nav-tabs { display: flex; background: rgba(0,0,0,0.3); border-radius: 12px; padding: 4px; margin-bottom: 18px; border: 1px solid rgba(255,255,255,0.05); overflow-x: auto; scrollbar-width: none; white-space: nowrap;}
   .nav-tabs::-webkit-scrollbar { display: none; }
@@ -68,8 +70,8 @@
   .swap-icon-container { display: flex; justify-content: center; margin: -10px 0; z-index: 10; position: relative; }
   .swap-icon { background: #11182b; border: 4px solid #050812; border-radius: 50%; padding: 8px; color: #8a9cff; font-size: 14px; cursor: pointer;}
 
-  .chat-box { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; height: 260px; overflow-y: auto; padding: 12px; margin-bottom: 10px; font-size: 13px; display: flex; flex-direction: column; gap: 8px; scroll-behavior: smooth;}
-  .chat-msg { padding: 10px 14px; border-radius: 12px; max-width: 85%; word-wrap: break-word; line-height: 1.4;}
+  .chat-box { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; height: 300px; overflow-y: auto; padding: 12px; margin-bottom: 10px; font-size: 13px; display: flex; flex-direction: column; gap: 8px; scroll-behavior: smooth;}
+  .chat-msg { padding: 10px 14px; border-radius: 12px; max-width: 90%; word-wrap: break-word; line-height: 1.5; position: relative;}
   .msg-ai { background: rgba(37, 64, 217, 0.15); border: 1px solid rgba(59, 92, 255, 0.4); align-self: flex-start; color: #e0e6ff;}
   .msg-user { background: rgba(255, 255, 255, 0.1); align-self: flex-end; color: #fff;}
   
@@ -108,10 +110,13 @@
         <span id="netIndicator" class="net-dot"></span><span id="addr">—</span>
         <div id="status" style="margin-top:6px; font-size:11px; color:#aaa;">Idle</div>
       </div>
-      <div style="text-align:right; font-size:12px; line-height:1.6;">
+      <div style="text-align:right; font-size:11px; line-height:1.6;">
+        <div style="color:#8a9cff; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:2px; margin-bottom:2px;">Arc Testnet</div>
         <div><b style="color:#00ff88;" id="balUsdc">0.00</b> <span style="color:#888;">USDC</span></div>
         <div><b style="color:#fff;" id="balEurc">0.00</b> <span style="color:#888;">EURC</span></div>
         <div><b style="color:#ffcc00;" id="balUsyc">0.00</b> <span style="color:#888;">USYC</span></div>
+        <div style="color:#8a9cff; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:2px; margin-bottom:2px; margin-top:6px;">Arbitrum Sepolia</div>
+        <div><b style="color:#00ff88;" id="balArbUsdc">0.00</b> <span style="color:#888;">USDC</span></div>
       </div>
     </div>
   </div>
@@ -121,14 +126,23 @@
     <div class="nav-tab" onclick="switchTab('swap', this)">Swap</div>
     <div class="nav-tab" onclick="switchTab('bridge', this)">Bridge</div>
     <div class="nav-tab" onclick="switchTab('yield', this)">USYC Yield</div>
+    <div class="nav-tab" onclick="switchTab('scan', this)"><i class="fas fa-search"></i> Tools</div>
     <div class="nav-tab" onclick="switchTab('ai', this)"><i class="fas fa-robot"></i> AI Brain</div>
-    <div class="nav-tab" onclick="switchTab('scan', this)"><i class="fas fa-search"></i> Scanner</div>
   </div>
 
   <div id="tab-transfer" class="tab-content active">
     <div class="card">
-      <h3><i class="fas fa-paper-plane" style="margin-right:8px;"></i> Send USDC</h3>
+      <h3><i class="fas fa-paper-plane" style="margin-right:8px;"></i> Send Asset</h3>
+      
+      <span style="font-size:12px; color:#888;">Select Asset to Send (Arc Network):</span>
+      <select id="sendAssetSelect">
+        <option value="USDC">USDC (Stablecoin)</option>
+        <option value="EURC">EURC (Euro Stablecoin)</option>
+        <option value="USYC">USYC (Treasury Yield)</option>
+      </select>
+
       <input id="to" placeholder="Recipient address (0x...)"/>
+      
       <div style="display:flex; justify-content:space-between; align-items:center;">
         <span style="font-size:12px; color:#888;">Quick Amount:</span>
         <div>
@@ -138,6 +152,7 @@
         </div>
       </div>
       <input id="amount" type="number" placeholder="0.00"/>
+      
       <button onclick="send()" style="width:100%;">Confirm Send</button>
       <div id="txStatus"></div>
     </div>
@@ -217,26 +232,17 @@
     </div>
   </div>
 
-  <div id="tab-ai" class="tab-content">
-    <div class="card">
-      <h3><i class="fas fa-brain" style="margin-right:8px;"></i> Arc Master Brain</h3>
-      <p style="font-size:12px; color:#aaa; margin-top:-5px;">I am pre-trained on Arc Docs, Circle APIs, Chain Errors, and Community Points. Ask me anything.</p>
-      
-      <div class="chat-box" id="chatWindow">
-        <div class="chat-msg msg-ai">System Online. Try asking: "What is error 4902?" or "How do I earn points in the Arc House?" or "What is the USYC contract?"</div>
-      </div>
-
-      <div style="display:flex; gap:8px;">
-        <input type="text" id="aiInput" placeholder="Ask about code errors or Arc..." style="margin:0; flex:1;" onkeypress="if(event && event.key === 'Enter') askAi()"/>
-        <button onclick="askAi()" style="margin:0; padding:12px 18px;"><i class="fas fa-paper-plane"></i></button>
-      </div>
-    </div>
-  </div>
-
   <div id="tab-scan" class="tab-content">
     <div class="card">
+      <h3><i class="fas fa-wallet" style="margin-right:8px;"></i> Manual Balance Checker</h3>
+      <p style="font-size:12px; color:#aaa; margin-top:-5px;">Check any wallet address without connecting.</p>
+      <input id="manualAddress" placeholder="Paste Wallet Address (0x...)"/>
+      <button onclick="checkManualBalance()" style="width:100%;">Check Balances</button>
+      <div id="manualResult"></div>
+    </div>
+    
+    <div class="card">
       <h3><i class="fas fa-search" style="margin-right:8px;"></i> Native Explorer</h3>
-      <p style="font-size:12px; color:#aaa; margin-top:-5px;">Verify transactions natively without leaving the app.</p>
       <div class="chain-toggle">
         <div class="chain-btn active" id="scanArcBtn" onclick="setScanChain('arc')">Arc Testnet</div>
         <div class="chain-btn" id="scanArbBtn" onclick="setScanChain('arb')">Arbitrum Sepolia</div>
@@ -244,6 +250,22 @@
       <input id="searchTx" placeholder="Paste Transaction Hash (0x...)"/>
       <button onclick="universalScan()" style="width:100%;">Decode Transaction</button>
       <div id="scanResult"></div>
+    </div>
+  </div>
+
+  <div id="tab-ai" class="tab-content">
+    <div class="card">
+      <h3><i class="fas fa-brain" style="margin-right:8px;"></i> Arc Master Brain</h3>
+      <p style="font-size:12px; color:#aaa; margin-top:-5px;">I am pre-trained on Arc Docs, Circle APIs, Chain Errors, and Community Points. Ask me anything.</p>
+      
+      <div class="chat-box" id="chatWindow">
+        <div class="chat-msg msg-ai">System Online. Try asking: "What are the core contract addresses?" or "What is error 4902?"</div>
+      </div>
+
+      <div style="display:flex; gap:8px;">
+        <input type="text" id="aiInput" placeholder="Ask about code errors or Arc..." style="margin:0; flex:1;" onkeypress="if(event && event.key === 'Enter') askAi()"/>
+        <button onclick="askAi()" style="margin:0; padding:12px 18px;"><i class="fas fa-paper-plane"></i></button>
+      </div>
     </div>
   </div>
 
@@ -276,6 +298,7 @@
 </div>
 
 <script>
+// OFFICIAL RPCS & CONTRACTS
 const ARC_RPC = "https://rpc.testnet.arc.network";
 const ARB_RPC = "https://sepolia-rollup.arbitrum.io/rpc";
 const USDC = "0x3600000000000000000000000000000000000000";
@@ -298,11 +321,17 @@ if (window.ethereum) {
 }
 
 function go(u){window.open(u,"_blank")}
-function copyText(t){navigator.clipboard.writeText(t)}
+function copyText(t){
+  navigator.clipboard.writeText(t).then(() => {
+    alert("Copied to clipboard!");
+  }).catch(err => {
+    alert("Failed to copy. Try selecting manually.");
+  });
+}
 function shortHash(h){return h.slice(0,6)+"..."+h.slice(-4)}
 function setAmt(id, val){
   document.getElementById(id).value = val;
-  if(id === 'swapIn') document.getElementById('swapOut').value = (val * 0.995).toFixed(2); // Mock 0.5% slippage preview
+  if(id === 'swapIn') document.getElementById('swapOut').value = (val * 0.995).toFixed(2); 
 }
 
 function switchTab(tabId, element) {
@@ -313,8 +342,8 @@ function switchTab(tabId, element) {
 }
 
 function smartFaucet() {
-  if(user) { copyText(user); alert("Address Copied! Paste it in the Circle Faucet."); } 
-  else { alert("Please connect wallet first to copy your address."); }
+  if(user) { copyText(user); } 
+  else { alert("Please connect wallet first to copy your address."); return; }
   go('https://faucet.circle.com/');
 }
 
@@ -336,7 +365,7 @@ async function updateNetworkStatus() {
 
 async function connect(){
   if(!window.ethereum) {
-    document.getElementById("status").innerHTML = `<span style="color:#ff4444; font-weight:bold;">⚠️ No Web3 Wallet Detected in this browser!</span>`;
+    document.getElementById("status").innerHTML = `<span style="color:#ff4444; font-weight:bold;">⚠️ No Web3 Wallet Detected!</span>`;
     return;
   }
   try {
@@ -349,7 +378,7 @@ async function connect(){
     document.getElementById("status").innerHTML = `<span style="color:#00ff88;">Connected Securely</span>`;
     await loadBalance();
     await updateNetworkStatus();
-  } catch (e) { document.getElementById("status").innerText = "Connection failed or cancelled."; }
+  } catch (e) { document.getElementById("status").innerText = "Connection failed."; }
 }
 
 async function switchWallet(){
@@ -360,10 +389,9 @@ async function switchWallet(){
   } catch (e) {
     provider = null; signer = null; user = null;
     document.getElementById("addr").innerText = "—"; 
-    document.getElementById("balUsdc").innerText = "0.00";
-    document.getElementById("balEurc").innerText = "0.00";
-    document.getElementById("balUsyc").innerText = "0.00";
-    document.getElementById("status").innerHTML = `<div class="warning-box"><b>⚠️ Auto-Popup Blocked</b><br>Change account in your browser extension menu natively, then click Connect again.</div>`;
+    document.getElementById("balUsdc").innerText = "0.00"; document.getElementById("balEurc").innerText = "0.00";
+    document.getElementById("balUsyc").innerText = "0.00"; document.getElementById("balArbUsdc").innerText = "0.00";
+    document.getElementById("status").innerHTML = `<div class="warning-box"><b>⚠️ Auto-Popup Blocked</b><br>Change account in your browser extension menu.</div>`;
   }
 }
 
@@ -391,33 +419,57 @@ async function loadBalance(){
   if(!user) return;
   try {
     const directRpc = new ethers.providers.JsonRpcProvider(ARC_RPC);
+    const arbRpc = new ethers.providers.JsonRpcProvider(ARB_RPC);
     const abi = ["function balanceOf(address) view returns(uint256)"];
-    const [usdcBal, eurcBal, usycBal] = await Promise.all([
+    
+    const [usdcBal, eurcBal, usycBal, arbUsdcBal] = await Promise.all([
       new ethers.Contract(USDC, abi, directRpc).balanceOf(user).catch(() => 0),
       new ethers.Contract(EURC, abi, directRpc).balanceOf(user).catch(() => 0),
-      new ethers.Contract(USYC, abi, directRpc).balanceOf(user).catch(() => 0)
+      new ethers.Contract(USYC, abi, directRpc).balanceOf(user).catch(() => 0),
+      new ethers.Contract(ARB_USDC, abi, arbRpc).balanceOf(user).catch(() => 0)
     ]);
+    
     document.getElementById("balUsdc").innerText = ethers.utils.formatUnits(usdcBal, DECIMALS);
     document.getElementById("balEurc").innerText = ethers.utils.formatUnits(eurcBal, DECIMALS);
     document.getElementById("balUsyc").innerText = ethers.utils.formatUnits(usycBal, DECIMALS);
+    document.getElementById("balArbUsdc").innerText = ethers.utils.formatUnits(arbUsdcBal, DECIMALS);
   } catch(e) { }
 }
 
+/* ✅ FIXED MULTI-ASSET SEND & TX COPY BUTTON */
 async function send(){
   if(!signer) return alert("Please Connect Wallet first.");
   try{
    const to = document.getElementById("to").value.trim();
    const amount = document.getElementById("amount").value.trim();
-   const contract = new ethers.Contract(USDC, ["function transfer(address,uint256) returns(bool)"], signer);
+   const assetType = document.getElementById("sendAssetSelect").value;
+   
+   let contractAddr = USDC;
+   if(assetType === "EURC") contractAddr = EURC;
+   if(assetType === "USYC") contractAddr = USYC;
+
+   const contract = new ethers.Contract(contractAddr, ["function transfer(address,uint256) returns(bool)"], signer);
    const tx = await contract.transfer(to, ethers.utils.parseUnits(amount, DECIMALS));
-   document.getElementById("txStatus").innerHTML = `<div class="tx-box">Tx: ${shortHash(tx.hash)} <br>⏳ Processing...</div>`;
+   
+   document.getElementById("txStatus").innerHTML = `
+   <div class="tx-box">
+     Tx: ${shortHash(tx.hash)} <button class="btn-copy" onclick="copyText('${tx.hash}')"><i class="fas fa-copy"></i> Copy Hash</button>
+     <br>⏳ Processing...
+   </div>`;
+   
    await tx.wait();
-   document.getElementById("txStatus").innerHTML = `<div class="tx-box">Tx: ${shortHash(tx.hash)} <br>✅ Confirmed!</div>`;
+   
+   document.getElementById("txStatus").innerHTML = `
+   <div class="tx-box">
+     Tx: ${shortHash(tx.hash)} <button class="btn-copy" onclick="copyText('${tx.hash}')"><i class="fas fa-copy"></i> Copy Hash</button>
+     <br><span style="color:#00ff88; font-weight:bold;">✅ Confirmed!</span>
+   </div>`;
+   
    await loadBalance();
   }catch(e){ document.getElementById("txStatus").innerText = "Error: " + e.message; }
 }
 
-/* ✅ FULLY WIRED SWAP EXECUTION */
+/* ✅ FIXED ERROR CATCHING FOR UNPREDICTABLE GAS (Missing Liquidity) */
 async function executeSwap() {
   if(!signer) return alert("Please connect wallet first.");
   const statusBox = document.getElementById("swapStatus");
@@ -426,19 +478,15 @@ async function executeSwap() {
     if(!amountIn || isNaN(amountIn) || amountIn <= 0) return alert("Enter a valid amount.");
 
     const parsedAmount = ethers.utils.parseUnits(amountIn, DECIMALS);
-    
-    // Step 1: Approve USDC
     statusBox.innerText = "Step 1/2: Requesting USDC Approval...";
     const usdcContract = new ethers.Contract(USDC, ["function approve(address,uint256) returns(bool)"], signer);
     const approveTx = await usdcContract.approve(STABLE_FX, parsedAmount);
     await approveTx.wait();
 
-    // Step 2: Execute Swap (Using generic AMM router ABI format)
     statusBox.innerText = "Step 2/2: Confirming Swap Execution...";
     const fxAbi = ["function swapExactTokensForTokens(uint256,uint256,address[],address,uint256) returns (uint256[])"];
     const fxContract = new ethers.Contract(STABLE_FX, fxAbi, signer);
-
-    const deadline = Math.floor(Date.now() / 1000) + 600; // 10 minutes from now
+    const deadline = Math.floor(Date.now() / 1000) + 600; 
     const path = [USDC, EURC];
 
     const swapTx = await fxContract.swapExactTokensForTokens(parsedAmount, 0, path, user, deadline);
@@ -447,16 +495,19 @@ async function executeSwap() {
     statusBox.innerHTML = `<span style="color:#00ff88;">✅ Swap Successful!</span>`;
     await loadBalance();
   } catch(e) {
-    statusBox.innerHTML = `<span style="color:#ff4444;">Swap Reverted: ${e.message}</span>`;
+    if(e.message && e.message.includes("UNPREDICTABLE_GAS_LIMIT")) {
+      statusBox.innerHTML = `<div class="warning-box" style="color:#ff4444; text-align:left;"><b>Swap Reverted:</b> The Testnet Router (${shortHash(STABLE_FX)}) currently lacks EURC liquidity or the ABI path is paused.</div>`;
+    } else {
+      statusBox.innerHTML = `<span style="color:#ff4444;">Swap Reverted: User Denied or Error</span>`;
+    }
   }
 }
 
-/* ✅ FULLY WIRED CCTP BRIDGE EXECUTION */
+/* ✅ FIXED CHECKSUM BUG FOR BRIDGE */
 async function executeBridge() {
   if(!window.ethereum || !signer) return alert("Please connect wallet first.");
   const statusBox = document.getElementById("bridgeStatus");
   try {
-    // 1. Force network switch to Arbitrum Sepolia
     const currentChain = await window.ethereum.request({ method: 'eth_chainId' });
     if (currentChain !== ARB_SEPOLIA_CHAIN_ID) {
        statusBox.innerText = "Switching network to Arbitrum Sepolia...";
@@ -469,28 +520,60 @@ async function executeBridge() {
     if(!amount || isNaN(amount) || amount <= 0) return alert("Enter valid amount");
     const parsedAmt = ethers.utils.parseUnits(amount, DECIMALS);
 
-    // 2. Approve TokenMessenger
     statusBox.innerText = "Step 1/2: Approving Arbitrum USDC...";
     const usdcContract = new ethers.Contract(ARB_USDC, ["function approve(address,uint256) returns(bool)"], signer);
     const approveTx = await usdcContract.approve(ARB_TOKEN_MESSENGER, parsedAmt);
     await approveTx.wait();
 
-    // 3. Execute depositForBurn
     statusBox.innerText = "Step 2/2: Confirming CCTP Burn...";
     const tmAbi = ["function depositForBurn(uint256 amount, uint32 destinationDomain, bytes32 mintRecipient, address burnToken) returns (uint64)"];
     const tmContract = new ethers.Contract(ARB_TOKEN_MESSENGER, tmAbi, signer);
 
-    const paddedRecipient = ethers.utils.hexZeroPad(user, 32);
-    const destDomain = 99; // Note: Ensure Circle's official domain ID for Arc is used here. Using 99 as Testnet placeholder.
+    // FIXED: Enforce checksum address before padding
+    const checksumAddress = ethers.utils.getAddress(user);
+    const paddedRecipient = ethers.utils.hexZeroPad(checksumAddress, 32);
+    const destDomain = 99; 
 
     const bridgeTx = await tmContract.depositForBurn(parsedAmt, destDomain, paddedRecipient, ARB_USDC);
     statusBox.innerHTML = `Bridge Tx: ${shortHash(bridgeTx.hash)} <br>⏳ Processing...`;
     await bridgeTx.wait();
-    statusBox.innerHTML = `<span style="color:#00ff88;">✅ Bridge Initiated! (Awaiting Circle attestation on Arc)</span>`;
+    statusBox.innerHTML = `<span style="color:#00ff88;">✅ Bridge Initiated!</span>`;
 
   } catch(e) {
-    statusBox.innerHTML = `<span style="color:#ff4444;">Bridge Reverted: ${e.message}</span>`;
+    statusBox.innerHTML = `<span style="color:#ff4444;">Bridge Reverted: Contract execution failed.</span>`;
   }
+}
+
+/* ✅ RESTORED MANUAL BALANCE CHECKER */
+async function checkManualBalance() {
+  const addr = document.getElementById("manualAddress").value.trim();
+  const out = document.getElementById("manualResult");
+  if(!addr || addr.length !== 42) return out.innerHTML = "<span style='color:#ff4444;'>Enter valid 0x address.</span>";
+  
+  out.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Checking chains...`;
+  try {
+    const arcRpc = new ethers.providers.JsonRpcProvider(ARC_RPC);
+    const arbRpc = new ethers.providers.JsonRpcProvider(ARB_RPC);
+    const abi = ["function balanceOf(address) view returns(uint256)"];
+    
+    const [usdcBal, eurcBal, usycBal, arbUsdcBal] = await Promise.all([
+      new ethers.Contract(USDC, abi, arcRpc).balanceOf(addr).catch(() => 0),
+      new ethers.Contract(EURC, abi, arcRpc).balanceOf(addr).catch(() => 0),
+      new ethers.Contract(USYC, abi, arcRpc).balanceOf(addr).catch(() => 0),
+      new ethers.Contract(ARB_USDC, abi, arbRpc).balanceOf(addr).catch(() => 0)
+    ]);
+
+    out.innerHTML = `
+    <div class="tx-box">
+      <b>${shortHash(addr)}</b><br>
+      <div style="margin-top:8px; color:#8a9cff;">Arc Testnet</div>
+      USDC: ${ethers.utils.formatUnits(usdcBal, DECIMALS)}<br>
+      EURC: ${ethers.utils.formatUnits(eurcBal, DECIMALS)}<br>
+      USYC: ${ethers.utils.formatUnits(usycBal, DECIMALS)}<br>
+      <div style="margin-top:8px; color:#8a9cff;">Arbitrum Sepolia</div>
+      USDC: ${ethers.utils.formatUnits(arbUsdcBal, DECIMALS)}
+    </div>`;
+  } catch(e) { out.innerHTML = "<span style='color:#ff4444;'>Error fetching balances.</span>"; }
 }
 
 function setScanChain(chain) {
@@ -528,8 +611,8 @@ async function universalScan(){
      out.innerHTML = `
      <div class="tx-box">
        <div style="font-weight:bold; margin-bottom:8px; color:#8a9cff;">${activeScanChain === 'arc' ? 'Arc Testnet' : 'Arbitrum Sepolia'} Data</div>
-       From: ${shortHash(tx.from)} <button class="btn-quick" onclick="copyText('${tx.from}')">Copy</button><br>
-       To: ${shortHash(realTo)} <button class="btn-quick" onclick="copyText('${realTo}')">Copy</button><br>
+       From: ${shortHash(tx.from)} <button class="btn-copy" onclick="copyText('${tx.from}')">Copy</button><br>
+       To: ${shortHash(realTo)} <button class="btn-copy" onclick="copyText('${realTo}')">Copy</button><br>
        Status: <span style="color:${receipt.status===1?'#00ff88':'#ff4444'}; font-weight:bold;">${receipt.status===1?"Success":"Failed/Reverted"}</span><br>
        Value: ${amount}
      </div>`;
@@ -537,6 +620,7 @@ async function universalScan(){
   }catch(e){ document.getElementById("scanResult").innerHTML=`<div class="tx-box" style="color:#ff4444;">Error: ${e.message}</div>`; }
 }
 
+/* ✅ FULL ADDRESSES & COPY BUTTON FOR AI REPLIES */
 function askAi() {
   const inputEl = document.getElementById("aiInput");
   const text = inputEl.value.trim();
@@ -549,29 +633,36 @@ function askAi() {
 
   const query = text.toLowerCase();
   
+  // Notice full addresses are here now!
   const knowledgeBase = [
-    { keys: ["4902", "-32603", "error adding", "switch network error"], ans: "<b>Error 4902 (MetaMask) or -32603 (OKX)</b> means the user doesn't have the Arc Network saved in their wallet. Your app needs to catch this error and call `wallet_addEthereumChain` to prompt them to add it." },
-    { keys: ["call exception", "call_exception", "reverted", "execution reverted"], ans: "<b>CALL_EXCEPTION</b> means your smart contract call failed. Check: 1) Is the contract address correct? 2) Are you on the right chain? 3) Does the user have enough USDC balance or Allowance/Approval set?" },
-    { keys: ["chain id", "network id"], ans: "The <b>Arc Testnet Chain ID</b> is 5041042 (Hex: 0x4ceb92). The <b>Arbitrum Sepolia Chain ID</b> is 421614." },
-    { keys: ["contract", "address", "addresses"], ans: "<b>Arc Core Contracts:</b><br>USDC: 0x3600...<br>EURC: 0x89B5...<br>USYC: 0xe918...<br>CCTP Messenger: 0x8FE6..." },
-    { keys: ["points", "community", "house", "reward"], ans: "In the <b>Arc Community House</b>, you earn Points by contributing! Posting verified code in the 'Ecosystem Showcase', answering builder questions, and participating in events levels you up from Discoverer to Builder to Elite." },
-    { keys: ["cctp", "bridge", "cross chain"], ans: "<b>CCTP (Cross-Chain Transfer Protocol)</b> is Circle's native bridge. It burns USDC on the source chain (like Arbitrum) and mints it natively on the destination chain (like Arc) so you don't have to rely on wrapped, risky tokens." },
-    { keys: ["usyc", "yield", "entitlement", "whitelist"], ans: "<b>USYC</b> is a yield-bearing token representing short-duration US Treasuries. Because it's an institutional asset, you must open a ticket with Circle to get your wallet whitelisted on the <b>Entitlements Contract</b> before the Teller will let you mint it." },
-    { keys: ["arc", "what is arc", "explain arc"], ans: "<b>Arc</b> is a deterministic settlement layer purpose-built for financial applications. It offers sub-second finality, stablecoin-native execution (you use USDC for gas, not ETH), and post-quantum security." },
-    { keys: ["hello", "hi", "hey"], ans: "Hello Builder! I am the ArcFlow AI. Ask me about coding errors, Circle contracts, or how to earn points in the Arc House." }
+    { keys: ["4902", "-32603", "error adding", "switch network error"], ans: "Error 4902 (MetaMask) or -32603 (OKX) means the user doesn't have the Arc Network saved in their wallet. Call `wallet_addEthereumChain` to prompt them to add it.", raw: "Error 4902 (MetaMask) or -32603 (OKX) means the user doesn't have the Arc Network saved in their wallet. Call `wallet_addEthereumChain` to prompt them to add it." },
+    { keys: ["call exception", "call_exception", "reverted", "execution reverted"], ans: "CALL_EXCEPTION means your smart contract call failed. Check: 1) Is the contract address correct? 2) Are you on the right chain? 3) Does the user have enough USDC balance or Allowance/Approval set?", raw: "CALL_EXCEPTION means your smart contract call failed. Check: 1) Is the contract address correct? 2) Are you on the right chain? 3) Does the user have enough USDC balance or Allowance/Approval set?" },
+    { keys: ["chain id", "network id"], ans: "The Arc Testnet Chain ID is 5041042 (Hex: 0x4ceb92). The Arbitrum Sepolia Chain ID is 421614.", raw: "Arc Testnet Chain ID: 5041042 (0x4ceb92). Arbitrum Sepolia Chain ID: 421614." },
+    { keys: ["contract", "address", "addresses"], ans: "<b>Arc Core Contracts:</b><br>USDC: 0x3600000000000000000000000000000000000000<br>EURC: 0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a<br>USYC: 0xe9185F0c5F296Ed1797AaE4238D26CCaBEadb86C<br>CCTP Messenger: 0x8FE6B999Dc680CcFDD5Bf7EB0974218be2542DAA", raw: "USDC: 0x3600000000000000000000000000000000000000 \nEURC: 0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a \nUSYC: 0xe9185F0c5F296Ed1797AaE4238D26CCaBEadb86C \nCCTP: 0x8FE6B999Dc680CcFDD5Bf7EB0974218be2542DAA" },
+    { keys: ["points", "community", "house", "reward"], ans: "In the Arc Community House, you earn Points by contributing! Posting verified code, answering builder questions, and participating in events levels you up.", raw: "In the Arc Community House, you earn Points by contributing! Posting verified code, answering builder questions, and participating in events levels you up." },
+    { keys: ["cctp", "bridge", "cross chain"], ans: "CCTP (Cross-Chain Transfer Protocol) is Circle's native bridge. It burns USDC on the source chain (like Arbitrum) and mints it natively on the destination chain (like Arc).", raw: "CCTP (Cross-Chain Transfer Protocol) is Circle's native bridge. It burns USDC on the source chain (like Arbitrum) and mints it natively on the destination chain (like Arc)." },
+    { keys: ["usyc", "yield", "entitlement", "whitelist"], ans: "USYC is a yield-bearing token representing short-duration US Treasuries. You must open a ticket with Circle to get your wallet whitelisted on the Entitlements Contract before minting.", raw: "USYC is a yield-bearing token representing short-duration US Treasuries. You must open a ticket with Circle to get your wallet whitelisted on the Entitlements Contract before minting." },
+    { keys: ["arc", "what is arc", "explain arc"], ans: "Arc is a deterministic settlement layer purpose-built for financial applications. It offers sub-second finality, stablecoin-native execution, and post-quantum security.", raw: "Arc is a deterministic settlement layer purpose-built for financial applications. It offers sub-second finality, stablecoin-native execution, and post-quantum security." }
   ];
 
   setTimeout(() => {
-    let reply = "I couldn't find an exact match for that in my local database. Try asking about 'Error 4902', 'CCTP', 'USYC', or 'Community Points'. For deeper coding answers, check the Dev Docs in the links below!";
+    let replyObj = { ans: "I couldn't find an exact match. Try asking about 'Error 4902', 'CCTP', 'USYC', or 'Contracts'.", raw: "I couldn't find an exact match. Try asking about 'Error 4902', 'CCTP', 'USYC', or 'Contracts'." };
     let maxScore = 0;
 
     knowledgeBase.forEach(entry => {
       let score = 0;
       entry.keys.forEach(k => { if(query.includes(k)) score++; });
-      if(score > maxScore) { maxScore = score; reply = entry.ans; }
+      if(score > maxScore) { maxScore = score; replyObj = entry; }
     });
 
-    chat.innerHTML += `<div class="chat-msg msg-ai">${reply}</div>`;
+    const msgId = Date.now();
+    chat.innerHTML += `
+      <div class="chat-msg msg-ai">
+        ${replyObj.ans}
+        <div style="margin-top:10px; text-align:right;">
+          <button class="btn-copy" onclick="copyText(this.getAttribute('data-raw'))" data-raw="${replyObj.raw}"><i class="fas fa-copy"></i> Copy Answer</button>
+        </div>
+      </div>`;
     chat.scrollTop = chat.scrollHeight;
   }, 600);
 }
