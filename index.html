@@ -4,9 +4,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>ArcFlow Pro</title>
 
-<!-- ✅ FARCASTER FRAME (STABLE v1) -->
+<!-- ✅ CORRECT FARCASTER FRAME (THIS FIXES BUTTON) -->
 <meta property="fc:frame" content="vNext" />
-<meta property="fc:frame:image" content="https://arcflow-router.vercel.app/frame.png?v=21" />
+<meta property="fc:frame:image" content="https://arcflow-router.vercel.app/frame.png?v=30" />
 <meta property="fc:frame:button:1" content="Open ArcFlow" />
 <meta property="fc:frame:button:1:action" content="link" />
 <meta property="fc:frame:button:1:target" content="https://arcflow-router.vercel.app" />
@@ -14,110 +14,33 @@
 <!-- ✅ OPEN GRAPH -->
 <meta property="og:title" content="ArcFlow Pro" />
 <meta property="og:description" content="Arc ecosystem + wallet router in one place" />
-<meta property="og:image" content="https://arcflow-router.vercel.app/frame.png?v=21" />
+<meta property="og:image" content="https://arcflow-router.vercel.app/frame.png?v=30" />
 <meta property="og:url" content="https://arcflow-router.vercel.app/" />
-<meta property="og:type" content="website" />
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
 <style>
 body{background:#0b0f1a;color:#fff;font-family:sans-serif;padding:20px}
 .card{background:#11182b;padding:15px;border-radius:10px;margin-bottom:15px}
-button{padding:10px;margin:5px;background:#3b5cff;color:#fff;border:none;border-radius:6px;cursor:pointer}
+button{padding:10px;margin:5px;background:#3b5cff;color:#fff;border:none;border-radius:6px}
 input{width:100%;padding:10px;margin:5px 0;background:#0c1426;color:#fff;border:1px solid #1b2440;border-radius:6px}
-
-.logo-top-right{
-  position: fixed;
-  top: 15px;
-  right: 15px;
-  width: 42px;
-  height: 42px;
-  object-fit: contain;
-  z-index: 999;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.05);
-  padding: 6px;
-}
-
-.arc-container{
-  display:flex;
-  overflow-x:auto;
-  gap:8px;
-  padding-bottom:5px;
-}
-.arc-container::-webkit-scrollbar{display:none;}
-
-.arc{
-  flex:0 0 auto;
-  padding:10px 14px;
-  background:#3b5cff;
-  border-radius:20px;
-  cursor:pointer;
-  font-size:12px;
-  white-space:nowrap;
-}
-
-.icon{font-size:22px;margin:10px;cursor:pointer}
 </style>
 </head>
 
 <body>
 
-<a href="https://arc.network" target="_blank">
-  <img src="./logo.png" class="logo-top-right"/>
-</a>
-
 <h2>ArcFlow Pro</h2>
 <p style="opacity:0.6;">Arc ecosystem + wallet router in one place</p>
 
-<!-- ✅ Wallet notice (Farcaster safe) -->
-<p style="color:#f39c12;font-size:12px;">
-Note: Wallet features may not work inside Farcaster. Open in browser for full access.
-</p>
+<!-- ✅ ENV DETECTION -->
+<p id="env" style="color:#f39c12;font-size:12px;"></p>
 
 <div class="card">
-<h3>Arc Ecosystem</h3>
-<div class="arc-container">
-  <div class="arc" onclick="go('https://faucet.circle.com')">Faucet</div>
-  <div class="arc" onclick="go('https://discord.gg/buildonarc')">Discord</div>
-  <div class="arc" onclick="go('https://arc.network')">Arc Hub</div>
-  <div class="arc" onclick="go('https://community.arc.network/home')">House</div>
-  <div class="arc" onclick="go('https://x.com/arc')">Arc X</div>
-  <div class="arc" onclick="go('https://x.com/circle')">Circle X</div>
-</div>
-</div>
-
-<div class="card">
-<button onclick="connect()">Connect</button>
+<button onclick="connect()">Connect Wallet</button>
 <button onclick="switchArc()">Switch Arc</button>
 <p id="addr">—</p>
 <p id="bal">—</p>
 <p id="status">Idle</p>
-</div>
-
-<div class="card">
-<h3>Send USDC</h3>
-<input id="to" placeholder="Recipient address"/>
-<input id="amount" placeholder="Amount (USDC)"/>
-<button onclick="send()">Send</button>
-</div>
-
-<div class="card">
-<h3>Arc Scanner</h3>
-<input id="search" placeholder="Address / Tx Hash"/>
-<button onclick="scan()">Search</button>
-<div id="result"></div>
-</div>
-
-<div class="card">
-<h3>Connect</h3>
-<i class="fab fa-x-twitter icon" onclick="go('https://x.com/pawansatoshix')"></i>
-<i class="fab fa-github icon" onclick="go('https://github.com/pawansatoshi')"></i>
-<i class="fab fa-youtube icon" onclick="go('https://youtube.com/@PawanSatoshi')"></i>
-<i class="fab fa-telegram icon" onclick="go('https://t.me/pawansatoshi')"></i>
-<i class="fas fa-envelope icon" onclick="go('mailto:pawansatoshi@gmail.com')"></i>
-<i class="fab fa-discord icon" onclick="go('https://discord.com/channels/1214957080218435634/1214957080654512250')"></i>
 </div>
 
 <script>
@@ -128,16 +51,27 @@ const DECIMALS = 6;
 
 let provider, signer, user;
 
-// ✅ Farcaster-safe navigation
-function go(u){
-  window.location.href = u;
+/* ✅ DETECT FARCASTER */
+const isFarcaster = navigator.userAgent.toLowerCase().includes("farcaster");
+
+/* ✅ SHOW ENV MESSAGE */
+document.getElementById("env").innerText = isFarcaster
+ ? "⚠️ Open in browser for wallet features"
+ : "✅ Full features available";
+
+/* ✅ SAFE NAVIGATION */
+function go(url){
+ window.location.href = url;
 }
 
-// CONNECT
+/* ✅ CONNECT */
 async function connect(){
  try{
   if(!window.ethereum){
-    document.getElementById("status").innerText = "Wallet not available here";
+    document.getElementById("status").innerText =
+      isFarcaster
+      ? "Wallet not supported inside Farcaster"
+      : "Install MetaMask";
     return;
   }
 
@@ -148,23 +82,23 @@ async function connect(){
   user = await signer.getAddress();
 
   document.getElementById("addr").innerText = user;
-  document.getElementById("status").innerText="Connected";
+  document.getElementById("status").innerText = "Connected";
 
-  await loadBalance();
+  loadBalance();
 
  }catch(e){
-  document.getElementById("status").innerText=e.message;
+  document.getElementById("status").innerText = e.message;
  }
 }
 
-// SWITCH NETWORK
+/* ✅ SWITCH NETWORK */
 async function switchArc(){
- try{
-  if(!window.ethereum){
-    document.getElementById("status").innerText = "Wallet not available";
-    return;
-  }
+ if(!window.ethereum){
+  document.getElementById("status").innerText = "Wallet not available";
+  return;
+ }
 
+ try{
   await window.ethereum.request({
    method:"wallet_switchEthereumChain",
    params:[{chainId:ARC_CHAIN}]
@@ -182,11 +116,11 @@ async function switchArc(){
  }
 }
 
-// BALANCE
+/* ✅ BALANCE */
 async function loadBalance(){
- try{
-  if(!provider || !user) return;
+ if(!provider || !user) return;
 
+ try{
   const contract = new ethers.Contract(USDC,[
     "function balanceOf(address) view returns(uint256)"
   ],provider);
@@ -197,90 +131,7 @@ async function loadBalance(){
     ethers.utils.formatUnits(bal, DECIMALS)+" USDC";
 
  }catch{
-  document.getElementById("bal").innerText="Balance error";
- }
-}
-
-// SEND
-async function send(){
- try{
-  if(!signer){
-    alert("Connect wallet first");
-    return;
-  }
-
-  const to = document.getElementById("to").value.trim();
-  const amount = document.getElementById("amount").value.trim();
-
-  if(!to || !amount) return alert("Enter valid details");
-
-  const contract = new ethers.Contract(USDC,[
-    "function transfer(address,uint256) returns(bool)"
-  ],signer);
-
-  const amt = ethers.utils.parseUnits(amount, DECIMALS);
-  const tx = await contract.transfer(to, amt);
-
-  document.getElementById("status").innerText="Tx: "+tx.hash;
-
- }catch(e){
-  document.getElementById("status").innerText=e.message;
- }
-}
-
-// SCANNER
-function isAddress(x){return /^0x[a-fA-F0-9]{40}$/.test(x)}
-function isTx(x){return /^0x([A-Fa-f0-9]{64})$/.test(x)}
-
-async function scan(){
- const q=document.getElementById("search").value.trim();
- const out=document.getElementById("result");
- out.innerHTML="Loading...";
-
- try{
-  const p = window.ethereum;
-
-  if(!p){
-    out.innerHTML="Scanner not supported here";
-    return;
-  }
-
-  if(isTx(q)){
-   const tx = await p.request({
-    method:"eth_getTransactionByHash",
-    params:[q]
-   });
-
-   if(!tx){out.innerHTML="Not found";return;}
-
-   out.innerHTML=`
-   <b>Hash:</b> ${tx.hash}<br>
-   <b>From:</b> ${tx.from}<br>
-   <b>To:</b> ${tx.to}<br>
-   <b>Value:</b> ${parseInt(tx.value,16)/1e6} USDC<br>
-   `;
-   return;
-  }
-
-  if(isAddress(q)){
-   const bal = await p.request({
-    method:"eth_call",
-    params:[{
-      to: USDC,
-      data: "0x70a08231"+q.slice(2).padStart(64,'0')
-    },"latest"]
-   });
-
-   let balance = parseInt(bal,16)/1e6;
-
-   out.innerHTML=`<b>Balance:</b> ${balance} USDC<br>`;
-   return;
-  }
-
-  out.innerHTML="Invalid input";
-
- }catch{
-  out.innerHTML="Error";
+  document.getElementById("bal").innerText="Error";
  }
 }
 </script>
