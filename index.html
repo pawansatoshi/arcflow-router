@@ -53,6 +53,7 @@ input{width:100%;padding:10px;margin:5px 0;background:#0c1426;color:#fff;border:
 
 <body>
 
+<!-- ✅ YOUR LOGO (UNCHANGED) -->
 <img src="./logo.png" class="logo-top-right"/>
 
 <h2>ArcFlow Pro</h2>
@@ -118,22 +119,29 @@ const DECIMALS = 6;
 
 let provider, signer, user;
 
-/* ✅ ADDED FIX (DO NOT REMOVE) */
+/* ✅ KEEP EVENTS */
 if (window.ethereum) {
-  window.ethereum.on("chainChanged", () => {
-    window.location.reload();
-  });
-
-  window.ethereum.on("accountsChanged", () => {
-    window.location.reload();
-  });
+  window.ethereum.on("chainChanged", () => location.reload());
+  window.ethereum.on("accountsChanged", () => location.reload());
 }
+
+/* ✅ FIX: CACHE CHAIN */
+let cachedChainId = null;
 
 async function getChainId(){
- const rpc = new ethers.providers.JsonRpcProvider(ARC_RPC);
- const net = await rpc.getNetwork();
- return "0x" + net.chainId.toString(16);
+ try{
+  const rpc = new ethers.providers.JsonRpcProvider(ARC_RPC);
+  const net = await rpc.getNetwork();
+  return "0x" + net.chainId.toString(16);
+ }catch{
+  return ARC_CHAIN;
+ }
 }
+
+(async ()=>{
+ cachedChainId = await getChainId();
+ console.log("CHAIN:", cachedChainId);
+})();
 
 function go(u){window.open(u,"_blank")}
 function copyText(t){navigator.clipboard.writeText(t)}
@@ -203,24 +211,24 @@ async function send(){
  }
 }
 
+/* ✅ FINAL WORKING SWITCH ARC */
 async function switchArc(){
  try{
-  const dynamicChain = await getChainId();
+  const chainId = cachedChainId || ARC_CHAIN;
 
   await window.ethereum.request({
    method:"wallet_switchEthereumChain",
-   params:[{chainId: dynamicChain}]
+   params:[{chainId}]
   });
 
  }catch(e){
-
   if(e.code === 4902){
-    const dynamicChain = await getChainId();
+    const chainId = cachedChainId || ARC_CHAIN;
 
     await window.ethereum.request({
      method:"wallet_addEthereumChain",
      params:[{
-      chainId: dynamicChain,
+      chainId,
       chainName:"Arc Testnet",
       rpcUrls:[ARC_RPC],
       nativeCurrency:{name:"USDC",symbol:"USDC",decimals:6},
