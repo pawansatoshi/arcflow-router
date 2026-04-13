@@ -33,12 +33,7 @@ input{width:100%;padding:10px;margin:5px 0;background:#0c1426;color:#fff;border:
   padding: 6px;
 }
 
-.arc-container{
-  display:flex;
-  overflow-x:auto;
-  gap:8px;
-  padding-bottom:5px;
-}
+.arc-container{display:flex;overflow-x:auto;gap:8px;padding-bottom:5px}
 .arc-container::-webkit-scrollbar{display:none;}
 
 .arc{
@@ -68,6 +63,7 @@ input{width:100%;padding:10px;margin:5px 0;background:#0c1426;color:#fff;border:
   background:#0c1426;
   border-radius:8px;
   font-size:12px;
+  word-break: break-all;
 }
 </style>
 </head>
@@ -140,26 +136,9 @@ const DECIMALS = 6;
 
 let provider, signer, user;
 
-const isFarcaster = navigator.userAgent.toLowerCase().includes("farcaster");
-
-if(isFarcaster){
- document.getElementById("warn").innerHTML = `
-  <div class="warning">
-   ⚠️ Running inside Farcaster (Testing Mode)<br>
-   Wallet + transactions may not fully work.
-  </div>
- `;
-}
-
 function go(u){window.open(u,"_blank")}
-
-function copyText(text){
- navigator.clipboard.writeText(text);
-}
-
-function shortHash(h){
- return h.slice(0,6)+"..."+h.slice(-4);
-}
+function copyText(text){navigator.clipboard.writeText(text)}
+function shortHash(h){return h.slice(0,6)+"..."+h.slice(-4)}
 
 async function loadBalance(){
  try{
@@ -179,12 +158,6 @@ async function loadBalance(){
 
 async function send(){
  try{
-  if(!window.ethereum){
-    document.getElementById("status").innerText =
-      isFarcaster ? "Open in browser to send transaction" : "Wallet not found";
-    return;
-  }
-
   const to = document.getElementById("to").value.trim();
   const amount = document.getElementById("amount").value.trim();
 
@@ -200,7 +173,19 @@ async function send(){
     <div class="tx-box">
       <b>Tx:</b> ${shortHash(tx.hash)}<br><br>
       <button onclick="copyText('${tx.hash}')">Copy</button>
-      <button onclick="go('https://explorer.arc.network/tx/${tx.hash}')">View</button>
+      <button onclick="go('https://explorer.arc.network/tx/${tx.hash}')">View</button><br><br>
+      Pending...
+    </div>
+  `;
+
+  await tx.wait();
+
+  document.getElementById("status").innerHTML = `
+    <div class="tx-box">
+      <b>Tx:</b> ${shortHash(tx.hash)}<br><br>
+      <button onclick="copyText('${tx.hash}')">Copy</button>
+      <button onclick="go('https://explorer.arc.network/tx/${tx.hash}')">View</button><br><br>
+      ✅ Confirmed
     </div>
   `;
 
@@ -211,89 +196,19 @@ async function send(){
  }
 }
 
-async function scan(){
- const q = document.getElementById("search").value.trim();
- const out = document.getElementById("result");
-
- const provider = new ethers.providers.JsonRpcProvider(ARC_RPC);
-
- if(q.startsWith("0x") && q.length === 66){
-
-  const tx = await provider.getTransaction(q);
-  const receipt = await provider.getTransactionReceipt(q);
-
-  let decoded = "";
-
-  if(tx && tx.to.toLowerCase() === USDC.toLowerCase()){
-    try{
-      const iface = new ethers.utils.Interface([
-        "function transfer(address,uint256)"
-      ]);
-
-      const parsed = iface.parseTransaction({ data: tx.data });
-
-      decoded = `
-        <b>To:</b> ${parsed.args[0]}<br>
-        <b>Amount:</b> ${ethers.utils.formatUnits(parsed.args[1], DECIMALS)} USDC<br>
-      `;
-    }catch{}
-  }
-
-  out.innerHTML = `
-  <div class="tx-box">
-    <b>Hash:</b> ${shortHash(q)}<br><br>
-    <button onclick="copyText('${q}')">Copy</button>
-    <button onclick="go('https://explorer.arc.network/tx/${q}')">View</button><br><br>
-    <b>Status:</b> ${receipt && receipt.status === 1 ? "Success" : "Pending"}<br>
-    ${decoded}
-  </div>
-  `;
- }
-}
-
 async function connect(){
- try{
-  if(!window.ethereum){
-    document.getElementById("status").innerText =
-      isFarcaster ? "Wallet not available in Farcaster" : "Install wallet";
-    return;
-  }
+ provider = new ethers.providers.Web3Provider(window.ethereum);
+ await provider.send("eth_requestAccounts",[]);
 
-  provider = new ethers.providers.Web3Provider(window.ethereum);
-  await provider.send("eth_requestAccounts",[]);
+ signer = provider.getSigner();
+ user = await signer.getAddress();
 
-  signer = provider.getSigner();
-  user = await signer.getAddress();
+ document.getElementById("addr").innerText = shortHash(user);
+ document.getElementById("status").innerText="Connected";
 
-  document.getElementById("addr").innerText = user;
-  document.getElementById("status").innerText="Connected";
-
-  await loadBalance();
-
- }catch(e){
-  document.getElementById("status").innerText=e.message;
- }
-}
-
-async function switchArc(){
- try{
-  await window.ethereum.request({
-   method:"wallet_switchEthereumChain",
-   params:[{chainId:ARC_CHAIN}]
-  });
- }catch{
-  await window.ethereum.request({
-   method:"wallet_addEthereumChain",
-   params:[{
-    chainId:ARC_CHAIN,
-    chainName:"Arc Testnet",
-    rpcUrls:[ARC_RPC],
-    nativeCurrency:{name:"USDC",symbol:"USDC",decimals:6}
-   }]
-  });
- }
+ await loadBalance();
 }
 </script>
 
 </body>
-  </html>
+    </html>
