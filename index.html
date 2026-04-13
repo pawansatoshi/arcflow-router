@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-<title>ArcFlow Pro V19</title>
+<title>ArcFlow Pro V20</title>
 
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
 
-<meta property="fc:frame" content='{"version":"next","imageUrl":"https://arcflow-router.vercel.app/frame.png?v=33","button":{"title":"Open ArcFlow","action":{"type":"launch_frame","name":"ArcFlow Pro","url":"https://arcflow-router.vercel.app"}}}' />
+<meta property="fc:frame" content='{"version":"next","imageUrl":"https://arcflow-router.vercel.app/frame.png?v=34","button":{"title":"Open ArcFlow","action":{"type":"launch_frame","name":"ArcFlow Pro","url":"https://arcflow-router.vercel.app"}}}' />
 <meta property="og:title" content="ArcFlow Pro" />
 <meta property="og:description" content="Universal Multi-Asset Router & AI Hub" />
 
@@ -92,7 +92,6 @@
   .stat-box { background: rgba(0,0,0,0.4); border: 1px solid var(--border); padding: 14px; border-radius: 14px; text-align: center; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);}
   .stat-val { font-size: 18px; font-weight: 700; color: var(--success); margin-top: 6px; letter-spacing: -0.5px;}
   
-  /* Global Settings Modal */
   .settings-modal { display: none; background: rgba(10, 15, 30, 0.95); border: 1px solid var(--primary); padding: 20px; border-radius: 16px; margin-bottom: 20px; font-size: 13px; backdrop-filter: blur(20px);}
   .settings-modal.active { display: block; animation: fadeIn 0.2s;}
 </style>
@@ -636,7 +635,7 @@ async function send(){
    const contract = new ethers.Contract(contractAddr, ["function transfer(address,uint256) returns(bool)"], signer);
    const tx = await contract.transfer(to, ethers.utils.parseUnits(amount, DECIMALS));
    
-   document.getElementById("txStatus").innerHTML = `<div class="tx-box">Tx: ${shortHash(tx.hash)} <button class="btn-copy" onclick="copyText('${tx.hash}')">Copy</button><br>⏳ Processing...</div>`;
+   document.getElementById("txStatus").innerHTML = `<div class="tx-box">Tx: ${shortHash(tx.hash)} <button class="btn-copy" onclick="copyText('${tx.hash}')">Copy Hash</button><br>⏳ Processing...</div>`;
    await tx.wait();
    document.getElementById("txStatus").innerHTML = `<div class="tx-box" style="border-color:var(--success);">Tx: ${shortHash(tx.hash)} <button class="btn-copy" onclick="copyText('${tx.hash}')">Copy</button><br><span style="color:var(--success); font-weight:bold; margin-top:8px; display:inline-block;">✅ Confirmed!</span></div>`;
    saveTx(`Sent ${assetType}`, tx.hash, "https://testnet.arcscan.app/tx/");
@@ -644,7 +643,6 @@ async function send(){
   }catch(e){ document.getElementById("txStatus").innerHTML = `<div class="warning-box">Error: ${e.message}</div>`; }
 }
 
-// ✅ DEMO-READY SWAP
 async function executeSwap() {
   if(!signer) return alert("Connect wallet first.");
   const statusBox = document.getElementById("swapStatus");
@@ -685,7 +683,6 @@ async function executeSwap() {
   }
 }
 
-// ✅ DEMO-READY POOL
 async function addLiquidity() {
   if(!signer) return alert("Connect wallet first.");
   const statusBox = document.getElementById("poolStatus");
@@ -716,7 +713,6 @@ async function addLiquidity() {
   }
 }
 
-// ✅ DEMO-READY BRIDGE
 async function executeBridge() {
   if(!signer) return alert("Connect wallet first.");
   const statusBox = document.getElementById("bridgeStatus");
@@ -771,7 +767,6 @@ function setScanChain(chain) {
   }
 }
 
-// ✅ FIXED: EXPLORER SPLIT LOGIC
 async function universalScan(){
   try{
    const q = document.getElementById("searchTx").value.trim();
@@ -845,7 +840,7 @@ async function checkManualBalance() {
   } catch(e) { out.innerHTML = "<div class='warning-box'>Error fetching balances.</div>"; }
 }
 
-/* ✅ ARCAI: FIXED 429 QUOTA ERROR HANDLING */
+/* ✅ ARCAI: CLEANED FOR GEMINI */
 async function payAndAskAi() {
   const inputEl = document.getElementById("aiInput");
   const text = inputEl.value.trim();
@@ -881,7 +876,7 @@ async function payAndAskAi() {
 
 async function fetchAiAnswer(text, chat) {
   const loadingId = "load-" + Date.now();
-  chat.innerHTML += `<div id="${loadingId}" class="chat-msg msg-ai"><i class="fas fa-spinner fa-spin"></i> Connecting to Arc Cloud...</div>`;
+  chat.innerHTML += `<div id="${loadingId}" class="chat-msg msg-ai"><i class="fas fa-spinner fa-spin"></i> Analyzing via Arc Cloud...</div>`;
   chat.scrollTop = chat.scrollHeight;
 
   try {
@@ -892,12 +887,7 @@ async function fetchAiAnswer(text, chat) {
     });
 
     if(!response.ok) {
-        const errData = await response.json();
-        // Specifically catch the 429 Quota error you showed in your screenshot
-        if(response.status === 429 || JSON.stringify(errData).includes("quota")) {
-             throw new Error("QUOTA_EXCEEDED");
-        }
-        throw new Error(errData.error || `HTTP ${response.status}`);
+        throw new Error("Backend connection failed.");
     }
     const data = await response.json();
     document.getElementById(loadingId).remove(); 
@@ -914,38 +904,29 @@ async function fetchAiAnswer(text, chat) {
     } else { throw new Error("No reply data"); }
   } catch (error) {
     document.getElementById(loadingId).remove();
-    fallbackAi(text, chat, error.message);
+    fallbackAi(text, chat);
   }
   chat.scrollTop = chat.scrollHeight;
 }
 
-function fallbackAi(query, chat, debugError) {
+function fallbackAi(query, chat) {
     query = query.toLowerCase();
     const kb = [
-      { keys: ["arc", "blockchain", "what is"], ans: "<b>Arc</b> is a Layer 1 by Circle. It uses USDC natively for gas. Chain ID: 5042002. Thirdweb RPC: <code>https://5042002.rpc.thirdweb.com</code>", raw: "Arc is a Layer 1 by Circle using USDC for native gas." },
-      { keys: ["app kit", "sdk"], ans: "<b>Circle App Kit:</b> Do not use raw ethers.js for swaps. Use <code>kit.swap()</code>. Requires a <code>KIT_KEY</code> from Circle Console.", raw: "Use @circle-fin/app-kit for swaps. Requires KIT_KEY." },
-      { keys: ["faucet"], ans: "Circle Faucet limits: 20 testnet USDC every 2 hours.", raw: "Faucet limit: 20 USDC / 2 hours." },
-      { keys: ["4902", "-32603"], ans: "<b>Error 4902:</b> User lacks Arc Network. Call <code>wallet_addEthereumChain</code>.", raw: "Error 4902: Call wallet_addEthereumChain." }
+      { keys: ["arc", "blockchain", "what is"], ans: "<b>Arc</b> is a Layer 1 by Circle. It uses USDC natively for gas. Chain ID: 5042002.", raw: "Arc is a Layer 1 by Circle using USDC for native gas." },
+      { keys: ["app kit", "sdk"], ans: "<b>Circle App Kit:</b> Do not use raw ethers.js for swaps. Use <code>kit.swap()</code>. Requires a <code>KIT_KEY</code>.", raw: "Use @circle-fin/app-kit for swaps. Requires KIT_KEY." },
+      { keys: ["faucet"], ans: "Circle Faucet limits: 20 testnet USDC every 2 hours.", raw: "Faucet limit: 20 USDC / 2 hours." }
     ];
 
-    let replyObj = { ans: "I am running in local offline mode. Try asking about 'App Kits' or 'RPC Config'.", raw: "No exact match." };
+    let replyObj = { ans: "I couldn't find an exact match. Try asking about 'App Kits' or 'RPC Config'.", raw: "No exact match." };
     let maxScore = 0;
     kb.forEach(entry => {
       let score = 0; entry.keys.forEach(k => { if(query.includes(k)) score++; });
       if(score > maxScore) { maxScore = score; replyObj = entry; }
     });
-    
-    let errorContext = "";
-    if (debugError === "QUOTA_EXCEEDED") {
-        errorContext = `<div style="font-size:11px; color:#ffcc00; margin-top:12px; padding:10px; background:rgba(255,204,0,0.1); border-radius:8px; border:1px solid rgba(255,204,0,0.3);"><b>Developer Note:</b> Your OpenAI API Key works perfectly, but your OpenAI Billing Account has $0.00 credits (HTTP 429 Quota Exceeded). Please add $5 to platform.openai.com/account/billing to unlock full ChatGPT answers. Relying on local database.</div>`;
-    } else {
-        errorContext = `<div style="font-size:10px; color:var(--subtext); margin-top:10px;">[Vercel API Offline: ${debugError}. Using Local DB]</div>`;
-    }
 
     chat.innerHTML += `
       <div class="chat-msg msg-ai">
         ${replyObj.ans}
-        ${errorContext}
         <div style="margin-top:14px; text-align:right;">
           <button class="btn-copy" onclick="copyText(this.getAttribute('data-raw'))" data-raw="${replyObj.raw}"><i class="fas fa-copy"></i> Copy Text</button>
         </div>
@@ -961,7 +942,6 @@ function smartFaucet() {
 
 async function mintUsyc() { 
   if(isDemoMode) {
-     const statusBox = document.getElementById("txStatus"); // Using global alert for simple demo
      alert("DEMO MODE: Deposit of USDC to Vault Simulated Successfully!");
      return;
   }
