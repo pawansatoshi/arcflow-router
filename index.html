@@ -53,7 +53,6 @@ input{width:100%;padding:10px;margin:5px 0;background:#0c1426;color:#fff;border:
 
 <body>
 
-<!-- ✅ YOUR LOGO (UNCHANGED) -->
 <img src="./logo.png" class="logo-top-right"/>
 
 <h2>ArcFlow Pro</h2>
@@ -119,51 +118,43 @@ const DECIMALS = 6;
 
 let provider, signer, user;
 
-/* ✅ KEEP EVENTS */
 if (window.ethereum) {
   window.ethereum.on("chainChanged", () => location.reload());
   window.ethereum.on("accountsChanged", () => location.reload());
 }
-
-/* ✅ FIX: CACHE CHAIN */
-let cachedChainId = null;
-
-async function getChainId(){
- try{
-  const rpc = new ethers.providers.JsonRpcProvider(ARC_RPC);
-  const net = await rpc.getNetwork();
-  return "0x" + net.chainId.toString(16);
- }catch{
-  return ARC_CHAIN;
- }
-}
-
-(async ()=>{
- cachedChainId = await getChainId();
- console.log("CHAIN:", cachedChainId);
-})();
 
 function go(u){window.open(u,"_blank")}
 function copyText(t){navigator.clipboard.writeText(t)}
 function shortHash(h){return h.slice(0,6)+"..."+h.slice(-4)}
 
 async function connect(){
+ await window.ethereum.request({ method: "eth_requestAccounts" });
+
  provider = new ethers.providers.Web3Provider(window.ethereum);
- await provider.send("eth_requestAccounts",[]);
  signer = provider.getSigner();
  user = await signer.getAddress();
+
  document.getElementById("addr").innerText = shortHash(user);
  await loadBalance();
 }
 
+/* ✅ FIXED SWITCH WALLET */
 async function switchWallet(){
  try{
+  await window.ethereum.request({
+    method: "wallet_requestPermissions",
+    params: [{ eth_accounts: {} }]
+  });
+
   await window.ethereum.request({ method: "eth_requestAccounts" });
+
   provider = new ethers.providers.Web3Provider(window.ethereum);
   signer = provider.getSigner();
   user = await signer.getAddress();
+
   document.getElementById("addr").innerText = shortHash(user);
   await loadBalance();
+
  }catch{
   document.getElementById("status").innerText="Wallet switch cancelled";
  }
@@ -211,24 +202,24 @@ async function send(){
  }
 }
 
-/* ✅ FINAL WORKING SWITCH ARC */
+/* ✅ FIXED SWITCH ARC */
 async function switchArc(){
  try{
-  const chainId = cachedChainId || ARC_CHAIN;
+
+  await window.ethereum.request({ method: "eth_requestAccounts" });
 
   await window.ethereum.request({
    method:"wallet_switchEthereumChain",
-   params:[{chainId}]
+   params:[{chainId: ARC_CHAIN}]
   });
 
  }catch(e){
-  if(e.code === 4902){
-    const chainId = cachedChainId || ARC_CHAIN;
 
+  if(e.code === 4902){
     await window.ethereum.request({
      method:"wallet_addEthereumChain",
      params:[{
-      chainId,
+      chainId: ARC_CHAIN,
       chainName:"Arc Testnet",
       rpcUrls:[ARC_RPC],
       nativeCurrency:{name:"USDC",symbol:"USDC",decimals:6},
