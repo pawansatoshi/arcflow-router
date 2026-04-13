@@ -20,8 +20,6 @@
 
 <script type="module">
   import sdk from "https://esm.sh/@farcaster/frame-sdk";
-  
-  // This tells Warpcast: "The app is loaded, remove the blank white screen!"
   sdk.actions.ready();
 </script>
 
@@ -118,7 +116,6 @@ input{width:100%;padding:10px;margin:5px 0;background:#0c1426;color:#fff;border:
 </div>
 
 <script>
-const ARC_CHAIN = "0x4CEB92";
 const ARC_RPC = "https://rpc.testnet.arc.network";
 const USDC = "0x3600000000000000000000000000000000000000";
 const DECIMALS = 6;
@@ -130,20 +127,24 @@ if (window.ethereum) {
   window.ethereum.on("accountsChanged", () => location.reload());
 }
 
+/* ✅ DYNAMIC CHAIN FIX: Fetches live chain ID directly from RPC */
+async function getChainId(){
+ const rpc = new ethers.providers.JsonRpcProvider(ARC_RPC);
+ const net = await rpc.getNetwork();
+ return "0x" + net.chainId.toString(16);
+}
+
 function go(u){window.open(u,"_blank")}
 function copyText(t){navigator.clipboard.writeText(t)}
 function shortHash(h){return h.slice(0,6)+"..."+h.slice(-4)}
 
-/* ✅ UPDATED: Mobile-friendly connect */
+/* ✅ MOBILE FIX: Uses "any" so ethers doesn't crash when switching accounts */
 async function connect(){
   try {
     await window.ethereum.request({ method: "eth_requestAccounts" });
-    
-    // Using "any" prevents ethers.js from breaking when you switch chains/accounts on mobile
     provider = new ethers.providers.Web3Provider(window.ethereum, "any");
     signer = provider.getSigner();
     user = await signer.getAddress();
-
     document.getElementById("addr").innerText = shortHash(user);
     document.getElementById("status").innerText = "Connected";
     await loadBalance();
@@ -152,7 +153,7 @@ async function connect(){
   }
 }
 
-/* ✅ FIXED FOR MOBILE BROWSERS */
+/* ✅ MOBILE FALLBACK FIX: Handles OKX/Brave blocking popup permissions */
 async function switchWallet(){
   if(!window.ethereum){
     document.getElementById("status").innerText = "Wallet not available";
@@ -161,22 +162,17 @@ async function switchWallet(){
   
   try {
     document.getElementById("status").innerText = "Opening wallet...";
-
-    // This tries to open the account switcher (works on Desktop/some mobile apps)
     await window.ethereum.request({
       method: "wallet_requestPermissions",
       params: [{ eth_accounts: {} }]
     });
-
     await connect();
-
   } catch (e) {
-    // If the mobile browser blocks the popup (like Brave Mobile does), tell the user exactly what to do.
     document.getElementById("status").innerHTML = `
       <div style="background:#ff9800;color:#000;padding:10px;border-radius:8px;margin-top:10px;font-size:12px;">
         <b>⚠️ Mobile Browser Detected</b><br><br>
         Your browser blocks automatic wallet switching.<br>
-        To switch: Tap the Wallet icon in your browser menu (Brave/MetaMask) and select a different account manually. This app will auto-update.
+        To switch: Tap the Wallet icon in your browser menu (OKX/Brave) and select a different account manually. This app will auto-update.
       </div>`;
   }
 }
@@ -223,31 +219,37 @@ async function send(){
   }
 }
 
+/* ✅ MERGED FIX: Dynamic Chain ID integrated into the switch logic */
 async function switchArc(){
   try{
-
    await window.ethereum.request({ method: "eth_requestAccounts" });
-
+   const dynamicChain = await getChainId();
+   
    await window.ethereum.request({
     method:"wallet_switchEthereumChain",
-    params:[{chainId: ARC_CHAIN}]
+    params:[{chainId: dynamicChain}]
    });
 
   }catch(e){
-
-   if(e.code === 4902){
-     await window.ethereum.request({
-      method:"wallet_addEthereumChain",
-      params:[{
-       chainId: ARC_CHAIN,
-       chainName:"Arc Testnet",
-       rpcUrls:[ARC_RPC],
-       nativeCurrency:{name:"USDC",symbol:"USDC",decimals:6},
-       blockExplorerUrls:["https://testnet.arcscan.app"]
-      }]
-     });
+   // Error 4902 (or -32603 on some mobile wallets) means chain is missing.
+   if(e.code === 4902 || e.code === -32603){
+     try {
+       const dynamicChain = await getChainId();
+       await window.ethereum.request({
+        method:"wallet_addEthereumChain",
+        params:[{
+         chainId: dynamicChain,
+         chainName:"Arc Testnet",
+         rpcUrls:[ARC_RPC],
+         nativeCurrency:{name:"USDC",symbol:"USDC",decimals:6},
+         blockExplorerUrls:["https://testnet.arcscan.app"]
+        }]
+       });
+     } catch (addError) {
+       document.getElementById("status").innerText="Add chain cancelled: " + addError.message;
+     }
    }else{
-     document.getElementById("status").innerText="Switch cancelled";
+     document.getElementById("status").innerText="Switch cancelled: " + e.message;
    }
   }
 }
