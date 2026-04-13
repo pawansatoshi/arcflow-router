@@ -53,7 +53,6 @@ input{width:100%;padding:10px;margin:5px 0;background:#0c1426;color:#fff;border:
 
 .icon{font-size:22px;margin:10px;cursor:pointer}
 
-/* ✅ NEW: WARNING BAR */
 .warning{
   background:#ff9800;
   color:#000;
@@ -67,7 +66,12 @@ input{width:100%;padding:10px;margin:5px 0;background:#0c1426;color:#fff;border:
 
 <body>
 
-<!-- ✅ NEW: Farcaster warning -->
+<!-- ✅ FARCASTER FIX -->
+<script type="module">
+import sdk from "https://esm.sh/@farcaster/frame-sdk";
+sdk.actions.ready();
+</script>
+
 <div id="warn"></div>
 
 <a href="https://arc.network" target="_blank">
@@ -129,29 +133,24 @@ const DECIMALS = 6;
 
 let provider, signer, user;
 
-/* ✅ NEW: detect Farcaster */
 const isFarcaster = navigator.userAgent.toLowerCase().includes("farcaster");
 
-/* ✅ NEW: show banner */
 if(isFarcaster){
  document.getElementById("warn").innerHTML = `
   <div class="warning">
    ⚠️ Running inside Farcaster (Testing Mode)<br>
-   Some features may not work. Open in browser for full access.
+   Wallet + transactions may not fully work.
   </div>
  `;
 }
 
 function go(u){window.open(u,"_blank")}
 
-/* ✅ FIX: prevent blank crash */
 async function connect(){
  try{
   if(!window.ethereum){
     document.getElementById("status").innerText =
-      isFarcaster
-      ? "Wallet not available in Farcaster"
-      : "Install wallet";
+      isFarcaster ? "Wallet not available in Farcaster" : "Install wallet";
     return;
   }
 
@@ -171,7 +170,6 @@ async function connect(){
  }
 }
 
-/* ✅ FIX */
 async function switchArc(){
  if(!window.ethereum){
   document.getElementById("status").innerText="Wallet not available";
