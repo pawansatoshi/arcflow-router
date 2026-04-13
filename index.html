@@ -145,7 +145,7 @@ if(isFarcaster){
 
 function go(u){window.open(u,"_blank")}
 
-/* ✅ ONLY ADDED THIS FUNCTION */
+/* ✅ ADDED */
 async function loadBalance(){
  try{
   const contract = new ethers.Contract(USDC,[
@@ -159,6 +159,40 @@ async function loadBalance(){
 
  }catch{
   document.getElementById("bal").innerText="Balance error";
+ }
+}
+
+/* ✅ ADDED */
+async function send(){
+ try{
+  if(!window.ethereum){
+    document.getElementById("status").innerText =
+      isFarcaster
+      ? "Open in browser to send transaction"
+      : "Wallet not found";
+    return;
+  }
+
+  const to = document.getElementById("to").value.trim();
+  const amount = document.getElementById("amount").value.trim();
+
+  if(!to || !amount){
+    alert("Enter valid details");
+    return;
+  }
+
+  const contract = new ethers.Contract(USDC,[
+    "function transfer(address,uint256) returns(bool)"
+  ],signer);
+
+  const amt = ethers.utils.parseUnits(amount, DECIMALS);
+
+  const tx = await contract.transfer(to, amt);
+
+  document.getElementById("status").innerText = "Tx: " + tx.hash;
+
+ }catch(e){
+  document.getElementById("status").innerText = e.message;
  }
 }
 
@@ -212,4 +246,4 @@ async function switchArc(){
 </script>
 
 </body>
-    </html>
+  </html>
