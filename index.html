@@ -18,6 +18,13 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js?v=2"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
+<script type="module">
+  import sdk from "https://esm.sh/@farcaster/frame-sdk";
+  
+  // This tells Warpcast: "The app is loaded, remove the blank white screen!"
+  sdk.actions.ready();
+</script>
+
 <style>
 body{background:#0b0f1a;color:#fff;font-family:sans-serif;padding:20px}
 .card{background:#11182b;padding:15px;border-radius:10px;margin-bottom:15px}
@@ -127,166 +134,179 @@ function go(u){window.open(u,"_blank")}
 function copyText(t){navigator.clipboard.writeText(t)}
 function shortHash(h){return h.slice(0,6)+"..."+h.slice(-4)}
 
+/* ✅ UPDATED: Mobile-friendly connect */
 async function connect(){
- await window.ethereum.request({ method: "eth_requestAccounts" });
+  try {
+    await window.ethereum.request({ method: "eth_requestAccounts" });
+    
+    // Using "any" prevents ethers.js from breaking when you switch chains/accounts on mobile
+    provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+    signer = provider.getSigner();
+    user = await signer.getAddress();
 
- provider = new ethers.providers.Web3Provider(window.ethereum);
- signer = provider.getSigner();
- user = await signer.getAddress();
-
- document.getElementById("addr").innerText = shortHash(user);
- await loadBalance();
+    document.getElementById("addr").innerText = shortHash(user);
+    document.getElementById("status").innerText = "Connected";
+    await loadBalance();
+  } catch (e) {
+    document.getElementById("status").innerText = "Connection failed: " + e.message;
+  }
 }
 
-/* ✅ FIXED SWITCH WALLET */
+/* ✅ FIXED FOR MOBILE BROWSERS */
 async function switchWallet(){
- try{
-  await window.ethereum.request({
-    method: "wallet_requestPermissions",
-    params: [{ eth_accounts: {} }]
-  });
+  if(!window.ethereum){
+    document.getElementById("status").innerText = "Wallet not available";
+    return;
+  }
+  
+  try {
+    document.getElementById("status").innerText = "Opening wallet...";
 
-  await window.ethereum.request({ method: "eth_requestAccounts" });
+    // This tries to open the account switcher (works on Desktop/some mobile apps)
+    await window.ethereum.request({
+      method: "wallet_requestPermissions",
+      params: [{ eth_accounts: {} }]
+    });
 
-  provider = new ethers.providers.Web3Provider(window.ethereum);
-  signer = provider.getSigner();
-  user = await signer.getAddress();
+    await connect();
 
-  document.getElementById("addr").innerText = shortHash(user);
-  await loadBalance();
-
- }catch{
-  document.getElementById("status").innerText="Wallet switch cancelled";
- }
+  } catch (e) {
+    // If the mobile browser blocks the popup (like Brave Mobile does), tell the user exactly what to do.
+    document.getElementById("status").innerHTML = `
+      <div style="background:#ff9800;color:#000;padding:10px;border-radius:8px;margin-top:10px;font-size:12px;">
+        <b>⚠️ Mobile Browser Detected</b><br><br>
+        Your browser blocks automatic wallet switching.<br>
+        To switch: Tap the Wallet icon in your browser menu (Brave/MetaMask) and select a different account manually. This app will auto-update.
+      </div>`;
+  }
 }
 
 async function loadBalance(){
- const contract = new ethers.Contract(USDC,[
-  "function balanceOf(address) view returns(uint256)"
- ],provider);
+  const contract = new ethers.Contract(USDC,[
+   "function balanceOf(address) view returns(uint256)"
+  ],provider);
 
- const bal = await contract.balanceOf(user);
- document.getElementById("bal").innerText =
-  ethers.utils.formatUnits(bal, DECIMALS)+" USDC";
+  const bal = await contract.balanceOf(user);
+  document.getElementById("bal").innerText =
+   ethers.utils.formatUnits(bal, DECIMALS)+" USDC";
 }
 
 async function send(){
- try{
-  const to = document.getElementById("to").value.trim();
-  const amount = document.getElementById("amount").value.trim();
+  try{
+   const to = document.getElementById("to").value.trim();
+   const amount = document.getElementById("amount").value.trim();
 
-  const contract = new ethers.Contract(USDC,[
-    "function transfer(address,uint256) returns(bool)"
-  ],signer);
+   const contract = new ethers.Contract(USDC,[
+     "function transfer(address,uint256) returns(bool)"
+   ],signer);
 
-  const tx = await contract.transfer(to, ethers.utils.parseUnits(amount, DECIMALS));
+   const tx = await contract.transfer(to, ethers.utils.parseUnits(amount, DECIMALS));
 
-  document.getElementById("status").innerHTML = `
-  <div class="tx-box">
-    ${tx.hash} <button onclick="copyText('${tx.hash}')">Copy</button><br>
-    ⏳ Pending...
-  </div>`;
+   document.getElementById("status").innerHTML = `
+   <div class="tx-box">
+     ${tx.hash} <button onclick="copyText('${tx.hash}')">Copy</button><br>
+     ⏳ Pending...
+   </div>`;
 
-  await tx.wait();
+   await tx.wait();
 
-  document.getElementById("status").innerHTML = `
-  <div class="tx-box">
-    ${tx.hash} <button onclick="copyText('${tx.hash}')">Copy</button><br>
-    ✅ Confirmed
-  </div>`;
+   document.getElementById("status").innerHTML = `
+   <div class="tx-box">
+     ${tx.hash} <button onclick="copyText('${tx.hash}')">Copy</button><br>
+     ✅ Confirmed
+   </div>`;
 
-  await loadBalance();
+   await loadBalance();
 
- }catch(e){
-  document.getElementById("status").innerText = e.message;
- }
+  }catch(e){
+   document.getElementById("status").innerText = e.message;
+  }
 }
 
-/* ✅ FIXED SWITCH ARC */
 async function switchArc(){
- try{
+  try{
 
-  await window.ethereum.request({ method: "eth_requestAccounts" });
+   await window.ethereum.request({ method: "eth_requestAccounts" });
 
-  await window.ethereum.request({
-   method:"wallet_switchEthereumChain",
-   params:[{chainId: ARC_CHAIN}]
-  });
+   await window.ethereum.request({
+    method:"wallet_switchEthereumChain",
+    params:[{chainId: ARC_CHAIN}]
+   });
 
- }catch(e){
+  }catch(e){
 
-  if(e.code === 4902){
-    await window.ethereum.request({
-     method:"wallet_addEthereumChain",
-     params:[{
-      chainId: ARC_CHAIN,
-      chainName:"Arc Testnet",
-      rpcUrls:[ARC_RPC],
-      nativeCurrency:{name:"USDC",symbol:"USDC",decimals:6},
-      blockExplorerUrls:["https://testnet.arcscan.app"]
-     }]
-    });
-  }else{
-    document.getElementById("status").innerText="Switch cancelled";
+   if(e.code === 4902){
+     await window.ethereum.request({
+      method:"wallet_addEthereumChain",
+      params:[{
+       chainId: ARC_CHAIN,
+       chainName:"Arc Testnet",
+       rpcUrls:[ARC_RPC],
+       nativeCurrency:{name:"USDC",symbol:"USDC",decimals:6},
+       blockExplorerUrls:["https://testnet.arcscan.app"]
+      }]
+     });
+   }else{
+     document.getElementById("status").innerText="Switch cancelled";
+   }
   }
- }
 }
 
 async function scan(){
- try{
-  const q = document.getElementById("search").value.trim();
-  const out = document.getElementById("result");
-  const rpc = new ethers.providers.JsonRpcProvider(ARC_RPC);
+  try{
+   const q = document.getElementById("search").value.trim();
+   const out = document.getElementById("result");
+   const rpc = new ethers.providers.JsonRpcProvider(ARC_RPC);
 
-  if(q.startsWith("0x") && q.length === 66){
-    const tx = await rpc.getTransaction(q);
-    const receipt = await rpc.getTransactionReceipt(q);
+   if(q.startsWith("0x") && q.length === 66){
+     const tx = await rpc.getTransaction(q);
+     const receipt = await rpc.getTransactionReceipt(q);
 
-    let realTo = tx.to;
-    let contract = tx.to;
-    let amount = "";
+     let realTo = tx.to;
+     let contract = tx.to;
+     let amount = "";
 
-    if(tx.to && tx.to.toLowerCase() === USDC.toLowerCase()){
-      const iface = new ethers.utils.Interface([
-        "function transfer(address,uint256)"
-      ]);
-      const parsed = iface.parseTransaction({ data: tx.data });
-      realTo = parsed.args[0];
-      amount = ethers.utils.formatUnits(parsed.args[1], DECIMALS)+" USDC";
-    }
+     if(tx.to && tx.to.toLowerCase() === USDC.toLowerCase()){
+       const iface = new ethers.utils.Interface([
+         "function transfer(address,uint256)"
+       ]);
+       const parsed = iface.parseTransaction({ data: tx.data });
+       realTo = parsed.args[0];
+       amount = ethers.utils.formatUnits(parsed.args[1], DECIMALS)+" USDC";
+     }
 
-    out.innerHTML = `
-    <div class="tx-box">
-      Hash: ${q} <button onclick="copyText('${q}')">Copy</button><br>
-      From: ${tx.from} <button onclick="copyText('${tx.from}')">Copy</button><br>
-      To: ${realTo} <button onclick="copyText('${realTo}')">Copy</button><br>
-      Contract: ${contract} <button onclick="copyText('${contract}')">Copy</button><br>
-      Status: ${receipt.status===1?"Success":"Pending"}<br><br>
-      ${amount}
-    </div>`;
+     out.innerHTML = `
+     <div class="tx-box">
+       Hash: ${q} <button onclick="copyText('${q}')">Copy</button><br>
+       From: ${tx.from} <button onclick="copyText('${tx.from}')">Copy</button><br>
+       To: ${realTo} <button onclick="copyText('${realTo}')">Copy</button><br>
+       Contract: ${contract} <button onclick="copyText('${contract}')">Copy</button><br>
+       Status: ${receipt.status===1?"Success":"Pending"}<br><br>
+       ${amount}
+     </div>`;
+   }
+
+  }catch(e){
+   document.getElementById("result").innerText="Error";
   }
-
- }catch(e){
-  document.getElementById("result").innerText="Error";
- }
 }
 
 async function checkWallet(){
- const addr = document.getElementById("walletSearch").value.trim();
- const out = document.getElementById("walletResult");
+  const addr = document.getElementById("walletSearch").value.trim();
+  const out = document.getElementById("walletResult");
 
- const rpc = new ethers.providers.JsonRpcProvider(ARC_RPC);
- const contract = new ethers.Contract(USDC,[
-   "function balanceOf(address) view returns(uint256)"
- ],rpc);
+  const rpc = new ethers.providers.JsonRpcProvider(ARC_RPC);
+  const contract = new ethers.Contract(USDC,[
+    "function balanceOf(address) view returns(uint256)"
+  ],rpc);
 
- const bal = await contract.balanceOf(addr);
+  const bal = await contract.balanceOf(addr);
 
- out.innerHTML=`
- <div class="tx-box">
-  ${addr} <button onclick="copyText('${addr}')">Copy</button><br>
-  Balance: ${ethers.utils.formatUnits(bal,DECIMALS)} USDC
- </div>`;
+  out.innerHTML=`
+  <div class="tx-box">
+   ${addr} <button onclick="copyText('${addr}')">Copy</button><br>
+   Balance: ${ethers.utils.formatUnits(bal,DECIMALS)} USDC
+  </div>`;
 }
 </script>
 
