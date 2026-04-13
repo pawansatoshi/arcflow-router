@@ -20,13 +20,19 @@ body{background:#0b0f1a;color:#fff;font-family:sans-serif;padding:20px}
 button{padding:8px 12px;margin:5px;background:#3b5cff;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:12px}
 input{width:100%;padding:10px;margin:5px 0;background:#0c1426;color:#fff;border:1px solid #1b2440;border-radius:6px}
 
-.logo-top-right{
-  position: fixed;
-  top: 15px;
-  right: 15px;
-  width: 42px;
-  height: 42px;
+.arc-container{display:flex;overflow-x:auto;gap:8px;padding-bottom:5px}
+.arc-container::-webkit-scrollbar{display:none;}
+
+.arc{
+  flex:0 0 auto;
+  padding:10px 14px;
+  background:#3b5cff;
+  border-radius:20px;
+  cursor:pointer;
+  font-size:12px;
 }
+
+.icon{font-size:22px;margin:10px;cursor:pointer}
 
 .tx-box{
   margin-top:10px;
@@ -47,7 +53,22 @@ sdk.actions.ready();
 </script>
 
 <h2>ArcFlow Pro</h2>
+<p style="opacity:0.6;">Arc ecosystem + wallet router in one place</p>
 
+<!-- ARC ECOSYSTEM -->
+<div class="card">
+<h3>Arc Ecosystem</h3>
+<div class="arc-container">
+  <div class="arc" onclick="go('https://faucet.circle.com')">Faucet</div>
+  <div class="arc" onclick="go('https://discord.gg/buildonarc')">Discord</div>
+  <div class="arc" onclick="go('https://arc.network')">Arc Hub</div>
+  <div class="arc" onclick="go('https://community.arc.network/home')">House</div>
+  <div class="arc" onclick="go('https://x.com/arc')">Arc X</div>
+  <div class="arc" onclick="go('https://x.com/circle')">Circle X</div>
+</div>
+</div>
+
+<!-- WALLET -->
 <div class="card">
 <button onclick="connect()">Connect</button>
 <button onclick="switchArc()">Switch Arc</button>
@@ -58,18 +79,31 @@ sdk.actions.ready();
 <div id="status">Idle</div>
 </div>
 
+<!-- SEND -->
 <div class="card">
 <h3>Send USDC</h3>
-<input id="to"/>
-<input id="amount"/>
+<input id="to" placeholder="Recipient address"/>
+<input id="amount" placeholder="Amount (USDC)"/>
 <button onclick="send()">Send</button>
 </div>
 
+<!-- SCANNER -->
 <div class="card">
 <h3>Arc Scanner</h3>
-<input id="search"/>
+<input id="search" placeholder="Address / Tx Hash"/>
 <button onclick="scan()">Search</button>
 <div id="result"></div>
+</div>
+
+<!-- SOCIAL -->
+<div class="card">
+<h3>Connect</h3>
+<i class="fab fa-x-twitter icon" onclick="go('https://x.com/pawansatoshix')"></i>
+<i class="fab fa-github icon" onclick="go('https://github.com/pawansatoshi')"></i>
+<i class="fab fa-youtube icon" onclick="go('https://youtube.com/@PawanSatoshi')"></i>
+<i class="fab fa-telegram icon" onclick="go('https://t.me/pawansatoshi')"></i>
+<i class="fas fa-envelope icon" onclick="go('mailto:pawansatoshi@gmail.com')"></i>
+<i class="fab fa-discord icon" onclick="go('https://discord.com/channels/1214957080218435634/1214957080654512250')"></i>
 </div>
 
 <script>
@@ -80,9 +114,9 @@ const DECIMALS = 6;
 
 let provider, signer, user;
 
-function shortHash(h){return h.slice(0,6)+"..."+h.slice(-4)}
-function copyText(t){navigator.clipboard.writeText(t)}
 function go(u){window.open(u,"_blank")}
+function copyText(t){navigator.clipboard.writeText(t)}
+function shortHash(h){return h.slice(0,6)+"..."+h.slice(-4)}
 
 // CONNECT
 async function connect(){
@@ -90,21 +124,31 @@ async function connect(){
  await provider.send("eth_requestAccounts",[]);
  signer = provider.getSigner();
  user = await signer.getAddress();
-
  document.getElementById("addr").innerText = shortHash(user);
  await loadBalance();
 }
 
-// SWITCH WALLET
+// SWITCH WALLET (BEST POSSIBLE)
 async function switchWallet(){
- const acc = await window.ethereum.request({method:"eth_requestAccounts"});
- user = acc[0];
- signer = provider.getSigner();
- document.getElementById("addr").innerText = shortHash(user);
- await loadBalance();
+ try{
+  await window.ethereum.request({
+    method:"wallet_requestPermissions",
+    params:[{eth_accounts:{}}]
+  });
+
+  const acc = await window.ethereum.request({method:"eth_accounts"});
+  user = acc[0];
+  signer = provider.getSigner();
+
+  document.getElementById("addr").innerText = shortHash(user);
+  await loadBalance();
+
+ }catch{
+  alert("Switch manually in wallet");
+ }
 }
 
-// AUTO CHANGE
+// AUTO DETECT CHANGE
 if(window.ethereum){
  window.ethereum.on("accountsChanged", async (acc)=>{
   user = acc[0];
@@ -144,6 +188,7 @@ async function send(){
     <div class="tx-box">
       ${shortHash(tx.hash)}<br>
       <button onclick="copyText('${tx.hash}')">Copy</button>
+      <button onclick="go('https://explorer.arc.network/tx/${tx.hash}')">View</button>
     </div>
   `;
 
@@ -175,58 +220,57 @@ async function switchArc(){
  }
 }
 
-// SCANNER (FINAL FIXED)
+// SCANNER (FULL FIXED)
 async function scan(){
  try{
   const q = document.getElementById("search").value.trim();
   const out = document.getElementById("result");
 
   if(!q){
-    out.innerHTML = "Enter input";
+    out.innerHTML="Enter tx or address";
     return;
   }
 
-  out.innerHTML = "Loading...";
+  out.innerHTML="Loading...";
 
   const rpc = new ethers.providers.JsonRpcProvider(ARC_RPC);
 
-  // TX
-  if(q.length === 66){
+  if(q.length===66){
     const tx = await rpc.getTransaction(q);
     const receipt = await rpc.getTransactionReceipt(q);
 
-    out.innerHTML = `
+    out.innerHTML=`
     <div class="tx-box">
-      ${shortHash(q)}<br>
-      <button onclick="copyText('${q}')">Copy</button><br><br>
-      Status: ${receipt && receipt.status === 1 ? "Success" : "Pending"}
+      ${shortHash(q)}<br><br>
+      <button onclick="copyText('${q}')">Copy</button>
+      <button onclick="go('https://explorer.arc.network/tx/${q}')">View</button><br><br>
+      Status: ${receipt && receipt.status===1 ? "Success":"Pending"}
     </div>`;
     return;
   }
 
-  // WALLET
-  if(q.length === 42){
+  if(q.length===42){
     const contract = new ethers.Contract(USDC,[
       "function balanceOf(address) view returns(uint256)"
     ],rpc);
 
     const bal = await contract.balanceOf(q);
 
-    out.innerHTML = `
+    out.innerHTML=`
     <div class="tx-box">
       ${shortHash(q)}<br><br>
-      Balance: ${ethers.utils.formatUnits(bal, DECIMALS)} USDC
+      Balance: ${ethers.utils.formatUnits(bal,DECIMALS)} USDC
     </div>`;
     return;
   }
 
-  out.innerHTML = "Invalid input";
+  out.innerHTML="Invalid input";
 
  }catch(e){
-  document.getElementById("result").innerText = "Error";
+  document.getElementById("result").innerText="Error";
  }
 }
 </script>
 
 </body>
-</html>
+                                                                     </html>
