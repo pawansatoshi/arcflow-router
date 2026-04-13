@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-<title>ArcFlow Pro V11</title>
+<title>ArcFlow Pro V13</title>
 
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
 
-<meta property="fc:frame" content='{"version":"next","imageUrl":"https://arcflow-router.vercel.app/frame.png?v=25","button":{"title":"Open ArcFlow","action":{"type":"launch_frame","name":"ArcFlow Pro","url":"https://arcflow-router.vercel.app"}}}' />
+<meta property="fc:frame" content='{"version":"next","imageUrl":"https://arcflow-router.vercel.app/frame.png?v=27","button":{"title":"Open ArcFlow","action":{"type":"launch_frame","name":"ArcFlow Pro","url":"https://arcflow-router.vercel.app"}}}' />
 <meta property="og:title" content="ArcFlow Pro" />
 <meta property="og:description" content="Universal Multi-Asset Router & AI Developer Hub" />
-<meta property="og:image" content="https://arcflow-router.vercel.app/frame.png?v=25" />
+<meta property="og:image" content="https://arcflow-router.vercel.app/frame.png?v=27" />
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js?v=2"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
@@ -45,10 +45,14 @@
   input:focus, textarea:focus, select:focus { border-color: var(--primary-hover); }
   select option { background: #11182b; color: var(--text); }
 
-  .nav-tabs { display: flex; background: rgba(0,0,0,0.3); border-radius: 12px; padding: 4px; margin-bottom: 18px; border: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; white-space: nowrap;}
+  .tab-wrapper { display: flex; align-items: center; margin-bottom: 18px; background: rgba(0,0,0,0.3); border-radius: 12px; border: 1px solid var(--border); padding: 2px;}
+  .nav-tabs { flex: 1; display: flex; overflow-x: auto; scrollbar-width: none; white-space: nowrap; scroll-behavior: smooth; border: none; background: transparent; padding: 0;}
   .nav-tabs::-webkit-scrollbar { display: none; }
   .nav-tab { flex: 0 0 auto; padding: 10px 16px; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--subtext); border-radius: 8px; transition: 0.2s; }
   .nav-tab.active { background: var(--primary); color: var(--text); }
+  .scroll-arrow { background: transparent; border: none; color: var(--subtext); padding: 10px 14px; cursor: pointer; font-size: 14px; margin: 0; box-shadow: none; width: auto;}
+  .scroll-arrow:hover { color: var(--text); background: transparent; transform: none;}
+
   .tab-content { display: none; }
   .tab-content.active { display: block; animation: fadeIn 0.3s; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
@@ -63,7 +67,6 @@
   .swap-icon { background: #11182b; border: 4px solid var(--bg); border-radius: 50%; padding: 8px; color: #8a9cff; font-size: 14px; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.3);}
   .swap-icon:hover { background: var(--primary); color: var(--text); transform: scale(1.1) rotate(180deg); }
 
-  /* Expanded Chat Box for Advanced Builder Answers */
   .chat-box { background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 12px; height: 350px; overflow-y: auto; padding: 12px; margin-bottom: 10px; font-size: 13px; display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth;}
   .chat-msg { padding: 12px 16px; border-radius: 12px; max-width: 90%; word-wrap: break-word; line-height: 1.6; position: relative;}
   .msg-ai { background: rgba(37, 64, 217, 0.15); border: 1px solid rgba(59, 92, 255, 0.4); align-self: flex-start; color: #e0e6ff;}
@@ -96,10 +99,11 @@
   </div>
 
   <div class="card">
-    <div style="display: flex; justify-content: space-between;">
-      <button onclick="connect()" style="flex:1;">Connect</button>
-      <button onclick="switchArc()" style="flex:1;">Switch to Arc</button>
-      <button onclick="switchWallet()" style="flex:1; background:transparent; border-color:rgba(255,255,255,0.1);"><i class="fas fa-sync-alt"></i></button>
+    <div style="display: flex; gap: 6px;">
+      <button onclick="connect()" style="flex:2; padding:12px 8px;">Connect</button>
+      <button onclick="switchArc()" style="flex:1.5; padding:12px 8px; font-size:12px; background:#1e32a6; border-color:#3b5cff;">Arc Net</button>
+      <button onclick="switchArb()" style="flex:1.5; padding:12px 8px; font-size:12px; background:rgba(45, 80, 230, 0.2); border-color:#2d50e6; color:#8a9cff;">Arb Net</button>
+      <button onclick="switchWallet()" style="flex:1; padding:12px 8px; background:transparent; border-color:rgba(255,255,255,0.1);"><i class="fas fa-sync-alt"></i></button>
     </div>
 
     <div class="wallet-info">
@@ -118,13 +122,17 @@
     </div>
   </div>
 
-  <div class="nav-tabs">
-    <div class="nav-tab active" onclick="switchTab('transfer', this)">Transfer</div>
-    <div class="nav-tab" onclick="switchTab('swap', this)">Swap</div>
-    <div class="nav-tab" onclick="switchTab('bridge', this)">Bridge</div>
-    <div class="nav-tab" onclick="switchTab('yield', this)">USYC Vault</div>
-    <div class="nav-tab" onclick="switchTab('ai', this)"><i class="fas fa-robot"></i> AI Brain</div>
-    <div class="nav-tab" onclick="switchTab('scan', this)">Tools & History</div>
+  <div class="tab-wrapper">
+    <button class="scroll-arrow" onclick="document.getElementById('navTabs').scrollBy({left: -150, behavior: 'smooth'})"><i class="fas fa-chevron-left"></i></button>
+    <div class="nav-tabs" id="navTabs">
+      <div class="nav-tab active" onclick="switchTab('transfer', this)">Transfer</div>
+      <div class="nav-tab" onclick="switchTab('swap', this)">Swap</div>
+      <div class="nav-tab" onclick="switchTab('bridge', this)">Bridge</div>
+      <div class="nav-tab" onclick="switchTab('yield', this)">USYC Vault</div>
+      <div class="nav-tab" onclick="switchTab('ai', this)"><i class="fas fa-robot"></i> AI Brain</div>
+      <div class="nav-tab" onclick="switchTab('scan', this)">Tools & History</div>
+    </div>
+    <button class="scroll-arrow" onclick="document.getElementById('navTabs').scrollBy({left: 150, behavior: 'smooth'})"><i class="fas fa-chevron-right"></i></button>
   </div>
 
   <div id="tab-transfer" class="tab-content active">
@@ -185,6 +193,10 @@
       <h3><i class="fas fa-exchange-alt" style="margin-right:8px;"></i> Circle CCTP</h3>
       <p style="font-size:12px; color:#aaa;">Native USDC cross-chain transfers.</p>
       
+      <button onclick="switchArb()" style="width:100%; margin-bottom:15px; background: rgba(45, 80, 230, 0.2); border-color: #2d50e6; color: #8a9cff; padding: 10px;">
+        <i class="fas fa-network-wired" style="margin-right:5px;"></i> Switch to Arbitrum Network
+      </button>
+
       <div style="display:flex; gap:10px; margin-bottom:15px; align-items:center;">
         <div id="bridgeFrom" style="flex:1; background:rgba(0,0,0,0.3); padding:10px; border-radius:8px; border:1px solid var(--border); text-align:center;">
           <div style="font-size:11px; color:var(--subtext);">From</div><b style="font-size:12px;">Arbitrum Sepolia</b>
@@ -232,10 +244,10 @@
     <div class="card">
       <h3><i class="fas fa-brain" style="margin-right:8px;"></i> Arc Master Brain</h3>
       <div class="chat-box" id="chatWindow">
-        <div class="chat-msg msg-ai"><b>System Online.</b> I am the Arc Developer AI. I understand the Arc L1, Circle Infrastructure, App Kits, and Smart Contract debugging. How can I help you build today?</div>
+        <div class="chat-msg msg-ai"><b>Cloud System Online.</b> I am the ArcFlow Pro AI Agent, powered by a live LLM backend. I can read code, debug errors, and answer complex queries about Arc, Circle, and Arbitrum. What are we building today?</div>
       </div>
       <div style="display:flex; gap:8px;">
-        <input type="text" id="aiInput" placeholder="Ask about Arc, CCTP, App Kits, or Errors..." style="margin:0; flex:1;" onkeypress="if(event && event.key === 'Enter') askAi()"/>
+        <input type="text" id="aiInput" placeholder="Ask about Arc, CCTP, or Errors..." style="margin:0; flex:1;" onkeypress="if(event && event.key === 'Enter') askAi()"/>
         <button onclick="askAi()" style="margin:0; padding:12px 18px;"><i class="fas fa-paper-plane"></i></button>
       </div>
     </div>
@@ -292,7 +304,6 @@
 </div>
 
 <script>
-// CONFIG
 const ARC_RPC = "https://rpc.testnet.arc.network";
 const ARB_RPC = "https://sepolia-rollup.arbitrum.io/rpc";
 const USDC = "0x3600000000000000000000000000000000000000";
@@ -390,9 +401,20 @@ async function updateNetworkStatus() {
   if(!window.ethereum) return;
   try {
     const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-    const expectedChain = await getChainId();
-    if(chainId === expectedChain) { document.getElementById("netIndicator").classList.add("active"); } 
-    else { document.getElementById("netIndicator").classList.remove("active"); }
+    const expectedArcChain = await getChainId();
+    const ind = document.getElementById("netIndicator");
+    const stat = document.getElementById("status");
+    
+    if(chainId === expectedArcChain) { 
+      ind.className = "net-dot active"; 
+      stat.innerHTML = `<span style="color:#00ff88;">Connected to Arc Testnet</span>`;
+    } else if(chainId === ARB_SEPOLIA_CHAIN_ID) {
+      ind.className = "net-dot active";
+      stat.innerHTML = `<span style="color:#00e5ff;">Connected to Arbitrum Sepolia</span>`;
+    } else { 
+      ind.className = "net-dot"; 
+      stat.innerHTML = `<span style="color:#ff4444;">Unsupported Network</span>`;
+    }
   } catch(e) {}
 }
 
@@ -405,7 +427,6 @@ async function connect(){
     signer = provider.getSigner();
     user = await signer.getAddress();
     document.getElementById("addr").innerText = shortHash(user);
-    document.getElementById("status").innerHTML = `<span style="color:#00ff88;">Connected</span>`;
     loadBalance();
     updateNetworkStatus();
   } catch (e) { document.getElementById("status").innerText = "Connection failed."; }
@@ -442,6 +463,30 @@ async function switchArc(){
        updateNetworkStatus();
      } catch (addError) {}
    }
+  }
+}
+
+async function switchArb(){
+  if(!window.ethereum) return alert("No Web3 Wallet!");
+  try {
+    await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{chainId: ARB_SEPOLIA_CHAIN_ID}]});
+    updateNetworkStatus();
+  } catch(e) {
+    if(e.code === 4902 || e.code === -32603) {
+      try {
+        await window.ethereum.request({
+          method: "wallet_addEthereumChain",
+          params: [{ 
+            chainId: ARB_SEPOLIA_CHAIN_ID, 
+            chainName: "Arbitrum Sepolia", 
+            rpcUrls: [ARB_RPC], 
+            nativeCurrency: {name: "ETH", symbol: "ETH", decimals: 18}, 
+            blockExplorerUrls: ["https://sepolia.arbiscan.io"] 
+          }]
+        });
+        updateNetworkStatus();
+      } catch (addError) {}
+    }
   }
 }
 
@@ -516,7 +561,7 @@ async function executeSwap() {
       statusBox.innerHTML = `
       <div class="warning-box">
         <b>Builder Note (Execution Reverted):</b><br>
-        Even though your wallet holds EURC, the automated <b>StableFX Router Contract</b> (${shortHash(STABLE_FX)}) currently lacks sufficient reserves (liquidity) in its own pool to fulfill this specific trade.<br><br>
+        Even though your wallet holds tokens, the automated <b>StableFX Router Contract</b> (${shortHash(STABLE_FX)}) currently lacks sufficient reserves (liquidity) in its own pool to fulfill this specific trade.<br><br>
         <i>Smart contracts revert transactions instantly when liquidity is dry to save you from wasting gas fees on a failed trade.</i>
       </div>`;
     } else { statusBox.innerText = "Error: " + e.message; }
@@ -527,6 +572,12 @@ async function executeBridge() {
   if(!signer) return alert("Connect wallet first.");
   const statusBox = document.getElementById("bridgeStatus");
   try {
+    const currentChain = await window.ethereum.request({ method: 'eth_chainId' });
+    if (currentChain !== ARB_SEPOLIA_CHAIN_ID) {
+      statusBox.innerHTML = `<div class="warning-box" style="color:#ffcc00;">⚠️ Please click "Arb Net" or "Switch to Arbitrum Network" first!</div>`;
+      return;
+    }
+
     const amount = document.getElementById("bridgeAmt").value.trim();
     if(!amount || amount <= 0) return;
     const parsedAmt = ethers.utils.parseUnits(amount, DECIMALS);
@@ -636,51 +687,52 @@ function smartFaucet() {
   go('https://faucet.circle.com/');
 }
 
-/* ✅ THE MASTER AI BRAIN (Huge Builder Dataset) */
-function askAi() {
+/* ✅ THE CLOUD AI BRAIN (Connected to Vercel Serverless) */
+async function askAi() {
   const inputEl = document.getElementById("aiInput");
   const text = inputEl.value.trim();
   if(!text) return;
   
   const chat = document.getElementById("chatWindow");
   chat.innerHTML += `<div class="chat-msg msg-user">${text}</div>`;
-  inputEl.value = ""; chat.scrollTop = chat.scrollHeight;
-  const query = text.toLowerCase();
-  
-  const kb = [
-    { keys: ["what is arc", "arc blockchain", "explain arc"], ans: "<b>Arc</b> is a Layer 1 blockchain by Circle, designed as a deterministic settlement layer. It's built for real financial flows (payments, treasury). <b>Key Properties:</b> Sub-second finality, EVM compatibility, and it uses USDC natively for gas so you don't need ETH.", raw: "Arc is a Layer 1 by Circle. Focuses on real financial flows. Uses USDC for native gas (no ETH needed), has deterministic finality, and is EVM compatible." },
-    { keys: ["circle", "issuer"], ans: "<b>Circle</b> is the issuer of USDC and provides the core infrastructure for Arc, including Wallet infra, CCTP (cross-chain USDC), and Developer APIs. Arc is tightly integrated with the Circle stack.", raw: "Circle issues USDC and provides Wallet Infra, CCTP, and Dev APIs for Arc." },
-    { keys: ["arbitrum", "layer 2"], ans: "<b>Arbitrum</b> is an L2 scaling layer for Ethereum used for cheap execution. Arc pairs with Arbitrum for execution + settlement coordination, using Circle's CCTP to bridge USDC seamlessly.", raw: "Arbitrum is an L2 scaling layer. Arc + Arbitrum = execution + settlement coordination." },
-    { keys: ["network config", "rpc", "chain id", "setup"], ans: "<b>Arc Testnet Config:</b><br>RPC: <i>https://rpc.testnet.arc.network</i><br>Chain ID: <i>5042002</i><br>Currency: <i>USDC</i><br>Explorer: <i>https://testnet.arcscan.app</i><br>WebSocket: <i>wss://rpc.testnet.arc.network</i>", raw: "Network: Arc Testnet | RPC: https://rpc.testnet.arc.network | Chain ID: 5042002 | Currency: USDC" },
-    { keys: ["app kits", "sdk", "app kit"], ans: "<b>App Kits</b> are one SDK instead of multiple integrations. They abstract the wallet, swap, bridge, and transfer layers into simple core methods like <code>bridge()</code>, <code>swap()</code>, and <code>send()</code>. They form the core capability layer for developers.", raw: "App Kits provide one SDK to abstract wallets, swaps, bridges, and transfers. Core methods: bridge(), swap(), send()." },
-    { keys: ["faucet", "test usdc"], ans: "To get testnet funds, use the <b>Circle Faucet</b> (<i>https://faucet.circle.com</i>). It provides ~20 test USDC per request. You can use the 'Ecosystem Links' below to copy your address and open it instantly.", raw: "Use https://faucet.circle.com to get ~20 test USDC per request." },
-    { keys: ["4902", "-32603", "switch network error"], ans: "<b>Error 4902 (MetaMask) or -32603 (OKX)</b> means the user doesn't have the Arc Network saved. Your frontend must catch this error and trigger <code>wallet_addEthereumChain</code>.", raw: "Error 4902/32603: The user doesn't have the Arc Network saved. Call wallet_addEthereumChain." },
-    { keys: ["call exception", "reverted", "execution reverted"], ans: "<b>CALL_EXCEPTION</b> means the contract call failed. As a builder, check: 1) Is the contract address correct? 2) Are you on the correct chain ID (5042002)? 3) Does the user have enough USDC balance and proper Allowance/Approval set?", raw: "CALL_EXCEPTION: Check contract address, chain ID (5042002), USDC balance, and Allowances." },
-    { keys: ["gas limit", "unpredictable", "liquidity"], ans: "If a swap fails with <b>UNPREDICTABLE_GAS_LIMIT</b>, it means the automated router (DEX) smart contract does not have enough tokens (liquidity) deposited in its reserves to fulfill your trade, causing the EVM math to revert to protect your funds.", raw: "UNPREDICTABLE_GAS_LIMIT means the router lacks liquidity for the swap. The EVM reverts to save your funds." },
-    { keys: ["contract", "address"], ans: "<b>Arc Core Contracts:</b><br>USDC: <code>0x3600000000000000000000000000000000000000</code><br>EURC: <code>0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a</code><br>USYC: <code>0xe9185F0c5F296Ed1797AaE4238D26CCaBEadb86C</code>", raw: "USDC: 0x3600000000000000000000000000000000000000 \nEURC: 0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a \nUSYC: 0xe9185F0c5F296Ed1797AaE4238D26CCaBEadb86C" },
-    { keys: ["points", "community", "house", "reward", "forum"], ans: "<b>Arc Community Points System:</b> In the Arc House, what matters is <i>real insights and testing</i>, not farming. Actions = small points, but deep thinking = real value. Earning points through verified code or helping builders levels you up.", raw: "Arc Community Points prioritize real insights over farming. Post verified code, test, and answer builder questions to level up." },
-    { keys: ["cctp", "bridge", "cross chain"], ans: "<b>CCTP (Cross-Chain Transfer Protocol)</b> is Circle's native bridge. It burns USDC on the source chain (like Arbitrum) and mints it natively on the destination chain (like Arc) so you don't have to rely on wrapped, risky tokens.", raw: "CCTP burns USDC on the source chain and mints it natively on the destination chain." },
-    { keys: ["usyc", "yield", "entitlement", "whitelist"], ans: "<b>USYC</b> is a yield-bearing token representing short-duration US Treasuries. It is an institutional asset. You must open a ticket with Circle to get your wallet whitelisted on the <b>Entitlements Contract</b> before the Teller will accept your USDC deposits.", raw: "USYC is a yield-bearing treasury token. You must pass Circle KYC to get your wallet whitelisted on the Entitlements Contract before minting." },
-    { keys: ["hello", "hi", "hey"], ans: "<b>Hello Builder!</b> I am the ArcFlow Agent. I'm pre-trained on Arc Network architecture, Circle SDKs, CCTP flows, and smart contract debugging. Ask me anything.", raw: "Hello Builder! I am the ArcFlow Agent. Ask me about Arc architecture, Circle SDKs, or smart contract debugging." }
-  ];
+  inputEl.value = ""; 
+  chat.scrollTop = chat.scrollHeight;
 
-  setTimeout(() => {
-    let replyObj = { ans: "I am a builder-focused AI. I couldn't find a direct match. Try asking about 'Arc Testnet RPC', 'Error 4902', 'CCTP', 'USYC Whitelist', or 'Community Points'. You can also check the official Dev Docs below.", raw: "No exact match. Try asking about 'Arc Testnet RPC', 'Error 4902', 'CCTP', 'USYC Whitelist', or 'Community Points'." };
-    let maxScore = 0;
-    kb.forEach(entry => {
-      let score = 0; entry.keys.forEach(k => { if(query.includes(k)) score++; });
-      if(score > maxScore) { maxScore = score; replyObj = entry; }
+  // Add a loading indicator
+  const loadingId = "load-" + Date.now();
+  chat.innerHTML += `<div id="${loadingId}" class="chat-msg msg-ai"><i class="fas fa-spinner fa-spin"></i> Processing in Arc Cloud...</div>`;
+  chat.scrollTop = chat.scrollHeight;
+
+  try {
+    // Send the message to your secure Vercel API
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text })
     });
 
-    chat.innerHTML += `
-      <div class="chat-msg msg-ai">
-        ${replyObj.ans}
-        <div style="margin-top:10px; text-align:right;">
-          <button class="btn-copy" onclick="copyText(this.getAttribute('data-raw'))" data-raw="${replyObj.raw}"><i class="fas fa-copy"></i> Copy Answer</button>
-        </div>
-      </div>`;
-    chat.scrollTop = chat.scrollHeight;
-  }, 600);
+    const data = await response.json();
+    if(document.getElementById(loadingId)) document.getElementById(loadingId).remove(); // Remove loading spinner
+
+    if (data.reply) {
+      // Escape quotes for the data-raw attribute
+      const rawText = data.raw ? data.raw.replace(/"/g, '&quot;') : data.reply.replace(/"/g, '&quot;');
+      chat.innerHTML += `
+        <div class="chat-msg msg-ai">
+          ${data.reply}
+          <div style="margin-top:10px; text-align:right;">
+            <button class="btn-copy" onclick="copyText(this.getAttribute('data-raw'))" data-raw="${rawText}"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+        </div>`;
+    } else {
+      throw new Error("No reply");
+    }
+  } catch (error) {
+    if(document.getElementById(loadingId)) document.getElementById(loadingId).remove();
+    chat.innerHTML += `<div class="chat-msg msg-ai" style="color:#ff4444;">⚠️ Connection to Arc Brain failed. Please try again.</div>`;
+  }
+  
+  chat.scrollTop = chat.scrollHeight;
 }
 
 async function sendFeedback() {
